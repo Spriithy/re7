@@ -1,0 +1,71 @@
+@import "tailwindcss";
+
+/* Re7 Theme - Warm, book-like, family vibe */
+/* Palette can be dynamically switched via JS */
+
+:root {
+  /* Default: Terracotta palette */
+  --warm-50: #fef7f4;
+  --warm-100: #fdece4;
+  --warm-200: #fbd5c5;
+  --warm-300: #f7b89a;
+  --warm-400: #f29468;
+  --warm-500: #e87042;
+  --warm-600: #d4522a;
+  --warm-700: #b14024;
+  --warm-800: #8f3624;
+  --warm-900: #752f22;
+  --warm-950: #3f150e;
+}
+
+@theme {
+  /* Warm accent - references CSS variables for dynamic switching */
+  --color-warm-50: var(--warm-50);
+  --color-warm-100: var(--warm-100);
+  --color-warm-200: var(--warm-200);
+  --color-warm-300: var(--warm-300);
+  --color-warm-400: var(--warm-400);
+  --color-warm-500: var(--warm-500);
+  --color-warm-600: var(--warm-600);
+  --color-warm-700: var(--warm-700);
+  --color-warm-800: var(--warm-800);
+  --color-warm-900: var(--warm-900);
+  --color-warm-950: var(--warm-950);
+
+  /* Warm cream/parchment background tones */
+  --color-paper-50: #fdfbf8;
+  --color-paper-100: #faf5ed;
+  --color-paper-200: #f5ebdd;
+  --color-paper-300: #eddcc6;
+  --color-paper-400: #e2c9a8;
+
+  /* Warm sepia ink/text colors */
+  --color-ink-50: #f7f5f3;
+  --color-ink-100: #ebe6df;
+  --color-ink-200: #d6cdc1;
+  --color-ink-300: #baa898;
+  --color-ink-400: #9a826e;
+  --color-ink-500: #7f6854;
+  --color-ink-600: #6a5546;
+  --color-ink-700: #57453a;
+  --color-ink-800: #4a3b32;
+  --color-ink-900: #40332c;
+  --color-ink-950: #231a16;
+
+  /* Typography */
+  --font-heading: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', 'Roboto', sans-serif;
+}
+
+/* Base styles */
+body {
+  @apply m-0 bg-paper-100 text-ink-900;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Focus styles for React Aria - accessibility */
+[data-focus-visible] {
+  @apply outline-none ring-2 ring-warm-500 ring-offset-2;
+}

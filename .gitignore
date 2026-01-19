@@ -1,0 +1,26 @@
+# Claude Code settings
+.claude/
+
+# OS files
+.DS_Store
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+.venv/
+*.egg-info/
+.eggs/
+
+# IDE
+.idea/
+*.swp
+*.swo
