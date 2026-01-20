@@ -24,3 +24,9 @@ venv/
 .idea/
 *.swp
 *.swo
+
+# Data
+*.csv
+*.db
+*.db-shm
+*.db-wal
