@@ -25,7 +25,7 @@ async function request<T>(
   }
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -50,7 +50,7 @@ async function requestNoContent(
   const headers: Record<string, string> = {}
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
   // Don't set Content-Type for FormData
@@ -77,7 +77,7 @@ async function requestWithFormData<T>(
   const headers: Record<string, string> = {}
 
   if (token) {
-    headers['Authorization'] = `Bearer ${token}`
+    headers.Authorization = `Bearer ${token}`
   }
 
   const response = await fetch(`${API_BASE_URL}${endpoint}`, {
@@ -135,7 +135,7 @@ export const inviteApi = {
       method: 'GET',
     }),
 
-  create: (expiresInDays: number = 7, authToken: string) =>
+  create: (expiresInDays = 7, authToken: string) =>
     request<InviteResponse>('/api/invites', {
       method: 'POST',
       body: JSON.stringify({ expires_in_days: expiresInDays }),

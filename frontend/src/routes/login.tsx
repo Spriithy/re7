@@ -17,7 +17,7 @@ function LoginPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    navigate({ to: '/' })
+    void navigate({ to: '/' })
     return null
   }
 
@@ -28,7 +28,7 @@ function LoginPage() {
 
     try {
       await login({ username, password })
-      navigate({ to: '/' })
+      void navigate({ to: '/' })
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.detail)

@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
 
-    initAuth()
+    void initAuth()
   }, [])
 
   const login = useCallback(async (credentials: UserLogin) => {

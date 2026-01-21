@@ -12,7 +12,7 @@ import {
   SliderThumb,
   SliderOutput,
 } from 'react-aria-components'
-import { ArrowLeft, ChevronLeft, Plus, Upload, X } from 'lucide-react'
+import { ArrowLeft, Plus, Upload, X } from 'lucide-react'
 import { useAuth } from '@/lib/auth'
 import { ApiError, recipeApi, type RecipeCreate, type IngredientCreate, type StepCreate, type Difficulty } from '@/lib/api'
 import { IngredientRow } from '@/components/recipe-form/IngredientRow'
@@ -74,7 +74,7 @@ function CreateRecipePage() {
 
   // Redirect if not authenticated
   if (!isLoading && !isAuthenticated) {
-    navigate({ to: '/login' })
+    void navigate({ to: '/login' })
     return null
   }
 
@@ -185,14 +185,14 @@ function CreateRecipePage() {
     }
 
     try {
-      const recipe = await recipeApi.create(recipeData, token!)
+      const recipe = await recipeApi.create(recipeData, token)
 
       // Upload image if selected
       if (imageFile) {
-        await recipeApi.uploadImage(recipe.id, imageFile, token!)
+        await recipeApi.uploadImage(recipe.id, imageFile, token)
       }
 
-      navigate({ to: '/recipes/$recipeId', params: { recipeId: recipe.id } })
+      void navigate({ to: '/recipes/$recipeId', params: { recipeId: recipe.id } })
     } catch (err) {
       if (err instanceof ApiError) {
         setError(err.detail)

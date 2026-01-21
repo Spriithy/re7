@@ -37,7 +37,7 @@ function RegisterPage() {
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    navigate({ to: '/' })
+    void navigate({ to: '/' })
     return null
   }
 
@@ -168,7 +168,7 @@ function RegisterPage() {
         password,
         invite_token: invite,
       })
-      navigate({ to: '/' })
+      void navigate({ to: '/' })
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.detail === 'Username already taken') {

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, redirect } from '@tanstack/react-router'
+import { createFileRoute, Link } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Button } from 'react-aria-components'
 import { QRCodeSVG } from 'qrcode.react'
@@ -11,7 +11,7 @@ export const Route = createFileRoute('/invite')({
   beforeLoad: () => {
     const token = localStorage.getItem(TOKEN_KEY)
     if (!token) {
-      throw redirect({ to: '/login' })
+      throw new Error('Redirect to login')
     }
     return { token }
   },

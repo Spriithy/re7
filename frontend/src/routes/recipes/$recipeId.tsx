@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useQuery } from '@tanstack/react-query'
 import { Button } from 'react-aria-components'
-import { recipeApi, getImageUrl, type Recipe } from '@/lib/api'
+import { recipeApi, getImageUrl } from '@/lib/api'
 import { ArrowLeft } from 'lucide-react'
 
 export const Route = createFileRoute('/recipes/$recipeId')({
@@ -52,8 +52,7 @@ function RecipePage() {
   }
 
   const imageUrl = getImageUrl(recipe.image_path)
-  const totalTime =
-    (recipe.prep_time_minutes || 0) + (recipe.cook_time_minutes || 0)
+  const _totalTime = (recipe.prep_time_minutes ?? 0) + (recipe.cook_time_minutes ?? 0)
 
   // Map difficulty to French
   const difficultyLabel =
@@ -137,7 +136,7 @@ function RecipePage() {
           )}
           <span className="flex items-center gap-1.5">
             <UsersIcon className="h-4 w-4" />
-            {recipe.servings} {recipe.serving_unit || 'personnes'}
+            {recipe.servings} {recipe.serving_unit ?? 'personnes'}
           </span>
         </div>
 
@@ -181,7 +180,7 @@ function RecipePage() {
                       params={{ recipeId: prereq.prerequisite_recipe_id }}
                       className="text-warm-700 hover:underline"
                     >
-                      {prereq.prerequisite_recipe_title || 'Recette'}
+                      {prereq.prerequisite_recipe_title ?? 'Recette'}
                     </Link>
                     {prereq.note && (
                       <span className="text-ink-500">({prereq.note})</span>

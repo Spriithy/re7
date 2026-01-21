@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { AuthProvider } from '@/lib/auth'
 import { UserMenu } from '@/components/UserMenu'
 import { ErrorPage } from '@/components/ErrorPage'
-import { AlertTriangle, FileQuestion, ServerCrash } from 'lucide-react'
+import { AlertTriangle, ServerCrash } from 'lucide-react'
 
 function makeQueryClient() {
   return new QueryClient({
@@ -27,7 +27,7 @@ function getQueryClient() {
     return makeQueryClient()
   } else {
     // Browser: make a new query client if we don't already have one
-    if (!browserQueryClient) browserQueryClient = makeQueryClient()
+    browserQueryClient ??= makeQueryClient()
     return browserQueryClient
   }
 }
