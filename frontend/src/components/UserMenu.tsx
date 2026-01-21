@@ -37,13 +37,13 @@ export function UserMenu() {
           className="data-entering:animate-fade-in data-exiting:animate-fade-out"
         >
           <Menu className="min-w-50 rounded-xl bg-white p-1.5 shadow-xl outline-none ring-1 ring-ink-200">
-            <MenuItem
+           {user.is_admin && <MenuItem
               className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-ink-700 outline-none transition data-focused:bg-warm-50 data-focused:text-warm-900"
               href="/invite"
             >
               <UserPlus className="h-4 w-4" />
               Inviter quelqu'un
-            </MenuItem>
+            </MenuItem>}
             <MenuItem
               className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-ink-700 outline-none transition data-focused:bg-warm-50 data-focused:text-warm-900"
               href="/profile"

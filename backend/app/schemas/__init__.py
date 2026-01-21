@@ -6,6 +6,21 @@ from app.schemas.auth import (
     UserResponse,
 )
 from app.schemas.invite import InviteCreate, InviteResponse
+from app.schemas.recipe import (
+    Difficulty,
+    IngredientCreate,
+    IngredientResponse,
+    StepCreate,
+    StepResponse,
+    PrerequisiteCreate,
+    PrerequisiteResponse,
+    RecipeAuthor,
+    RecipeCreate,
+    RecipeUpdate,
+    RecipeResponse,
+    RecipeListItem,
+    RecipeListResponse,
+)
 
 __all__ = [
     "Token",
@@ -15,4 +30,17 @@ __all__ = [
     "UserResponse",
     "InviteCreate",
     "InviteResponse",
+    "Difficulty",
+    "IngredientCreate",
+    "IngredientResponse",
+    "StepCreate",
+    "StepResponse",
+    "PrerequisiteCreate",
+    "PrerequisiteResponse",
+    "RecipeAuthor",
+    "RecipeCreate",
+    "RecipeUpdate",
+    "RecipeResponse",
+    "RecipeListItem",
+    "RecipeListResponse",
 ]

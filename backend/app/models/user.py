@@ -35,7 +35,12 @@ class User(Base):
         foreign_keys="InviteLink.used_by",
         uselist=False,
     )
+    recipes: Mapped[list["Recipe"]] = relationship(
+        "Recipe",
+        back_populates="author",
+    )
 
 
 # Import here to avoid circular imports
 from app.models.invite import InviteLink  # noqa: E402, F401
+from app.models.recipe import Recipe  # noqa: E402, F401
