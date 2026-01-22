@@ -1,62 +1,71 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button, TextField, Label, Input, Form, FieldError } from 'react-aria-components'
-import { useAuth, ApiError } from '@/lib/auth'
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import {
+  Button,
+  TextField,
+  Label,
+  Input,
+  Form,
+  FieldError,
+} from "react-aria-components";
+import { useAuth, ApiError } from "@/lib/auth";
 
-export const Route = createFileRoute('/login')({
+export const Route = createFileRoute("/login")({
   component: LoginPage,
-})
+});
 
 function LoginPage() {
-  const navigate = useNavigate()
-  const { login, isAuthenticated } = useAuth()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    void navigate({ to: '/' })
-    return null
+    void navigate({ to: "/" });
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
-    setIsSubmitting(true)
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
     try {
-      await login({ username, password })
-      void navigate({ to: '/' })
+      await login({ username, password });
+      void navigate({ to: "/" });
     } catch (err) {
       if (err instanceof ApiError) {
-        setError(err.detail)
+        setError(err.detail);
       } else {
-        setError('Une erreur est survenue. Veuillez réessayer.')
+        setError("Une erreur est survenue. Veuillez réessayer.");
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-warm-100 to-paper-100 px-4 py-12">
+    <main className="from-warm-100 to-paper-100 flex min-h-screen items-center justify-center bg-gradient-to-b px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="font-heading text-4xl font-bold text-warm-900">Re7</h1>
+            <h1 className="font-heading text-warm-900 text-4xl font-bold">
+              Re7
+            </h1>
           </Link>
-          <p className="mt-2 font-heading text-lg text-warm-700 italic">
+          <p className="font-heading text-warm-700 mt-2 text-lg italic">
             Recettes de famille
           </p>
         </div>
 
         <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm">
-          <h2 className="font-heading text-2xl font-semibold text-ink-900">
+          <h2 className="font-heading text-ink-900 text-2xl font-semibold">
             Connexion
           </h2>
-          <p className="mt-2 text-sm text-ink-600">
+          <p className="text-ink-600 mt-2 text-sm">
             Connectez-vous pour accéder à vos recettes.
           </p>
 
@@ -73,14 +82,14 @@ function LoginPage() {
               maxLength={50}
               className="space-y-1.5"
             >
-              <Label className="text-sm font-medium text-ink-700">
+              <Label className="text-ink-700 text-sm font-medium">
                 Nom d'utilisateur
               </Label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Votre nom d'utilisateur"
-                className="w-full rounded-lg border border-ink-200 px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-500/20"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
               />
               <FieldError className="text-sm text-red-600" />
             </TextField>
@@ -91,14 +100,14 @@ function LoginPage() {
               type="password"
               className="space-y-1.5"
             >
-              <Label className="text-sm font-medium text-ink-700">
+              <Label className="text-ink-700 text-sm font-medium">
                 Mot de passe
               </Label>
               <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Votre mot de passe"
-                className="w-full rounded-lg border border-ink-200 px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-500/20"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
               />
               <FieldError className="text-sm text-red-600" />
             </TextField>
@@ -106,23 +115,24 @@ function LoginPage() {
             <Button
               type="submit"
               isDisabled={isSubmitting}
-              className="w-full rounded-lg bg-warm-600 px-4 py-3 font-semibold text-white transition hover:bg-warm-700 pressed:bg-warm-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? 'Connexion...' : 'Se connecter'}
+              {isSubmitting ? "Connexion..." : "Se connecter"}
             </Button>
           </Form>
 
-          <p className="mt-6 text-center text-sm text-ink-500">
-            Pas encore de compte ? Demandez une invitation à un membre de la famille.
+          <p className="text-ink-500 mt-6 text-center text-sm">
+            Pas encore de compte ? Demandez une invitation à un membre de la
+            famille.
           </p>
         </div>
 
-        <p className="mt-6 text-center text-xs text-ink-500">
+        <p className="text-ink-500 mt-6 text-center text-xs">
           <Link to="/" className="hover:text-ink-700">
             Retour à l'accueil
           </Link>
         </p>
       </div>
     </main>
-  )
+  );
 }

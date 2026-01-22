@@ -6,6 +6,7 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 import pluginQuery from "@tanstack/eslint-plugin-query";
 import pluginRouter from "@tanstack/eslint-plugin-router";
+import eslintConfigPrettier from "eslint-config-prettier";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
@@ -67,4 +68,5 @@ export default defineConfig([
             "@typescript-eslint/no-non-null-assertion": "error",
         },
     },
+    eslintConfigPrettier,
 ]);

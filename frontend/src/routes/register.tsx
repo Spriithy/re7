@@ -1,54 +1,61 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
-import { Button, TextField, Label, Input, Form, FieldError } from 'react-aria-components'
-import { useAuth, ApiError } from '@/lib/auth'
-import { inviteApi } from '@/lib/api'
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
+import {
+  Button,
+  TextField,
+  Label,
+  Input,
+  Form,
+  FieldError,
+} from "react-aria-components";
+import { useAuth, ApiError } from "@/lib/auth";
+import { inviteApi } from "@/lib/api";
 
 interface RegisterSearch {
-  invite: string
+  invite: string;
 }
 
-export const Route = createFileRoute('/register')({
+export const Route = createFileRoute("/register")({
   component: RegisterPage,
   validateSearch: (search: Record<string, unknown>): RegisterSearch => {
-    const invite = typeof search.invite === 'string' ? search.invite : ''
-    return { invite }
+    const invite = typeof search.invite === "string" ? search.invite : "";
+    return { invite };
   },
   loaderDeps: ({ search: { invite } }) => ({ invite }),
   loader: async ({ deps: { invite } }) => {
     if (!invite) {
-      return { isValidInvite: false }
+      return { isValidInvite: false };
     }
-    const result = await inviteApi.validate(invite)
-    return { isValidInvite: result.valid }
+    const result = await inviteApi.validate(invite);
+    return { isValidInvite: result.valid };
   },
-})
+});
 
 function RegisterPage() {
-  const navigate = useNavigate()
-  const { invite } = Route.useSearch()
-  const { isValidInvite } = Route.useLoaderData()
-  const { register, isAuthenticated } = useAuth()
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate();
+  const { invite } = Route.useSearch();
+  const { isValidInvite } = Route.useLoaderData();
+  const { register, isAuthenticated } = useAuth();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
-    void navigate({ to: '/' })
-    return null
+    void navigate({ to: "/" });
+    return null;
   }
 
   // Show error if invite is invalid
   if (!isValidInvite) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-warm-100 to-paper-100 px-4 py-12">
+      <main className="from-warm-100 to-paper-100 flex min-h-screen flex-col items-center justify-center bg-gradient-to-b px-4 py-12">
         <Link to="/" className="inline-block">
-          <h1 className="font-heading text-4xl font-bold text-warm-900">Re7</h1>
+          <h1 className="font-heading text-warm-900 text-4xl font-bold">Re7</h1>
         </Link>
-        <p className="mt-1 font-heading text-lg text-warm-700 italic">
+        <p className="font-heading text-warm-700 mt-1 text-lg italic">
           Recettes de famille
         </p>
 
@@ -99,13 +106,7 @@ function RegisterPage() {
               className="fill-warm-600"
             />
             {/* Inner pot */}
-            <ellipse
-              cx="70"
-              cy="60"
-              rx="28"
-              ry="7"
-              className="fill-warm-700"
-            />
+            <ellipse cx="70" cy="60" rx="28" ry="7" className="fill-warm-700" />
             {/* Left handle */}
             <rect
               x="25"
@@ -132,79 +133,83 @@ function RegisterPage() {
           <circle cx="145" cy="120" r="2" className="fill-warm-400/40" />
         </svg>
 
-        <h2 className="mt-8 font-heading text-2xl font-semibold text-ink-900">
+        <h2 className="font-heading text-ink-900 mt-8 text-2xl font-semibold">
           Ce lien n'est plus valide
         </h2>
-        <p className="mt-3 max-w-sm text-center text-ink-600">
+        <p className="text-ink-600 mt-3 max-w-sm text-center">
           L'invitation a peut-être expiré ou a déjà été utilisée.
         </p>
-        <p className="mt-6 text-sm text-ink-500">
+        <p className="text-ink-500 mt-6 text-sm">
           Demandez un nouveau lien à un membre de la famille.
         </p>
         <Link
           to="/"
-          className="mt-8 font-medium text-warm-700 underline decoration-warm-300 underline-offset-4 transition hover:text-warm-800 hover:decoration-warm-400"
+          className="text-warm-700 decoration-warm-300 hover:text-warm-800 hover:decoration-warm-400 mt-8 font-medium underline underline-offset-4 transition"
         >
           Retour à l'accueil
         </Link>
       </main>
-    )
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError(null)
+    e.preventDefault();
+    setError(null);
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.')
-      return
+      setError("Les mots de passe ne correspondent pas.");
+      return;
     }
 
-    setIsSubmitting(true)
+    setIsSubmitting(true);
 
     try {
       await register({
         username,
         password,
         invite_token: invite,
-      })
-      void navigate({ to: '/' })
+      });
+      void navigate({ to: "/" });
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.detail === 'Username already taken') {
-          setError('Ce nom d\'utilisateur est déjà pris.')
-        } else if (err.detail === 'Invalid invite token') {
-          setError('Code d\'invitation invalide.')
-        } else if (err.detail === 'Invite token has expired or already been used') {
-          setError('Ce code d\'invitation a expiré ou a déjà été utilisé.')
+        if (err.detail === "Username already taken") {
+          setError("Ce nom d'utilisateur est déjà pris.");
+        } else if (err.detail === "Invalid invite token") {
+          setError("Code d'invitation invalide.");
+        } else if (
+          err.detail === "Invite token has expired or already been used"
+        ) {
+          setError("Ce code d'invitation a expiré ou a déjà été utilisé.");
         } else {
-          setError(err.detail)
+          setError(err.detail);
         }
       } else {
-        setError('Une erreur est survenue. Veuillez réessayer.')
+        setError("Une erreur est survenue. Veuillez réessayer.");
       }
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
-  }
+  };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-gradient-to-b from-warm-100 to-paper-100 px-4 py-12">
+    <main className="from-warm-100 to-paper-100 flex min-h-screen items-center justify-center bg-gradient-to-b px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center">
           <Link to="/" className="inline-block">
-            <h1 className="font-heading text-4xl font-bold text-warm-900">Re7</h1>
+            <h1 className="font-heading text-warm-900 text-4xl font-bold">
+              Re7
+            </h1>
           </Link>
-          <p className="mt-2 font-heading text-lg text-warm-700 italic">
+          <p className="font-heading text-warm-700 mt-2 text-lg italic">
             Recettes de famille
           </p>
         </div>
 
         <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm">
-          <h2 className="font-heading text-2xl font-semibold text-ink-900">
+          <h2 className="font-heading text-ink-900 text-2xl font-semibold">
             Créer un compte
           </h2>
-          <p className="mt-2 text-sm text-ink-600">
+          <p className="text-ink-600 mt-2 text-sm">
             Rejoignez la famille pour partager vos recettes.
           </p>
 
@@ -221,14 +226,14 @@ function RegisterPage() {
               maxLength={50}
               className="space-y-1.5"
             >
-              <Label className="text-sm font-medium text-ink-700">
+              <Label className="text-ink-700 text-sm font-medium">
                 Nom d'utilisateur
               </Label>
               <Input
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="Choisissez un nom d'utilisateur"
-                className="w-full rounded-lg border border-ink-200 px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-500/20"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
               />
               <FieldError className="text-sm text-red-600" />
             </TextField>
@@ -239,14 +244,14 @@ function RegisterPage() {
               type="password"
               className="space-y-1.5"
             >
-              <Label className="text-sm font-medium text-ink-700">
+              <Label className="text-ink-700 text-sm font-medium">
                 Mot de passe
               </Label>
               <Input
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Choisissez un mot de passe"
-                className="w-full rounded-lg border border-ink-200 px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-500/20"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
               />
               <FieldError className="text-sm text-red-600" />
             </TextField>
@@ -257,14 +262,14 @@ function RegisterPage() {
               type="password"
               className="space-y-1.5"
             >
-              <Label className="text-sm font-medium text-ink-700">
+              <Label className="text-ink-700 text-sm font-medium">
                 Confirmer le mot de passe
               </Label>
               <Input
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Confirmez votre mot de passe"
-                className="w-full rounded-lg border border-ink-200 px-4 py-2.5 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:outline-none focus:ring-2 focus:ring-warm-500/20"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
               />
               <FieldError className="text-sm text-red-600" />
             </TextField>
@@ -272,29 +277,29 @@ function RegisterPage() {
             <Button
               type="submit"
               isDisabled={isSubmitting}
-              className="w-full rounded-lg bg-warm-600 px-4 py-3 font-semibold text-white transition hover:bg-warm-700 pressed:bg-warm-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {isSubmitting ? 'Création...' : 'Créer mon compte'}
+              {isSubmitting ? "Création..." : "Créer mon compte"}
             </Button>
           </Form>
 
-          <p className="mt-6 text-center text-sm text-ink-600">
-            Déjà un compte ?{' '}
+          <p className="text-ink-600 mt-6 text-center text-sm">
+            Déjà un compte ?{" "}
             <Link
               to="/login"
-              className="font-medium text-warm-600 hover:text-warm-700"
+              className="text-warm-600 hover:text-warm-700 font-medium"
             >
               Se connecter
             </Link>
           </p>
         </div>
 
-        <p className="mt-6 text-center text-xs text-ink-500">
+        <p className="text-ink-500 mt-6 text-center text-xs">
           <Link to="/" className="hover:text-ink-700">
             Retour à l'accueil
           </Link>
         </p>
       </div>
     </main>
-  )
+  );
 }

@@ -53,13 +53,13 @@
   --color-ink-950: #231a16;
 
   /* Typography */
-  --font-heading: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
-  --font-body: 'Source Sans 3', 'Segoe UI', 'Roboto', sans-serif;
+  --font-heading: "Playfair Display", "Georgia", "Times New Roman", serif;
+  --font-body: "Source Sans 3", "Segoe UI", "Roboto", sans-serif;
 }
 
 /* Base styles */
 body {
-  @apply m-0 bg-paper-100 text-ink-900;
+  @apply bg-paper-100 text-ink-900 m-0;
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -67,7 +67,7 @@ body {
 
 /* Focus styles for React Aria - accessibility */
 [data-focus-visible] {
-  @apply outline-none ring-2 ring-warm-500 ring-offset-2;
+  @apply ring-warm-500 ring-2 ring-offset-2 outline-none;
 }
 
 /* Popover animations */

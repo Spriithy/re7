@@ -8,7 +8,9 @@
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,css,json}\""
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.0.6",
@@ -38,11 +40,14 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^17.0.0",
     "jsdom": "^27.0.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
     "typescript": "^5.7.2",
     "typescript-eslint": "^8.53.1",
     "vite": "^7.1.7",
