@@ -43,7 +43,7 @@ export function ImageUploadSection({
           <img
             src={imagePreview}
             alt="Aperçu"
-            className="h-48 w-full object-cover"
+            className="h-36 w-full object-cover sm:h-48"
           />
           <Button
             onPress={handleRemove}
@@ -56,7 +56,7 @@ export function ImageUploadSection({
       ) : (
         <Button
           onPress={() => fileInputRef.current?.click()}
-          className="border-ink-200 bg-ink-50 text-ink-500 hover:border-warm-300 hover:bg-warm-50 hover:text-warm-600 flex h-48 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition"
+          className="border-ink-200 bg-ink-50 text-ink-500 hover:border-warm-300 hover:bg-warm-50 hover:text-warm-600 flex h-36 w-full flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed transition sm:h-48"
         >
           <Upload className="h-8 w-8" />
           <span className="text-sm font-medium">Ajouter une photo</span>

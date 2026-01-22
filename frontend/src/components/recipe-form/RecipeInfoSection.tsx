@@ -52,7 +52,7 @@ export function RecipeInfoSection({
         Informations
       </h3>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <TextField className="space-y-1.5">
           <Label className="text-ink-600 text-xs font-medium">Portions</Label>
           <Input

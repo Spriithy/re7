@@ -30,7 +30,7 @@ function HomePage() {
     <div className="bg-paper-100 min-h-screen">
       {/* Sticky header with search */}
       <header className="bg-paper-100 sticky top-0 z-40">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-4 py-5">
+        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-4 sm:gap-4 sm:py-5">
           <div className="flex items-center gap-4">
             {/* Logo */}
             <h1 className="font-heading text-warm-700 text-2xl font-bold">
@@ -45,10 +45,10 @@ function HomePage() {
             className="max-w-md flex-1"
           >
             <div className="relative">
-              <Search className="text-ink-400 absolute top-1/2 left-4 h-5 w-5 -translate-y-1/2" />
+              <Search className="text-ink-400 absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 sm:left-4 sm:h-5 sm:w-5" />
               <Input
                 placeholder="Rechercher une recette..."
-                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 h-12 w-full rounded-full border bg-white py-2 pr-4 pl-12 transition focus:ring-2 focus:outline-none"
+                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 h-10 w-full rounded-full border bg-white py-2 pr-4 pl-11 text-sm transition focus:ring-2 focus:outline-none sm:h-12 sm:pl-12 sm:text-base"
               />
             </div>
           </SearchField>
@@ -56,14 +56,14 @@ function HomePage() {
       </header>
 
       {/* Main content */}
-      <main className="mx-auto max-w-7xl px-4 py-6">
+      <main className="mx-auto max-w-7xl px-4 py-4 sm:py-6">
         {/* Grid style toggle */}
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between sm:mb-6">
           <div>
-            <h2 className="font-heading text-ink-900 text-xl font-semibold">
+            <h2 className="font-heading text-ink-900 text-lg font-semibold sm:text-xl">
               Recettes
             </h2>
-            <p className="text-ink-500 text-sm">
+            <p className="text-ink-500 text-xs sm:text-sm">
               {filteredRecipes.length} recette
               {filteredRecipes.length > 1 ? "s" : ""}
             </p>

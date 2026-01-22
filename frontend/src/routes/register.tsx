@@ -205,7 +205,7 @@ function RegisterPage() {
           </p>
         </div>
 
-        <div className="mt-8 rounded-2xl bg-white p-8 shadow-sm">
+        <div className="mt-8 rounded-2xl bg-white p-5 shadow-sm sm:p-8">
           <h2 className="font-heading text-ink-900 text-2xl font-semibold">
             Créer un compte
           </h2>

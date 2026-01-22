@@ -14,7 +14,7 @@ export function RecipeMeta({
   servingUnit,
 }: RecipeMetaProps) {
   return (
-    <div className="border-paper-300 text-ink-600 flex flex-wrap items-center gap-4 border-b pb-6 text-sm">
+    <div className="border-paper-300 text-ink-600 flex flex-wrap items-center gap-3 border-b pb-5 text-xs sm:gap-4 sm:pb-6 sm:text-sm">
       {prepTimeMinutes && (
         <span className="flex items-center gap-1.5">
           <Clock className="h-4 w-4" />

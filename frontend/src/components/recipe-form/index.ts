@@ -7,3 +7,4 @@ export { SourceSection } from "./SourceSection";
 export { IngredientsSection } from "./IngredientsSection";
 export { StepsSection } from "./StepsSection";
 export { SubmitButton } from "./SubmitButton";
+export { RecipeForm } from "./RecipeForm";

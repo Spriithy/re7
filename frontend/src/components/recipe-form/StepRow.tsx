@@ -47,7 +47,7 @@ export function StepRow({
   return (
     <div className="flex gap-3">
       {/* Step number badge */}
-      <div className="bg-warm-100 text-warm-700 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+      <div className="bg-warm-100 text-warm-700 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold sm:h-8 sm:w-8 sm:text-sm">
         {index + 1}
       </div>
 

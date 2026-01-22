@@ -7,7 +7,7 @@ interface RecipeIngredientsProps {
 export function RecipeIngredients({ ingredients }: RecipeIngredientsProps) {
   return (
     <section className="border-paper-300 border-b py-6">
-      <h2 className="font-heading text-ink-900 text-2xl font-semibold">
+      <h2 className="font-heading text-ink-900 text-xl font-semibold sm:text-2xl">
         Ingrédients
       </h2>
       <ul className="mt-4 space-y-2">

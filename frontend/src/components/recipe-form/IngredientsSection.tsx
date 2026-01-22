@@ -31,7 +31,7 @@ export function IngredientsSection({
         </Button>
       </div>
 
-      <div className="space-y-2">
+      <div className="space-y-1 sm:space-y-2">
         {ingredients.map((ingredient, index) => (
           <IngredientRow
             key={index}

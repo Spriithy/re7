@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeApi, getImageUrl } from "@/lib/api";
+import { useAuth } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import {
   RecipeDetailNav,
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/recipes/$recipeId")({
 
 function RecipePage() {
   const { recipeId } = Route.useParams();
+  const { user } = useAuth();
 
   const {
     data: recipe,
@@ -67,9 +69,13 @@ function RecipePage() {
         ? "Moyen"
         : "Difficile";
 
+  const canEdit = Boolean(
+    user && (user.id === recipe.author.id || user.is_admin)
+  );
+
   return (
     <main className="bg-paper-50 min-h-screen">
-      <RecipeDetailNav />
+      <RecipeDetailNav recipeId={recipeId} canEdit={canEdit} />
 
       <RecipeHero
         title={recipe.title}
@@ -77,7 +83,7 @@ function RecipePage() {
         imageUrl={imageUrl}
       />
 
-      <div className="mx-auto max-w-3xl px-4 py-8">
+      <div className="mx-auto max-w-3xl px-4 py-5 sm:py-8">
         <RecipeMeta
           prepTimeMinutes={recipe.prep_time_minutes}
           cookTimeMinutes={recipe.cook_time_minutes}
