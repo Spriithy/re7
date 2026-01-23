@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/useAuth";
 import { recipeApi } from "@/lib/api";
-import { RecipeForm } from "@/components/recipe-form";
+import { RecipeForm } from "@/components/recipe-form/RecipeForm";
 
 export const Route = createFileRoute("/recipes/$recipeId/edit")({
   component: EditRecipePage,

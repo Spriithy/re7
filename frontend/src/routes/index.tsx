@@ -2,12 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button, SearchField, Input } from "react-aria-components";
 import { Search, NotebookPen, ChefHat } from "lucide-react";
-import { useAuth } from "@/lib/auth";
-import {
-  RecipeMasonryGrid,
-  RecipeMasonryGridMinimal,
-  mockRecipes,
-} from "@/components/recipe-grid";
+import { useAuth } from "@/lib/auth/useAuth";
+import { RecipeMasonryGrid } from "@/components/recipe-grid/RecipeMasonryGrid";
+import { RecipeMasonryGridMinimal } from "@/components/recipe-grid/RecipeMasonryGridMinimal";
+import { mockRecipes } from "@/components/recipe-grid/constants";
 
 export const Route = createFileRoute("/")({
   component: HomePage,

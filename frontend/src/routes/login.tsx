@@ -8,7 +8,8 @@ import {
   Form,
   FieldError,
 } from "react-aria-components";
-import { useAuth, ApiError } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/useAuth";
+import { ApiError } from "@/lib/api";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,

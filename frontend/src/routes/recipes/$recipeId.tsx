@@ -1,17 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeApi, getImageUrl } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/useAuth";
 import { ArrowLeft } from "lucide-react";
-import {
-  RecipeDetailNav,
-  RecipeHero,
-  RecipeMeta,
-  RecipeDescription,
-  RecipePrerequisites,
-  RecipeIngredients,
-  RecipeSteps,
-} from "@/components/recipe-detail";
+import { RecipeDetailNav } from "@/components/recipe-detail/RecipeDetailNav";
+import { RecipeHero } from "@/components/recipe-detail/RecipeHero";
+import { RecipeMeta } from "@/components/recipe-detail/RecipeMeta";
+import { RecipeDescription } from "@/components/recipe-detail/RecipeDescription";
+import { RecipePrerequisites } from "@/components/recipe-detail/RecipePrerequisites";
+import { RecipeIngredients } from "@/components/recipe-detail/RecipeIngredients";
+import { RecipeSteps } from "@/components/recipe-detail/RecipeSteps";
 
 export const Route = createFileRoute("/recipes/$recipeId")({
   component: RecipePage,

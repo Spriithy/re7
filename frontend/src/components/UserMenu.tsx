@@ -12,7 +12,7 @@ import {
   Separator,
 } from "react-aria-components";
 import { User, UserPlus, Shield, LogOut, X } from "lucide-react";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/useAuth";
 import { useNavigate } from "@tanstack/react-router";
 
 function useIsMobile() {

@@ -23,12 +23,12 @@ export function RecipeSteps({ steps }: RecipeStepsProps) {
                 <p className="text-ink-800 leading-relaxed">
                   {step.instruction}
                 </p>
-                {step.timer_minutes && (
+                {step.timer_minutes != null && step.timer_minutes > 0 ? (
                   <button className="bg-warm-100 text-warm-700 hover:bg-warm-200 mt-2 flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-medium transition">
                     <Clock className="h-4 w-4" />
                     {step.timer_minutes} min
                   </button>
-                )}
+                ) : null}
                 {step.note && (
                   <p className="text-ink-500 mt-2 text-sm italic">
                     {step.note}

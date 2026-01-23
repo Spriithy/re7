@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
-import { useAuth } from "@/lib/auth";
-import { RecipeForm } from "@/components/recipe-form";
+import { useAuth } from "@/lib/auth/useAuth";
+import { RecipeForm } from "@/components/recipe-form/RecipeForm";
 
 export const Route = createFileRoute("/recipes/new")({
   component: CreateRecipePage,

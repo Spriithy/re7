@@ -12,7 +12,7 @@ import {
   type StepCreate,
   type Difficulty,
 } from "@/lib/api";
-import { useAuth } from "@/lib/auth";
+import { useAuth } from "@/lib/auth/useAuth";
 import { ImageUploadSection } from "./ImageUploadSection";
 import { BasicInfoSection } from "./BasicInfoSection";
 import { RecipeInfoSection } from "./RecipeInfoSection";

@@ -1,11 +1,19 @@
+import { lazy, Suspense } from "react";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/lib/auth";
+import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { UserMenu } from "@/components/UserMenu";
 import { ErrorPage } from "@/components/ErrorPage";
 import { RootErrorBoundary } from "@/components/RootErrorBoundary";
+
+const TanStackDevtools = lazy(() =>
+  import("@tanstack/react-devtools").then((m) => ({ default: m.TanStackDevtools }))
+);
+const TanStackRouterDevtoolsPanel = lazy(() =>
+  import("@tanstack/react-router-devtools").then((m) => ({
+    default: m.TanStackRouterDevtoolsPanel,
+  }))
+);
 
 function makeQueryClient() {
   return new QueryClient({
@@ -39,17 +47,25 @@ function RootComponent() {
       <AuthProvider>
         <UserMenu />
         <Outlet />
-        <TanStackDevtools
-          config={{
-            position: "bottom-left",
-          }}
-          plugins={[
-            {
-              name: "Tanstack Router",
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
+{import.meta.env.DEV ? (
+          <Suspense fallback={null}>
+            <TanStackDevtools
+              config={{
+                position: "bottom-left",
+              }}
+              plugins={[
+                {
+                  name: "Tanstack Router",
+                  render: (
+                    <Suspense fallback={null}>
+                      <TanStackRouterDevtoolsPanel />
+                    </Suspense>
+                  ),
+                },
+              ]}
+            />
+          </Suspense>
+        ) : null}
       </AuthProvider>
     </QueryClientProvider>
   );
