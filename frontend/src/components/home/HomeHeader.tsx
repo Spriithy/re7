@@ -69,6 +69,7 @@ export function HomeHeader({
             filterVegetarian={filterVegetarian}
             filterVegan={filterVegan}
             activeFilterCount={activeFilterCount}
+            searchQuery={searchQuery}
             isOpen={isFilterDrawerOpen}
             onOpenChange={onFilterDrawerOpenChange}
             onCategoryChange={onCategoryChange}
@@ -77,12 +78,13 @@ export function HomeHeader({
           />
         </div>
 
-        <div className="hidden sm:block">
+        <div className="hidden sm:block xl:hidden">
           <FilterBar
             categories={categories}
             selectedCategoryId={selectedCategoryId}
             filterVegetarian={filterVegetarian}
             filterVegan={filterVegan}
+            searchQuery={searchQuery}
             onCategoryChange={onCategoryChange}
             onVegetarianChange={onVegetarianChange}
             onVeganChange={onVeganChange}

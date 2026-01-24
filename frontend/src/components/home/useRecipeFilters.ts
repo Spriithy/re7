@@ -16,7 +16,11 @@ export function useRecipeFilters() {
     queryFn: () => categoryApi.list(),
   });
 
-  const { data: recipesData, isLoading } = useQuery({
+  const {
+    data: recipesData,
+    isLoading,
+    isPending,
+  } = useQuery({
     queryKey: [
       "recipes",
       {
@@ -33,6 +37,7 @@ export function useRecipeFilters() {
         is_vegetarian: filterVegetarian || undefined,
         is_vegan: filterVegan || undefined,
       }),
+    placeholderData: (previousData) => previousData,
   });
 
   const recipes = recipesData?.items ?? [];
@@ -59,6 +64,7 @@ export function useRecipeFilters() {
     categories,
     recipes,
     isLoading,
+    isPending,
     activeFilterCount,
     hasActiveFilters,
   };

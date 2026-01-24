@@ -1,6 +1,6 @@
 import { Button } from "react-aria-components";
 import { ChefHat } from "lucide-react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useRouter } from "@tanstack/react-router";
 
 interface EmptyStateProps {
   hasActiveFilters: boolean;
@@ -8,6 +8,11 @@ interface EmptyStateProps {
 
 export function EmptyState({ hasActiveFilters }: EmptyStateProps) {
   const navigate = useNavigate();
+  const router = useRouter();
+
+  const handlePreload = () => {
+    void router.preloadRoute({ to: "/recipes/new" });
+  };
 
   return (
     <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -25,6 +30,8 @@ export function EmptyState({ hasActiveFilters }: EmptyStateProps) {
       {!hasActiveFilters && (
         <Button
           onPress={() => navigate({ to: "/recipes/new" })}
+          onHoverStart={handlePreload}
+          onFocus={handlePreload}
           className="bg-warm-600 hover:bg-warm-700 rounded-full px-6 py-3 font-medium text-white transition"
         >
           Créer ma première recette

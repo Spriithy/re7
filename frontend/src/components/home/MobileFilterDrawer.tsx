@@ -10,6 +10,7 @@ import { SlidersHorizontal, X } from "lucide-react";
 import type { Category } from "@/lib/api-types";
 import { DietFilterButton } from "./DietFilterButton";
 import { CategoryFilterButton } from "./CategoryFilterButton";
+import { usePrefetchRecipes } from "./usePrefetchRecipes";
 
 interface MobileFilterDrawerProps {
   categories: Category[];
@@ -17,6 +18,7 @@ interface MobileFilterDrawerProps {
   filterVegetarian: boolean;
   filterVegan: boolean;
   activeFilterCount: number;
+  searchQuery?: string;
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onCategoryChange: (categoryId: string | null) => void;
@@ -30,12 +32,14 @@ export function MobileFilterDrawer({
   filterVegetarian,
   filterVegan,
   activeFilterCount,
+  searchQuery = "",
   isOpen,
   onOpenChange,
   onCategoryChange,
   onVegetarianChange,
   onVeganChange,
 }: MobileFilterDrawerProps) {
+  const prefetchRecipes = usePrefetchRecipes();
   return (
     <DialogTrigger isOpen={isOpen} onOpenChange={onOpenChange}>
       <Button className="bg-warm-600 hover:bg-warm-700 flex w-full items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium text-white transition">
@@ -80,12 +84,28 @@ export function MobileFilterDrawer({
                         type="vegetarian"
                         isActive={filterVegetarian}
                         onClick={() => onVegetarianChange(!filterVegetarian)}
+                        onPrefetch={() =>
+                          prefetchRecipes({
+                            search: searchQuery,
+                            category_id: selectedCategoryId,
+                            is_vegetarian: !filterVegetarian,
+                            is_vegan: filterVegan,
+                          })
+                        }
                         size="md"
                       />
                       <DietFilterButton
                         type="vegan"
                         isActive={filterVegan}
                         onClick={() => onVeganChange(!filterVegan)}
+                        onPrefetch={() =>
+                          prefetchRecipes({
+                            search: searchQuery,
+                            category_id: selectedCategoryId,
+                            is_vegetarian: filterVegetarian,
+                            is_vegan: !filterVegan,
+                          })
+                        }
                         size="md"
                       />
                     </div>
@@ -101,6 +121,14 @@ export function MobileFilterDrawer({
                           category={null}
                           isActive={selectedCategoryId === null}
                           onClick={() => onCategoryChange(null)}
+                          onPrefetch={() =>
+                            prefetchRecipes({
+                              search: searchQuery,
+                              category_id: null,
+                              is_vegetarian: filterVegetarian,
+                              is_vegan: filterVegan,
+                            })
+                          }
                           size="md"
                         />
                         {categories.map((category) => (
@@ -109,6 +137,14 @@ export function MobileFilterDrawer({
                             category={category}
                             isActive={selectedCategoryId === category.id}
                             onClick={() => onCategoryChange(category.id)}
+                            onPrefetch={() =>
+                              prefetchRecipes({
+                                search: searchQuery,
+                                category_id: category.id,
+                                is_vegetarian: filterVegetarian,
+                                is_vegan: filterVegan,
+                              })
+                            }
                             size="md"
                           />
                         ))}

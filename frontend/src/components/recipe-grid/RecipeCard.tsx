@@ -17,6 +17,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       to="/recipes/$recipeId"
       params={{ recipeId: recipe.id }}
       className="group mb-3 block break-inside-avoid"
+      preload="intent"
     >
       <article className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
         {/* Image */}

@@ -13,12 +13,14 @@ import {
 } from "react-aria-components";
 import { User, UserPlus, Shield, LogOut, X } from "lucide-react";
 import { useAuth } from "@/lib/auth/useAuth";
+import { useRouter } from "@tanstack/react-router";
 import { MenuItemLink } from "./MenuItemLink";
 import { useIsMobile } from "./utils/useIsMobile";
 import { getInitials } from "./utils/getInitials";
 
 export function UserMenu() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
+  const router = useRouter();
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
@@ -127,6 +129,8 @@ export function UserMenu() {
               <MenuItem
                 className="text-ink-700 data-focused:bg-warm-50 data-focused:text-warm-900 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition outline-none"
                 href="/invite"
+                onHoverStart={() => router.preloadRoute({ to: "/invite" })}
+                onFocus={() => router.preloadRoute({ to: "/invite" })}
               >
                 <UserPlus className="h-4 w-4" />
                 Inviter quelqu'un
@@ -135,6 +139,8 @@ export function UserMenu() {
             <MenuItem
               className="text-ink-700 data-focused:bg-warm-50 data-focused:text-warm-900 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition outline-none"
               href="/profile"
+              onHoverStart={() => router.preloadRoute({ to: "/profile" })}
+              onFocus={() => router.preloadRoute({ to: "/profile" })}
             >
               <User className="h-4 w-4" />
               Profil
@@ -143,6 +149,8 @@ export function UserMenu() {
               <MenuItem
                 className="text-ink-700 data-focused:bg-warm-50 data-focused:text-warm-900 flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition outline-none"
                 href="/admin"
+                onHoverStart={() => router.preloadRoute({ to: "/admin" })}
+                onFocus={() => router.preloadRoute({ to: "/admin" })}
               >
                 <Shield className="h-4 w-4" />
                 Administration

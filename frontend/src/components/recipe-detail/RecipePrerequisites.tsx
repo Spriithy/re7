@@ -30,6 +30,7 @@ export function RecipePrerequisites({
                 to="/recipes/$recipeId"
                 params={{ recipeId: prereq.prerequisite_recipe_id }}
                 className="text-warm-700 hover:underline"
+                preload="intent"
               >
                 {prereq.prerequisite_recipe_title ?? "Recette"}
               </Link>

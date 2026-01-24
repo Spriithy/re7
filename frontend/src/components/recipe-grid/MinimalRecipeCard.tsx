@@ -16,6 +16,7 @@ export function MinimalRecipeCard({ recipe }: MinimalRecipeCardProps) {
       to="/recipes/$recipeId"
       params={{ recipeId: recipe.id }}
       className="group mb-3 block break-inside-avoid"
+      preload="intent"
     >
       <article className="relative overflow-hidden rounded-2xl shadow-sm transition-shadow duration-200 hover:shadow-lg">
         <div className={`overflow-hidden ${aspectRatio}`}>

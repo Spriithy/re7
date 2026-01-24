@@ -21,6 +21,7 @@ export const RecipeCard = memo(function RecipeCard({
       to="/recipes/$recipeId"
       params={{ recipeId: recipe.id }}
       className="group block"
+      preload="intent"
     >
       <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
         <div className="relative aspect-[4/3] overflow-hidden">

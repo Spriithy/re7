@@ -17,6 +17,7 @@ export function RecipeDetailNav({
         <Link
           to="/"
           className="text-ink-600 hover:text-ink-900 flex items-center gap-2 transition"
+          preload="intent"
         >
           <ArrowLeft className="h-5 w-5" />
           <span className="font-medium">Retour</span>
@@ -28,6 +29,7 @@ export function RecipeDetailNav({
               params={{ recipeId }}
               className="text-ink-500 hover:bg-paper-200 hover:text-warm-600 pressed:bg-paper-300 rounded-full p-2 transition"
               aria-label="Modifier la recette"
+              preload="intent"
             >
               <Pencil className="h-5 w-5" />
             </Link>

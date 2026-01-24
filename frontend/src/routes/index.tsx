@@ -5,6 +5,7 @@ import { RecipeResultsHeader } from "@/components/home/RecipeResultsHeader";
 import { RecipeGrid } from "@/components/home/RecipeGrid";
 import { EmptyState } from "@/components/home/EmptyState";
 import { AddRecipeFAB } from "@/components/home/AddRecipeFAB";
+import { FilterSidebar } from "@/components/home/FilterSidebar";
 import { useRecipeFilters } from "@/components/home/useRecipeFilters";
 
 export const Route = createFileRoute("/")({
@@ -54,19 +55,38 @@ function HomePage() {
         onVeganChange={setFilterVegan}
       />
 
-      <main className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
-        <RecipeResultsHeader
-          recipeCount={recipes.length}
-          filterVegetarian={filterVegetarian}
-          filterVegan={filterVegan}
-        />
+      <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
+        <div className="flex gap-8">
+          {/* Main content */}
+          <main className="min-w-0 flex-1">
+            <RecipeResultsHeader
+              recipeCount={recipes.length}
+              filterVegetarian={filterVegetarian}
+              filterVegan={filterVegan}
+            />
 
-        <RecipeGrid recipes={recipes} isLoading={isLoading} />
+            <RecipeGrid recipes={recipes} isLoading={isLoading} />
 
-        {!isLoading && recipes.length === 0 && (
-          <EmptyState hasActiveFilters={hasActiveFilters} />
-        )}
-      </main>
+            {!isLoading && recipes.length === 0 && (
+              <EmptyState hasActiveFilters={hasActiveFilters} />
+            )}
+          </main>
+
+          {/* Filter sidebar - only on xl screens */}
+          <div className="hidden xl:block">
+            <FilterSidebar
+              categories={categories}
+              selectedCategoryId={selectedCategoryId}
+              filterVegetarian={filterVegetarian}
+              filterVegan={filterVegan}
+              searchQuery={searchQuery}
+              onCategoryChange={setSelectedCategoryId}
+              onVegetarianChange={setFilterVegetarian}
+              onVeganChange={setFilterVegan}
+            />
+          </div>
+        </div>
+      </div>
 
       <AddRecipeFAB />
     </div>
