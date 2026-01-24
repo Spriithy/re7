@@ -46,7 +46,7 @@ export function MobileFilterDrawer({
         <SlidersHorizontal className="h-4 w-4" />
         Filtres
         {activeFilterCount > 0 && (
-          <span className="bg-warm-800 flex h-5 min-w-[1.25rem] items-center justify-center rounded-full px-1.5 text-xs">
+          <span className="bg-warm-800 flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs">
             {activeFilterCount}
           </span>
         )}

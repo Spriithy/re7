@@ -23,8 +23,8 @@ export function DietFilterButton({
     "flex items-center gap-1.5 rounded-full font-medium transition-all duration-200 border";
   const sizeStyles =
     size === "sm"
-      ? "flex-shrink-0 px-3 py-1.5 text-xs"
-      : "w-full justify-center gap-2 px-3 py-2 text-xs";
+      ? "flex-shrink-0 px-3 py-1.5 text-sm"
+      : "w-full justify-center gap-2 px-3 py-2 text-sm";
   const iconSize = size === "sm" ? 14 : 16;
 
   const colorStyles = isActive

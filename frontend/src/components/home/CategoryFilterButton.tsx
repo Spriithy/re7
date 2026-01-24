@@ -20,8 +20,8 @@ export function CategoryFilterButton({
     "rounded-full font-medium transition-all duration-200 border";
   const sizeStyles =
     size === "sm"
-      ? "flex-shrink-0 px-3 py-1.5 text-xs"
-      : "w-full px-3 py-2 text-xs";
+      ? "flex-shrink-0 px-3 py-1.5 text-sm"
+      : "w-full px-3 py-2 text-sm";
   const iconSize = size === "sm" ? 14 : 16;
 
   const colorStyles = isActive
@@ -54,7 +54,7 @@ export function CategoryFilterButton({
     >
       <CategoryIcon
         iconName={category.icon_name}
-        className={`flex-shrink-0 ${isActive ? "text-white" : ""}`}
+        className={`shrink-0 ${isActive ? "text-white" : ""}`}
         size={iconSize}
         style={{
           color: isActive ? "white" : category.color,

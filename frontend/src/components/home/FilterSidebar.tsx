@@ -29,7 +29,7 @@ export function FilterSidebar({
     <aside className="sticky top-24 h-fit w-64 shrink-0 p-6">
       {/* Diet filters group */}
       <div className="flex flex-col gap-2">
-        <h3 className="text-ink-500 px-1 text-[10px] font-semibold tracking-wider uppercase">
+        <h3 className="text-ink-500 px-1 text-xs font-semibold tracking-wider uppercase">
           Régimes
         </h3>
         <div className="flex flex-col gap-1.5">
@@ -67,7 +67,7 @@ export function FilterSidebar({
       {/* Category filters group */}
       {categories.length > 0 && (
         <div className="mt-6 flex flex-col gap-2">
-          <h3 className="text-ink-500 px-1 text-[10px] font-semibold tracking-wider uppercase">
+          <h3 className="text-ink-500 px-1 text-xs font-semibold tracking-wider uppercase">
             Catégories
           </h3>
           <div className="flex flex-col gap-1.5">

@@ -25,8 +25,8 @@ export function DietOptionsSection({
           onChange={onVegetarianChange}
           className="group cursor-pointer"
         >
-          <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm">
-            <div className="border-ink-300 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 bg-white transition-all group-data-selected:border-emerald-600 group-data-selected:bg-emerald-600">
+          <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm group-data-selected:hover:border-emerald-500">
+            <div className="border-ink-300 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 bg-white transition-all group-data-selected:border-emerald-600 group-data-selected:bg-emerald-600 group-data-selected:hover:border-emerald-600">
               {isVegetarian && (
                 <svg
                   className="h-3 w-3 text-white"
@@ -57,8 +57,8 @@ export function DietOptionsSection({
           onChange={onVeganChange}
           className="group cursor-pointer"
         >
-          <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm">
-            <div className="border-ink-300 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 bg-white transition-all group-data-selected:border-emerald-600 group-data-selected:bg-emerald-600">
+          <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm group-data-selected:hover:border-emerald-500">
+            <div className="border-ink-300 flex h-5 w-5 shrink-0 items-center justify-center rounded border-2 bg-white transition-all group-data-selected:border-emerald-600 group-data-selected:bg-emerald-600 group-data-selected:hover:border-emerald-600">
               {isVegan && (
                 <svg
                   className="h-3 w-3 text-white"
@@ -77,7 +77,7 @@ export function DietOptionsSection({
             </div>
             <div className="flex items-center gap-1.5">
               <Sprout className="h-4 w-4 text-emerald-600" />
-              <span className="text-ink-900 text-sm font-medium">Végan</span>
+              <span className="text-ink-900 text-sm font-medium">Végane</span>
             </div>
           </div>
         </Checkbox>
