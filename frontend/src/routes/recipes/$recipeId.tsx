@@ -59,7 +59,6 @@ function RecipePage() {
     throw new Error("404 - Recipe not found");
   }
 
-  const imageUrl = getImageUrl(recipe.image_path);
   const difficultyLabel =
     recipe.difficulty === "easy"
       ? "Facile"
@@ -75,11 +74,7 @@ function RecipePage() {
     <main className="bg-paper-50 min-h-screen">
       <RecipeDetailNav recipeId={recipeId} canEdit={canEdit} />
 
-      <RecipeHero
-        title={recipe.title}
-        difficultyLabel={difficultyLabel}
-        imageUrl={imageUrl}
-      />
+      <RecipeHero recipe={recipe} difficultyLabel={difficultyLabel} />
 
       <div className="mx-auto max-w-3xl px-4 py-5 sm:py-8">
         <RecipeMeta

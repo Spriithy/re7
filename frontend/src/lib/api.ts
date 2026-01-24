@@ -4,6 +4,7 @@ import type {
   Token,
   User,
   InviteResponse,
+  Category,
   Recipe,
   RecipeCreate,
   RecipeUpdate,
@@ -17,6 +18,7 @@ export type {
   Token,
   User,
   InviteResponse,
+  Category,
   Difficulty,
   Ingredient,
   IngredientCreate,
@@ -169,6 +171,11 @@ export const inviteApi = {
     }),
 };
 
+// Category API
+export const categoryApi = {
+  list: () => request<Category[]>("/api/categories"),
+};
+
 // Auth API
 export const authApi = {
   login: (credentials: UserLogin) =>
@@ -210,12 +217,15 @@ export const recipeApi = {
     page_size?: number;
     search?: string;
     author_id?: string;
+    category_id?: string;
+    is_vegetarian?: boolean;
+    is_vegan?: boolean;
   }) => {
     const searchParams = new URLSearchParams();
     if (params) {
       for (const [key, value] of Object.entries(params) as [
         string,
-        string | number | undefined,
+        string | number | boolean | undefined,
       ][]) {
         if (value !== undefined) {
           searchParams.set(key, String(value));

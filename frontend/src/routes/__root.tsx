@@ -7,7 +7,9 @@ import { ErrorPage } from "@/components/ErrorPage";
 import { RootErrorBoundary } from "@/components/RootErrorBoundary";
 
 const TanStackDevtools = lazy(() =>
-  import("@tanstack/react-devtools").then((m) => ({ default: m.TanStackDevtools }))
+  import("@tanstack/react-devtools").then((m) => ({
+    default: m.TanStackDevtools,
+  }))
 );
 const TanStackRouterDevtoolsPanel = lazy(() =>
   import("@tanstack/react-router-devtools").then((m) => ({
@@ -47,7 +49,7 @@ function RootComponent() {
       <AuthProvider>
         <UserMenu />
         <Outlet />
-{import.meta.env.DEV ? (
+        {import.meta.env.DEV ? (
           <Suspense fallback={null}>
             <TanStackDevtools
               config={{

@@ -15,6 +15,8 @@ import {
 import { useAuth } from "@/lib/auth/useAuth";
 import { ImageUploadSection } from "./ImageUploadSection";
 import { BasicInfoSection } from "./BasicInfoSection";
+import { CategorySection } from "./CategorySection";
+import { DietOptionsSection } from "./DietOptionsSection";
 import { RecipeInfoSection } from "./RecipeInfoSection";
 import { IngredientsSection } from "./IngredientsSection";
 import { StepsSection } from "./StepsSection";
@@ -48,6 +50,9 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
   const [description, setDescription] = useState(
     initialData?.description ?? ""
   );
+  const [categoryId, setCategoryId] = useState<string | null>(
+    initialData?.category?.id ?? null
+  );
   const [servings, setServings] = useState(initialData?.servings ?? 4);
   const [servingUnit, setServingUnit] = useState(
     initialData?.serving_unit ?? ""
@@ -62,6 +67,10 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
     initialData?.difficulty ?? "medium"
   );
   const [source, setSource] = useState(initialData?.source ?? "");
+  const [isVegetarian, setIsVegetarian] = useState(
+    initialData?.is_vegetarian ?? false
+  );
+  const [isVegan, setIsVegan] = useState(initialData?.is_vegan ?? false);
   const [ingredients, setIngredients] = useState<IngredientCreate[]>(() => {
     if (initialData?.ingredients && initialData.ingredients.length > 0) {
       return initialData.ingredients.map((ing) => ({
@@ -190,12 +199,15 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
         const recipeData: RecipeCreate = {
           title: title.trim(),
           description: description.trim() || null,
+          category_id: categoryId,
           servings,
           serving_unit: servingUnit.trim() || null,
           prep_time_minutes: prepTime,
           cook_time_minutes: cookTime,
           difficulty,
           source: source.trim() || null,
+          is_vegetarian: isVegetarian,
+          is_vegan: isVegan,
           ingredients: validIngredients,
           steps: validSteps,
           prerequisites: [],
@@ -205,12 +217,15 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
         const recipeData: RecipeUpdate = {
           title: title.trim(),
           description: description.trim() || null,
+          category_id: categoryId,
           servings,
           serving_unit: servingUnit.trim() || null,
           prep_time_minutes: prepTime,
           cook_time_minutes: cookTime,
           difficulty,
           source: source.trim() || null,
+          is_vegetarian: isVegetarian,
+          is_vegan: isVegan,
           ingredients: validIngredients,
           steps: validSteps,
           prerequisites: [],
@@ -266,6 +281,15 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
           description={description}
           onTitleChange={setTitle}
           onDescriptionChange={setDescription}
+        />
+
+        <CategorySection value={categoryId} onChange={setCategoryId} />
+
+        <DietOptionsSection
+          isVegetarian={isVegetarian}
+          isVegan={isVegan}
+          onVegetarianChange={setIsVegetarian}
+          onVeganChange={setIsVegan}
         />
 
         <RecipeInfoSection

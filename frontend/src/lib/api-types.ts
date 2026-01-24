@@ -32,6 +32,16 @@ export interface InviteResponse {
   is_used: boolean;
 }
 
+// Category types
+export interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  icon_name: string;
+  color: string;
+  created_at: string;
+}
+
 // Recipe types
 export type Difficulty = "easy" | "medium" | "hard";
 
@@ -88,12 +98,15 @@ export interface Recipe {
   title: string;
   description: string | null;
   image_path: string | null;
+  category: Category | null;
   prep_time_minutes: number | null;
   cook_time_minutes: number | null;
   servings: number;
   serving_unit: string | null;
   difficulty: Difficulty;
   source: string | null;
+  is_vegetarian: boolean;
+  is_vegan: boolean;
   author: RecipeAuthor;
   ingredients: Ingredient[];
   steps: Step[];
@@ -107,11 +120,14 @@ export interface RecipeListItem {
   title: string;
   description: string | null;
   image_path: string | null;
+  category: Category | null;
   prep_time_minutes: number | null;
   cook_time_minutes: number | null;
   servings: number;
   serving_unit: string | null;
   difficulty: Difficulty;
+  is_vegetarian: boolean;
+  is_vegan: boolean;
   author: RecipeAuthor;
   created_at: string;
 }
@@ -127,12 +143,15 @@ export interface RecipeListResponse {
 export interface RecipeCreate {
   title: string;
   description?: string | null;
+  category_id?: string | null;
   prep_time_minutes?: number | null;
   cook_time_minutes?: number | null;
   servings?: number;
   serving_unit?: string | null;
   difficulty?: Difficulty;
   source?: string | null;
+  is_vegetarian?: boolean;
+  is_vegan?: boolean;
   ingredients?: IngredientCreate[];
   steps?: StepCreate[];
   prerequisites?: PrerequisiteCreate[];
@@ -141,12 +160,15 @@ export interface RecipeCreate {
 export interface RecipeUpdate {
   title?: string;
   description?: string | null;
+  category_id?: string | null;
   prep_time_minutes?: number | null;
   cook_time_minutes?: number | null;
   servings?: number;
   serving_unit?: string | null;
   difficulty?: Difficulty;
   source?: string | null;
+  is_vegetarian?: boolean;
+  is_vegan?: boolean;
   ingredients?: IngredientCreate[];
   steps?: StepCreate[];
   prerequisites?: PrerequisiteCreate[];

@@ -1,30 +1,37 @@
+import type { Recipe } from "@/lib/api";
+import { RecipeImage } from "@/components/recipe-grid/RecipeImage";
+import { CategoryBadge } from "@/components/CategoryBadge";
+import { DietBadge } from "@/components/DietBadge";
+
 interface RecipeHeroProps {
-  title: string;
+  recipe: Recipe;
   difficultyLabel: string;
-  imageUrl: string | null;
 }
 
-export function RecipeHero({
-  title,
-  difficultyLabel,
-  imageUrl,
-}: RecipeHeroProps) {
-  if (imageUrl) {
+export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
+  const hasImage = Boolean(recipe.image_path);
+
+  if (hasImage) {
     return (
       <div className="relative aspect-[16/9] max-h-[400px] w-full overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={title}
-          className="h-full w-full object-cover"
-        />
+        <RecipeImage recipe={recipe} aspectRatio="16/9" />
         <div className="from-ink-950/60 absolute inset-0 bg-gradient-to-t to-transparent" />
         <div className="absolute right-0 bottom-0 left-0 p-4 sm:p-6">
           <div className="mx-auto max-w-3xl">
-            <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
-              {difficultyLabel}
-            </span>
-            <h1 className="font-heading mt-2 text-2xl font-bold text-white sm:mt-3 sm:text-3xl md:text-4xl">
-              {title}
+            <div className="flex flex-wrap gap-2 mb-2">
+              {recipe.category && (
+                <CategoryBadge category={recipe.category} />
+              )}
+              <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
+                {difficultyLabel}
+              </span>
+              {recipe.is_vegan && <DietBadge type="vegan" />}
+              {recipe.is_vegetarian && !recipe.is_vegan && (
+                <DietBadge type="vegetarian" />
+              )}
+            </div>
+            <h1 className="font-heading text-2xl font-bold text-white sm:text-3xl md:text-4xl">
+              {recipe.title}
             </h1>
           </div>
         </div>
@@ -35,11 +42,18 @@ export function RecipeHero({
   return (
     <div className="from-warm-50 to-paper-50 bg-gradient-to-b px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-3xl">
-        <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
-          {difficultyLabel}
-        </span>
-        <h1 className="font-heading text-ink-900 mt-2 text-2xl font-bold sm:mt-3 sm:text-3xl md:text-4xl">
-          {title}
+        <div className="flex flex-wrap gap-2 mb-2">
+          {recipe.category && <CategoryBadge category={recipe.category} />}
+          <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
+            {difficultyLabel}
+          </span>
+          {recipe.is_vegan && <DietBadge type="vegan" />}
+          {recipe.is_vegetarian && !recipe.is_vegan && (
+            <DietBadge type="vegetarian" />
+          )}
+        </div>
+        <h1 className="font-heading text-ink-900 text-2xl font-bold sm:text-3xl md:text-4xl">
+          {recipe.title}
         </h1>
       </div>
     </div>

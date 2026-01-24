@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession
+from app.models.category import Category
 from app.models.recipe import Ingredient, Recipe, RecipePrerequisite, Step
 from app.schemas.recipe import (
     PrerequisiteResponse,
@@ -39,12 +40,15 @@ def build_recipe_response(recipe: Recipe) -> RecipeResponse:
         title=recipe.title,
         description=recipe.description,
         image_path=recipe.image_path,
+        category=recipe.category,
         prep_time_minutes=recipe.prep_time_minutes,
         cook_time_minutes=recipe.cook_time_minutes,
         servings=recipe.servings,
         serving_unit=recipe.serving_unit,
         difficulty=recipe.difficulty,
         source=recipe.source,
+        is_vegetarian=recipe.is_vegetarian,
+        is_vegan=recipe.is_vegan,
         author=recipe.author,
         ingredients=recipe.ingredients,
         steps=recipe.steps,
@@ -61,16 +65,28 @@ async def create_recipe(
     current_user: CurrentUser,
 ) -> RecipeResponse:
     """Create a new recipe."""
+    # Validate category if provided
+    if data.category_id:
+        category = await db.get(Category, data.category_id)
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Catégorie non trouvée",
+            )
+
     # Create the recipe
     recipe = Recipe(
         title=data.title,
         description=data.description,
+        category_id=data.category_id,
         prep_time_minutes=data.prep_time_minutes,
         cook_time_minutes=data.cook_time_minutes,
         servings=data.servings,
         serving_unit=data.serving_unit,
         difficulty=data.difficulty,
         source=data.source,
+        is_vegetarian=data.is_vegetarian,
+        is_vegan=data.is_vegan,
         author_id=current_user.id,
     )
     db.add(recipe)
@@ -123,6 +139,7 @@ async def create_recipe(
         select(Recipe)
         .options(
             selectinload(Recipe.author),
+            selectinload(Recipe.category),
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.prerequisites).selectinload(
@@ -143,16 +160,28 @@ async def list_recipes(
     page_size: int = Query(20, ge=1, le=100),
     search: str | None = Query(None),
     author_id: str | None = Query(None),
+    category_id: str | None = Query(None),
+    is_vegetarian: bool | None = Query(None),
+    is_vegan: bool | None = Query(None),
 ) -> RecipeListResponse:
     """List recipes with pagination."""
     # Base query
-    query = select(Recipe).options(selectinload(Recipe.author))
+    query = select(Recipe).options(
+        selectinload(Recipe.author),
+        selectinload(Recipe.category),
+    )
 
     # Apply filters
     if search:
         query = query.where(Recipe.title.ilike(f"%{search}%"))
     if author_id:
         query = query.where(Recipe.author_id == author_id)
+    if category_id:
+        query = query.where(Recipe.category_id == category_id)
+    if is_vegetarian is not None:
+        query = query.where(Recipe.is_vegetarian == is_vegetarian)
+    if is_vegan is not None:
+        query = query.where(Recipe.is_vegan == is_vegan)
 
     # Count total
     count_query = select(func.count(Recipe.id))
@@ -160,6 +189,12 @@ async def list_recipes(
         count_query = count_query.where(Recipe.title.ilike(f"%{search}%"))
     if author_id:
         count_query = count_query.where(Recipe.author_id == author_id)
+    if category_id:
+        count_query = count_query.where(Recipe.category_id == category_id)
+    if is_vegetarian is not None:
+        count_query = count_query.where(Recipe.is_vegetarian == is_vegetarian)
+    if is_vegan is not None:
+        count_query = count_query.where(Recipe.is_vegan == is_vegan)
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
 
@@ -177,11 +212,14 @@ async def list_recipes(
                 title=r.title,
                 description=r.description,
                 image_path=r.image_path,
+                category=r.category,
                 prep_time_minutes=r.prep_time_minutes,
                 cook_time_minutes=r.cook_time_minutes,
                 servings=r.servings,
                 serving_unit=r.serving_unit,
                 difficulty=r.difficulty,
+                is_vegetarian=r.is_vegetarian,
+                is_vegan=r.is_vegan,
                 author=r.author,
                 created_at=r.created_at,
             )
@@ -204,6 +242,7 @@ async def get_recipe(
         select(Recipe)
         .options(
             selectinload(Recipe.author),
+            selectinload(Recipe.category),
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.prerequisites).selectinload(
@@ -235,6 +274,7 @@ async def update_recipe(
         select(Recipe)
         .options(
             selectinload(Recipe.author),
+            selectinload(Recipe.category),
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.prerequisites).selectinload(
@@ -257,18 +297,29 @@ async def update_recipe(
             detail="Vous ne pouvez modifier que vos propres recettes",
         )
 
-    # Update basic fields
+    # Validate category if provided
     update_data = data.model_dump(exclude_unset=True)
+    if "category_id" in update_data and update_data["category_id"] is not None:
+        category = await db.get(Category, update_data["category_id"])
+        if not category:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Catégorie non trouvée",
+            )
 
+    # Update basic fields
     for field in [
         "title",
         "description",
+        "category_id",
         "prep_time_minutes",
         "cook_time_minutes",
         "servings",
         "serving_unit",
         "difficulty",
         "source",
+        "is_vegetarian",
+        "is_vegan",
     ]:
         if field in update_data:
             setattr(recipe, field, update_data[field])
@@ -338,6 +389,7 @@ async def update_recipe(
         select(Recipe)
         .options(
             selectinload(Recipe.author),
+            selectinload(Recipe.category),
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.prerequisites).selectinload(
@@ -393,6 +445,7 @@ async def upload_recipe_image(
         select(Recipe)
         .options(
             selectinload(Recipe.author),
+            selectinload(Recipe.category),
             selectinload(Recipe.ingredients),
             selectinload(Recipe.steps),
             selectinload(Recipe.prerequisites).selectinload(

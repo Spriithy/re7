@@ -4,6 +4,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from app.schemas.category import CategoryResponse
+
 
 class Difficulty(str, Enum):
     easy = "easy"
@@ -84,9 +86,12 @@ class RecipeBase(BaseModel):
     serving_unit: str | None = Field(None, max_length=50)
     difficulty: Difficulty = Difficulty.medium
     source: str | None = Field(None, max_length=500)
+    is_vegetarian: bool = False
+    is_vegan: bool = False
 
 
 class RecipeCreate(RecipeBase):
+    category_id: str | None = None
     ingredients: list[IngredientCreate] = Field(default_factory=list)
     steps: list[StepCreate] = Field(default_factory=list)
     prerequisites: list[PrerequisiteCreate] = Field(default_factory=list)
@@ -95,12 +100,15 @@ class RecipeCreate(RecipeBase):
 class RecipeUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=200)
     description: str | None = None
+    category_id: str | None = None
     prep_time_minutes: int | None = Field(None, ge=1)
     cook_time_minutes: int | None = Field(None, ge=1)
     servings: int | None = Field(None, ge=1)
     serving_unit: str | None = Field(None, max_length=50)
     difficulty: Difficulty | None = None
     source: str | None = Field(None, max_length=500)
+    is_vegetarian: bool | None = None
+    is_vegan: bool | None = None
     ingredients: list[IngredientCreate] | None = None
     steps: list[StepCreate] | None = None
     prerequisites: list[PrerequisiteCreate] | None = None
@@ -109,6 +117,7 @@ class RecipeUpdate(BaseModel):
 class RecipeResponse(RecipeBase):
     id: str
     image_path: str | None
+    category: CategoryResponse | None
     author: RecipeAuthor
     ingredients: list[IngredientResponse]
     steps: list[StepResponse]
@@ -124,11 +133,14 @@ class RecipeListItem(BaseModel):
     title: str
     description: str | None
     image_path: str | None
+    category: CategoryResponse | None
     prep_time_minutes: int | None
     cook_time_minutes: int | None
     servings: int
     serving_unit: str | None
     difficulty: Difficulty
+    is_vegetarian: bool
+    is_vegan: bool
     author: RecipeAuthor
     created_at: datetime
 

@@ -20,6 +20,7 @@ from app.core.database import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.category import Category
 
 
 class Difficulty(str, Enum):
@@ -54,6 +55,13 @@ class Recipe(Base):
         ForeignKey("users.id"),
         nullable=False,
     )
+    category_id: Mapped[str | None] = mapped_column(
+        String(36),
+        ForeignKey("categories.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    is_vegetarian: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_vegan: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
@@ -66,6 +74,10 @@ class Recipe(Base):
 
     # Relationships
     author: Mapped["User"] = relationship("User", back_populates="recipes")
+    category: Mapped["Category | None"] = relationship(
+        "Category",
+        back_populates="recipes",
+    )
     ingredients: Mapped[list["Ingredient"]] = relationship(
         "Ingredient",
         back_populates="recipe",
