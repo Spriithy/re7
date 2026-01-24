@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -13,50 +13,9 @@ import {
 } from "react-aria-components";
 import { User, UserPlus, Shield, LogOut, X } from "lucide-react";
 import { useAuth } from "@/lib/auth/useAuth";
-import { useNavigate } from "@tanstack/react-router";
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
-}
-
-function getInitials(username: string): string {
-  return username.slice(0, 2).toUpperCase();
-}
-
-function MenuItemLink({
-  href,
-  icon: Icon,
-  children,
-  onClose,
-}: {
-  href: string;
-  icon: typeof User;
-  children: React.ReactNode;
-  onClose?: () => void;
-}) {
-  const navigate = useNavigate();
-  return (
-    <button
-      className="text-ink-700 hover:bg-warm-50 hover:text-warm-900 flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base transition outline-none sm:px-3 sm:py-2.5 sm:text-sm"
-      onClick={() => {
-        onClose?.();
-        navigate({ to: href });
-      }}
-    >
-      <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
-      {children}
-    </button>
-  );
-}
+import { MenuItemLink } from "./MenuItemLink";
+import { useIsMobile } from "./utils/useIsMobile";
+import { getInitials } from "./utils/getInitials";
 
 export function UserMenu() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -154,7 +113,9 @@ export function UserMenu() {
   // Desktop: Popover menu
   return (
     <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
-      <span className="text-ink-700 text-base font-medium">{user.username}</span>
+      <span className="text-ink-700 text-base font-medium">
+        {user.username}
+      </span>
       <MenuTrigger>
         {triggerButton}
         <Popover

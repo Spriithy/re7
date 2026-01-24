@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { recipeApi, getImageUrl } from "@/lib/api";
+import { recipeApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth/useAuth";
+import { getDifficultyLabel } from "@/lib/recipe-utils";
 import { ArrowLeft } from "lucide-react";
 import { RecipeDetailNav } from "@/components/recipe-detail/RecipeDetailNav";
 import { RecipeHero } from "@/components/recipe-detail/RecipeHero";
@@ -59,12 +60,7 @@ function RecipePage() {
     throw new Error("404 - Recipe not found");
   }
 
-  const difficultyLabel =
-    recipe.difficulty === "easy"
-      ? "Facile"
-      : recipe.difficulty === "medium"
-        ? "Moyen"
-        : "Difficile";
+  const difficultyLabel = getDifficultyLabel(recipe.difficulty);
 
   const canEdit = Boolean(
     user && (user.id === recipe.author.id || user.is_admin)

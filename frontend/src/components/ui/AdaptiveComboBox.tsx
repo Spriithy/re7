@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import {
   Button,
   Dialog,
@@ -11,6 +11,7 @@ import {
   TextField,
 } from "react-aria-components";
 import { ChevronDown, X, Search } from "lucide-react";
+import { useIsMobile } from "@/components/utils/useIsMobile";
 
 interface ComboBoxOption {
   value: string;
@@ -25,19 +26,6 @@ interface AdaptiveComboBoxProps {
   allowCustomValue?: boolean;
   className?: string;
   drawerTitle?: string;
-}
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
 }
 
 export function AdaptiveComboBox({
@@ -55,11 +43,10 @@ export function AdaptiveComboBox({
   const [isDesktopOpen, setIsDesktopOpen] = useState(false);
 
   // Filter options based on search/input value
-  const filteredOptions = useMemo(() => {
-    const search = (isMobile ? searchValue : value)?.toLowerCase() ?? "";
-    if (!search) return options;
-    return options.filter((opt) => opt.label.toLowerCase().includes(search));
-  }, [options, isMobile, searchValue, value]);
+  const search = (isMobile ? searchValue : value)?.toLowerCase() ?? "";
+  const filteredOptions = !search
+    ? options
+    : options.filter((opt) => opt.label.toLowerCase().includes(search));
 
   const handleDrawerOpenChange = (open: boolean) => {
     if (open) {

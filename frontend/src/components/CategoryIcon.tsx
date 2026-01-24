@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   Salad,
   UtensilsCrossed,
@@ -35,12 +36,12 @@ interface CategoryIconProps {
   style?: React.CSSProperties;
 }
 
-export function CategoryIcon({
+export const CategoryIcon = memo(function CategoryIcon({
   iconName,
   className = "",
   size = 16,
   style,
 }: CategoryIconProps) {
-  const Icon = iconMap[iconName] || UtensilsCrossed;
+  const Icon = iconMap[iconName] ?? UtensilsCrossed;
   return <Icon className={className} size={size} style={style} />;
-}
+});

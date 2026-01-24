@@ -1,5 +1,5 @@
 import { Checkbox, Label } from "react-aria-components";
-import { Leaf, Sprout, Vegan } from "lucide-react";
+import { Leaf, Sprout } from "lucide-react";
 
 interface DietOptionsSectionProps {
   isVegetarian: boolean;

@@ -21,7 +21,7 @@ export function DefaultCategoryIcon({
     >
       <CategoryIcon
         iconName={iconName ?? "entrees"}
-        className="w-12 h-12"
+        className="h-12 w-12"
         style={{ color: color }}
       />
     </div>

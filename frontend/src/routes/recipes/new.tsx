@@ -36,7 +36,7 @@ function CreateRecipePage() {
             <ArrowLeft className="h-4 w-4" />
             <span>Retour</span>
           </Link>
-          <h1 className="font-heading text-ink-900 min-w-0 flex-1 text-lg font-semibold leading-8 sm:text-xl sm:leading-10">
+          <h1 className="font-heading text-ink-900 min-w-0 flex-1 text-lg leading-8 font-semibold sm:text-xl sm:leading-10">
             Nouvelle recette
           </h1>
         </div>

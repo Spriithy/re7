@@ -6,24 +6,24 @@ interface CategoryBadgeProps {
   size?: "sm" | "md" | "lg";
 }
 
+const SIZE_CLASSES = {
+  sm: "text-xs px-2 py-0.5 gap-1.5",
+  md: "text-sm px-3 py-1 gap-2",
+  lg: "text-base px-4 py-1.5 gap-2.5",
+} as const;
+
+const ICON_SIZES = {
+  sm: 14,
+  md: 18,
+  lg: 22,
+} as const;
+
 export function CategoryBadge({ category, size = "md" }: CategoryBadgeProps) {
-  const sizeClasses = {
-    sm: "text-xs px-2 py-0.5 gap-1.5",
-    md: "text-sm px-3 py-1 gap-2",
-    lg: "text-base px-4 py-1.5 gap-2.5",
-  };
-
-  const iconSize = {
-    sm: 14,
-    md: 18,
-    lg: 22,
-  };
-
   return (
     <span
-      className={`inline-flex items-center rounded-full font-medium bg-ink-100 text-ink-700 ${sizeClasses[size]}`}
+      className={`bg-ink-100 text-ink-700 inline-flex items-center rounded-full font-medium ${SIZE_CLASSES[size]}`}
     >
-      <CategoryIcon iconName={category.icon_name} size={iconSize[size]} />
+      <CategoryIcon iconName={category.icon_name} size={ICON_SIZES[size]} />
       {category.name}
     </span>
   );

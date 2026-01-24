@@ -13,23 +13,11 @@ import {
 } from "react-aria-components";
 import { ChevronDown, X } from "lucide-react";
 import { CategoryIcon } from "@/components/CategoryIcon";
+import { useIsMobile } from "@/components/utils/useIsMobile";
 
 interface CategorySectionProps {
   value: string | null;
   onChange: (categoryId: string | null) => void;
-}
-
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 640);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  return isMobile;
 }
 
 export function CategorySection({ value, onChange }: CategorySectionProps) {
@@ -54,7 +42,8 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
       };
 
       document.addEventListener("mousedown", handleClickOutside);
-      return () => document.removeEventListener("mousedown", handleClickOutside);
+      return () =>
+        document.removeEventListener("mousedown", handleClickOutside);
     }
   }, [isOpen, isMobile]);
 
@@ -62,7 +51,7 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
     return (
       <div className="space-y-2">
         <Label className="text-sm font-medium">Catégorie</Label>
-        <div className="h-10 bg-gray-100 rounded-md animate-pulse" />
+        <div className="h-10 animate-pulse rounded-md bg-gray-100" />
       </div>
     );
   }
@@ -93,7 +82,7 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
         <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
           <Button className="border-ink-200 text-ink-900 hover:bg-ink-50 focus:border-warm-500 focus:ring-warm-500/20 flex h-10 w-full items-center justify-between rounded-lg border bg-white px-4 py-2 text-sm transition focus:ring-2 focus:outline-none">
             {displayValue}
-            <ChevronDown className="h-4 w-4 ml-2 text-ink-400" />
+            <ChevronDown className="text-ink-400 ml-2 h-4 w-4" />
           </Button>
           <ModalOverlay
             className="data-entering:animate-fade-in data-exiting:animate-fade-out fixed inset-0 z-50 bg-black/40"
@@ -134,7 +123,7 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
                             key={category.id}
                             id={category.id}
                             textValue={category.name}
-                            className="text-ink-900 hover:bg-warm-50 focus:bg-warm-50 cursor-pointer rounded-lg px-4 py-3 text-base outline-none flex items-center gap-3"
+                            className="text-ink-900 hover:bg-warm-50 focus:bg-warm-50 flex cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base outline-none"
                           >
                             <CategoryIcon
                               iconName={category.icon_name}
@@ -159,7 +148,7 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
             className="border-ink-200 text-ink-900 hover:bg-ink-50 focus:border-warm-500 focus:ring-warm-500/20 flex h-10 w-full items-center justify-between rounded-lg border bg-white px-4 py-2 text-sm transition focus:ring-2 focus:outline-none"
           >
             {displayValue}
-            <ChevronDown className="h-4 w-4 ml-2 text-ink-400" />
+            <ChevronDown className="text-ink-400 ml-2 h-4 w-4" />
           </Button>
           {isOpen && (
             <div className="border-ink-200 absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-auto rounded-lg border bg-white shadow-lg">
@@ -181,7 +170,7 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
                     key={category.id}
                     id={category.id}
                     textValue={category.name}
-                    className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 cursor-pointer rounded px-3 py-2 text-sm outline-none flex items-center gap-2"
+                    className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 flex cursor-pointer items-center gap-2 rounded px-3 py-2 text-sm outline-none"
                   >
                     <CategoryIcon
                       iconName={category.icon_name}

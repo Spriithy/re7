@@ -18,10 +18,8 @@ export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
         <div className="from-ink-950/60 absolute inset-0 bg-gradient-to-t to-transparent" />
         <div className="absolute right-0 bottom-0 left-0 p-4 sm:p-6">
           <div className="mx-auto max-w-3xl">
-            <div className="flex flex-wrap gap-2 mb-2">
-              {recipe.category && (
-                <CategoryBadge category={recipe.category} />
-              )}
+            <div className="mb-2 flex flex-wrap gap-2">
+              {recipe.category && <CategoryBadge category={recipe.category} />}
               <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
                 {difficultyLabel}
               </span>
@@ -42,7 +40,7 @@ export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
   return (
     <div className="from-warm-50 to-paper-50 bg-gradient-to-b px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto max-w-3xl">
-        <div className="flex flex-wrap gap-2 mb-2">
+        <div className="mb-2 flex flex-wrap gap-2">
           {recipe.category && <CategoryBadge category={recipe.category} />}
           <span className="bg-warm-500 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium text-white sm:px-3 sm:py-1 sm:text-sm">
             {difficultyLabel}

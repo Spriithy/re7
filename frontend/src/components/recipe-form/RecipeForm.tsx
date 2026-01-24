@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Form } from "react-aria-components";
 import { useNavigate } from "@tanstack/react-router";
 import {
@@ -105,41 +105,54 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Ingredient handlers
-  const updateIngredient = (index: number, ingredient: IngredientCreate) => {
-    const newIngredients = [...ingredients];
-    newIngredients[index] = ingredient;
-    setIngredients(newIngredients);
-  };
+  const updateIngredient = useCallback(
+    (index: number, ingredient: IngredientCreate) => {
+      setIngredients((prev) => {
+        const newIngredients = [...prev];
+        newIngredients[index] = ingredient;
+        return newIngredients;
+      });
+    },
+    []
+  );
 
-  const removeIngredient = (index: number) => {
-    if (ingredients.length > 1) {
-      setIngredients(ingredients.filter((_, i) => i !== index));
-    }
-  };
+  const removeIngredient = useCallback((index: number) => {
+    setIngredients((prev) => {
+      if (prev.length > 1) {
+        return prev.filter((_, i) => i !== index);
+      }
+      return prev;
+    });
+  }, []);
 
-  const addIngredient = () => {
-    setIngredients([...ingredients, emptyIngredient()]);
-  };
+  const addIngredient = useCallback(() => {
+    setIngredients((prev) => [...prev, emptyIngredient()]);
+  }, []);
 
   // Step handlers
-  const updateStep = (index: number, step: StepCreate) => {
-    const newSteps = [...steps];
-    newSteps[index] = step;
-    setSteps(newSteps);
-  };
+  const updateStep = useCallback((index: number, step: StepCreate) => {
+    setSteps((prev) => {
+      const newSteps = [...prev];
+      newSteps[index] = step;
+      return newSteps;
+    });
+  }, []);
 
-  const removeStep = (index: number) => {
-    if (steps.length > 1) {
-      setSteps(steps.filter((_, i) => i !== index));
-    }
-  };
+  const removeStep = useCallback((index: number) => {
+    setSteps((prev) => {
+      if (prev.length > 1) {
+        return prev.filter((_, i) => i !== index);
+      }
+      return prev;
+    });
+  }, []);
 
-  const addStep = () => {
-    setSteps([...steps, emptyStep()]);
-  };
+  const addStep = useCallback(() => {
+    setSteps((prev) => [...prev, emptyStep()]);
+  }, []);
 
   // Image handlers
-  const handleImageSelect = (file: File) => {
+  const handleImageSelect = useCallback((file: File) => {
     setImageFile(file);
     setRemoveExistingImage(false);
     const reader = new FileReader();
@@ -147,15 +160,15 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-  };
+  }, []);
 
-  const handleImageRemove = () => {
+  const handleImageRemove = useCallback(() => {
     setImageFile(null);
     setImagePreview(null);
     if (mode === "edit" && initialData?.image_path) {
       setRemoveExistingImage(true);
     }
-  };
+  }, [mode, initialData?.image_path]);
 
   // Form submission
   const handleSubmit = async (e: React.FormEvent) => {
@@ -214,6 +227,9 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
         };
         recipe = await recipeApi.create(recipeData, token);
       } else {
+        if (!initialData) {
+          throw new Error("Initial data is required for edit mode");
+        }
         const recipeData: RecipeUpdate = {
           title: title.trim(),
           description: description.trim() || null,
@@ -230,7 +246,7 @@ export function RecipeForm({ mode, initialData }: RecipeFormProps) {
           steps: validSteps,
           prerequisites: [],
         };
-        recipe = await recipeApi.update(initialData!.id, recipeData, token);
+        recipe = await recipeApi.update(initialData.id, recipeData, token);
       }
 
       // Handle image changes
