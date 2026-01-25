@@ -11,13 +11,13 @@ export function RecipeResultsHeader({
 }: RecipeResultsHeaderProps) {
   const getTitle = () => {
     if (filterVegetarian && filterVegan) {
-      return "Recettes végétariennes et végétaliennes";
+      return "Recettes végétariennes et véganes";
     }
     if (filterVegetarian) {
       return "Recettes végétariennes";
     }
     if (filterVegan) {
-      return "Recettes végétaliennes";
+      return "Recettes véganes";
     }
     return "Toutes les recettes";
   };

@@ -2,7 +2,6 @@ import { lazy, Suspense } from "react";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "@/lib/auth/AuthProvider";
-import { UserMenu } from "@/components/UserMenu";
 import { ErrorPage } from "@/components/ErrorPage";
 import { RootErrorBoundary } from "@/components/RootErrorBoundary";
 
@@ -47,7 +46,6 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <UserMenu />
         <Outlet />
         {import.meta.env.DEV ? (
           <Suspense fallback={null}>

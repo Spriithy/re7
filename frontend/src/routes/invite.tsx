@@ -1,9 +1,10 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "react-aria-components";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, ArrowLeft, RefreshCw } from "lucide-react";
+import { Copy, Check, RefreshCw } from "lucide-react";
 import { inviteApi } from "@/lib/api";
+import { AppHeader } from "@/components/AppHeader";
 
 const TOKEN_KEY = "re7-token";
 
@@ -54,28 +55,15 @@ function InvitePage() {
   };
 
   return (
-    <main className="from-warm-50 to-paper-100 relative flex min-h-screen flex-col items-center justify-center bg-linear-to-b px-4 py-12">
-      <div className="fixed top-4 left-4 z-50">
-        <Link
-          to="/"
-          className="text-ink-600 hover:bg-paper-200/60 hover:text-ink-800 inline-flex h-10 items-center gap-2 rounded-full px-4 py-2 text-sm transition md:h-14 md:px-6 md:text-base"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Retour</span>
-        </Link>
-      </div>
+    <main className="from-warm-50 to-paper-100 min-h-screen bg-linear-to-b">
+      <AppHeader title="Inviter quelqu'un" showBackButton variant="narrow" />
 
-      <div className="w-full max-w-sm">
-        <div className="text-center">
-          <h1 className="font-heading text-ink-900 text-2xl font-bold">
-            Inviter quelqu'un
-          </h1>
-          <p className="text-ink-600 mt-2 text-sm">
-            Partagez ce QR code pour inviter un proche.
-          </p>
-        </div>
+      <div className="mx-auto w-full max-w-sm px-4 py-8">
+        <p className="text-ink-600 text-center text-sm">
+          Partagez ce QR code pour inviter un proche.
+        </p>
 
-        <div className="mt-8 flex flex-col items-center">
+        <div className="mt-6 flex flex-col items-center">
           <div>
             <QRCodeSVG
               value={registerUrl}

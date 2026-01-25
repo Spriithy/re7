@@ -1,8 +1,8 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/lib/auth/useAuth";
 import { userApi, recipeApi } from "@/lib/api";
+import { AppHeader } from "@/components/AppHeader";
 import { ProfileAvatar } from "@/components/profile/ProfileAvatar";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import { PasswordChangeForm } from "@/components/profile/PasswordChangeForm";
@@ -94,21 +94,7 @@ function ProfilePage() {
 
   return (
     <div className="from-warm-50 to-paper-100 min-h-screen bg-linear-to-b">
-      {/* Header */}
-      <header className="sticky top-0 z-10 px-4 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center gap-3">
-          <Link
-            to="/"
-            className="text-ink-600 hover:bg-paper-200/60 hover:text-ink-800 -ml-2 inline-flex h-10 shrink-0 items-center gap-2 rounded-full px-3 py-2 text-sm transition md:h-12 md:px-4 md:text-base"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Retour</span>
-          </Link>
-          <h1 className="font-heading text-ink-900 min-w-0 flex-1 text-lg leading-8 font-semibold sm:text-xl sm:leading-10">
-            Profil
-          </h1>
-        </div>
-      </header>
+      <AppHeader title="Profil" showBackButton />
 
       {/* Main content */}
       <main className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:py-8">

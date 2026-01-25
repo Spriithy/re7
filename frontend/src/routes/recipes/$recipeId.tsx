@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { recipeApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth/useAuth";
 import { getDifficultyLabel } from "@/lib/recipe-utils";
-import { ArrowLeft } from "lucide-react";
+import { AppHeader } from "@/components/AppHeader";
 import { RecipeDetailNav } from "@/components/recipe-detail/RecipeDetailNav";
 import { RecipeHero } from "@/components/recipe-detail/RecipeHero";
 import { RecipeMeta } from "@/components/recipe-detail/RecipeMeta";
@@ -32,16 +32,8 @@ function RecipePage() {
   if (isLoading) {
     return (
       <main className="from-warm-50 to-paper-100 min-h-screen">
-        <div className="fixed top-4 left-4 z-50">
-          <Link
-            to="/"
-            className="text-ink-600 hover:bg-paper-200/60 hover:text-ink-800 inline-flex h-10 items-center gap-2 rounded-full px-4 py-2 text-sm transition md:h-14 md:px-6 md:text-base"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span>Retour</span>
-          </Link>
-        </div>
-        <div className="mx-auto max-w-3xl px-4 py-12">
+        <AppHeader showBackButton variant="narrow" />
+        <div className="mx-auto max-w-3xl px-4 py-8">
           <div className="animate-pulse space-y-6">
             <div className="bg-ink-100 h-64 rounded-xl" />
             <div className="bg-ink-100 h-8 w-2/3 rounded" />

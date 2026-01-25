@@ -36,7 +36,7 @@ export function UserMenu() {
   const triggerButton = (
     <Button
       aria-label="Menu utilisateur"
-      className="bg-warm-600 hover:bg-warm-700 data-focus-visible:ring-warm-500 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white shadow-md ring-1 ring-black/10 transition focus:outline-none data-focus-visible:ring-2 data-focus-visible:ring-offset-2 sm:h-14 sm:w-14 sm:text-base"
+      className="bg-warm-600 hover:bg-warm-700 data-focus-visible:ring-warm-500 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white shadow-md ring-1 ring-black/10 transition focus:outline-none data-focus-visible:ring-2 data-focus-visible:ring-offset-2 sm:h-10 sm:w-10"
     >
       {avatarUrl ? (
         <img
@@ -53,7 +53,7 @@ export function UserMenu() {
   // Mobile: Bottom drawer
   if (isMobile) {
     return (
-      <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <DialogTrigger isOpen={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           {triggerButton}
           <ModalOverlay
@@ -135,8 +135,7 @@ export function UserMenu() {
 
   // Desktop: Popover menu
   return (
-    <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
-      <span className="text-ink-700 text-base font-medium">{displayName}</span>
+    <div className="flex items-center gap-3">
       <MenuTrigger>
         {triggerButton}
         <Popover

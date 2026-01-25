@@ -17,7 +17,7 @@ export function DietBadge({ type, size = "md" }: DietBadgeProps) {
   };
 
   const isVegan = type === "vegan";
-  const label = isVegan ? "Végan" : "Végétarien";
+  const label = isVegan ? "Végane" : "Végétarien";
   const bgColor = isVegan ? "bg-green-100" : "bg-green-50";
   const textColor = isVegan ? "text-green-800" : "text-green-700";
 
