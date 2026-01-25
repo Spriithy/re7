@@ -84,8 +84,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const refreshUser = useCallback(async () => {
+    const storedToken = getStoredToken();
+    if (!storedToken) return;
+
+    try {
+      const user = await authApi.me(storedToken);
+      setState((prev) => ({
+        ...prev,
+        user,
+      }));
+    } catch {
+      // If refresh fails, log out the user
+      logout();
+    }
+  }, [logout]);
+
   return (
-    <AuthContext.Provider value={{ ...state, login, register, logout }}>
+    <AuthContext.Provider value={{ ...state, login, register, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );

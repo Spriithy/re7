@@ -17,13 +17,22 @@ export const Route = createFileRoute("/login")({
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, isAuthenticated } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect if already authenticated
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center">
+        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Redirect if already authenticated (after loading is complete)
   if (isAuthenticated) {
     void navigate({ to: "/" });
     return null;
@@ -49,7 +58,7 @@ function LoginPage() {
   };
 
   return (
-    <main className="from-warm-100 to-paper-100 flex min-h-screen items-center justify-center bg-gradient-to-b px-4 py-12">
+    <main className="from-warm-50 to-paper-100 flex min-h-screen items-center justify-center bg-linear-to-b px-4 py-12">
       <div className="w-full max-w-md">
         <div className="text-center">
           <Link to="/" className="inline-block">

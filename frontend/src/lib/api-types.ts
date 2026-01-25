@@ -19,7 +19,26 @@ export interface Token {
 export interface User {
   id: string;
   username: string;
+  full_name: string | null;
+  avatar_url: string | null;
   is_admin: boolean;
+  created_at: string;
+}
+
+export interface UserUpdateProfile {
+  full_name?: string | null;
+}
+
+export interface UserChangePassword {
+  current_password: string;
+  new_password: string;
+}
+
+export interface InvitedUser {
+  id: string;
+  username: string;
+  full_name: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -91,6 +110,8 @@ export interface PrerequisiteCreate {
 export interface RecipeAuthor {
   id: string;
   username: string;
+  full_name: string | null;
+  avatar_url: string | null;
 }
 
 export interface Recipe {

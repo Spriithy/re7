@@ -36,14 +36,23 @@ function RegisterPage() {
   const navigate = useNavigate();
   const { invite } = Route.useSearch();
   const { isValidInvite } = Route.useLoaderData();
-  const { register, isAuthenticated } = useAuth();
+  const { register, isAuthenticated, isLoading } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Redirect if already authenticated
+  // Show loading state while checking authentication
+  if (isLoading) {
+    return (
+      <div className="bg-paper-100 flex h-screen items-center justify-center">
+        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Redirect if already authenticated (after loading is complete)
   if (isAuthenticated) {
     void navigate({ to: "/" });
     return null;
@@ -52,7 +61,7 @@ function RegisterPage() {
   // Show error if invite is invalid
   if (!isValidInvite) {
     return (
-      <main className="from-warm-100 to-paper-100 flex min-h-screen flex-col items-center justify-center bg-gradient-to-b px-4 py-12">
+      <main className="from-warm-50 to-paper-100 flex min-h-screen flex-col items-center justify-center bg-linear-to-b px-4 py-12">
         <Link to="/" className="inline-block">
           <h1 className="font-heading text-warm-900 text-4xl font-bold">Re7</h1>
         </Link>

@@ -3,6 +3,9 @@ import type {
   UserCreate,
   Token,
   User,
+  UserUpdateProfile,
+  UserChangePassword,
+  InvitedUser,
   InviteResponse,
   Category,
   Recipe,
@@ -199,6 +202,41 @@ export const authApi = {
   refresh: (token: string) =>
     request<Token>("/api/auth/refresh", {
       method: "POST",
+      token,
+    }),
+};
+
+// User API
+export const userApi = {
+  updateProfile: (data: UserUpdateProfile, token: string) =>
+    request<User>("/api/users/me", {
+      method: "PATCH",
+      body: JSON.stringify(data),
+      token,
+    }),
+
+  changePassword: (data: UserChangePassword, token: string) =>
+    requestNoContent("/api/users/me/password", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
+    }),
+
+  uploadAvatar: (file: File, token: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return requestWithFormData<User>("/api/users/me/avatar", formData, token);
+  },
+
+  deleteAvatar: (token: string) =>
+    requestNoContent("/api/users/me/avatar", {
+      method: "DELETE",
+      token,
+    }),
+
+  getInvitedUsers: (token: string) =>
+    request<InvitedUser[]>("/api/users/me/invited", {
+      method: "GET",
       token,
     }),
 };

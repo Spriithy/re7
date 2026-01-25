@@ -31,7 +31,7 @@ function RecipePage() {
 
   if (isLoading) {
     return (
-      <main className="bg-paper-50 min-h-screen">
+      <main className="from-warm-50 to-paper-100 min-h-screen">
         <div className="fixed top-4 left-4 z-50">
           <Link
             to="/"

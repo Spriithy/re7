@@ -72,6 +72,8 @@ class PrerequisiteResponse(PrerequisiteBase):
 class RecipeAuthor(BaseModel):
     id: str
     username: str
+    full_name: str | None
+    avatar_url: str | None
 
     model_config = {"from_attributes": True}
 

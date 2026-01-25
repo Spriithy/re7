@@ -1,8 +1,8 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Button } from "react-aria-components";
 import { QRCodeSVG } from "qrcode.react";
-import { Copy, Check, ArrowLeft } from "lucide-react";
+import { Copy, Check, ArrowLeft, RefreshCw } from "lucide-react";
 import { inviteApi } from "@/lib/api";
 
 const TOKEN_KEY = "re7-token";
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/invite")({
 
 function InvitePage() {
   const { invite } = Route.useLoaderData();
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
 
   const registerUrl = `${window.location.origin}/register?invite=${encodeURIComponent(invite.token)}`;
@@ -47,8 +48,13 @@ function InvitePage() {
     }
   };
 
+  const generateNewCode = async () => {
+    // Invalidate and reload the route to generate a new invite code
+    await router.invalidate();
+  };
+
   return (
-    <main className="from-warm-100 to-paper-100 relative flex min-h-screen flex-col items-center justify-center bg-linear-to-b px-4 py-12">
+    <main className="from-warm-50 to-paper-100 relative flex min-h-screen flex-col items-center justify-center bg-linear-to-b px-4 py-12">
       <div className="fixed top-4 left-4 z-50">
         <Link
           to="/"
@@ -95,6 +101,14 @@ function InvitePage() {
                 Copier le lien
               </>
             )}
+          </Button>
+
+          <Button
+            onPress={generateNewCode}
+            className="text-ink-500 hover:text-ink-700 pressed:text-ink-800 mt-3 inline-flex cursor-pointer items-center gap-2 text-sm transition"
+          >
+            <RefreshCw className="h-3.5 w-3.5" />
+            Générer un nouveau code
           </Button>
 
           <p className="text-ink-500 mt-6 text-center text-xs">

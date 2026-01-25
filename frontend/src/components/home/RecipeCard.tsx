@@ -63,7 +63,7 @@ export const RecipeCard = memo(function RecipeCard({
               )}
               <span className="flex items-center gap-1">
                 <User className="h-3 w-3" />
-                {recipe.author.username}
+                {recipe.author.full_name || recipe.author.username}
               </span>
             </div>
           </div>
