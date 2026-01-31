@@ -1,5 +1,6 @@
 import type { Category } from "@/lib/api-types";
 import { DietFilterButton } from "./DietFilterButton";
+import { QuickFilterButton } from "./QuickFilterButton";
 import { CategoryFilterButton } from "./CategoryFilterButton";
 import { usePrefetchRecipes } from "./usePrefetchRecipes";
 
@@ -8,10 +9,12 @@ interface FilterBarProps {
   selectedCategoryId: string | null;
   filterVegetarian: boolean;
   filterVegan: boolean;
+  filterQuick: boolean;
   searchQuery?: string;
   onCategoryChange: (categoryId: string | null) => void;
   onVegetarianChange: (value: boolean) => void;
   onVeganChange: (value: boolean) => void;
+  onQuickChange: (value: boolean) => void;
 }
 
 export function FilterBar({
@@ -19,10 +22,12 @@ export function FilterBar({
   selectedCategoryId,
   filterVegetarian,
   filterVegan,
+  filterQuick,
   searchQuery = "",
   onCategoryChange,
   onVegetarianChange,
   onVeganChange,
+  onQuickChange,
 }: FilterBarProps) {
   const prefetchRecipes = usePrefetchRecipes();
   return (
@@ -31,6 +36,28 @@ export function FilterBar({
       <div className="from-paper-100 pointer-events-none absolute top-0 right-0 z-10 h-full w-12 bg-gradient-to-l to-transparent" />
 
       <div className="scrollbar-hide flex gap-6 overflow-x-auto pb-2">
+        {/* Time filter group */}
+        <div className="flex flex-shrink-0 flex-col gap-1.5">
+          <span className="text-ink-500 px-1 text-[10px] font-semibold tracking-wider uppercase">
+            Temps
+          </span>
+          <div className="flex gap-2">
+            <QuickFilterButton
+              isActive={filterQuick}
+              onClick={() => onQuickChange(!filterQuick)}
+              onPrefetch={() =>
+                prefetchRecipes({
+                  search: searchQuery,
+                  category_id: selectedCategoryId,
+                  is_vegetarian: filterVegetarian,
+                  is_vegan: filterVegan,
+                  is_quick: !filterQuick,
+                })
+              }
+            />
+          </div>
+        </div>
+
         {/* Diet filters group */}
         <div className="flex flex-shrink-0 flex-col gap-1.5">
           <span className="text-ink-500 px-1 text-[10px] font-semibold tracking-wider uppercase">
@@ -47,6 +74,7 @@ export function FilterBar({
                   category_id: selectedCategoryId,
                   is_vegetarian: !filterVegetarian,
                   is_vegan: filterVegan,
+                  is_quick: filterQuick,
                 })
               }
             />
@@ -60,6 +88,7 @@ export function FilterBar({
                   category_id: selectedCategoryId,
                   is_vegetarian: filterVegetarian,
                   is_vegan: !filterVegan,
+                  is_quick: filterQuick,
                 })
               }
             />
@@ -83,6 +112,7 @@ export function FilterBar({
                     category_id: null,
                     is_vegetarian: filterVegetarian,
                     is_vegan: filterVegan,
+                    is_quick: filterQuick,
                   })
                 }
               />
@@ -98,6 +128,7 @@ export function FilterBar({
                       category_id: category.id,
                       is_vegetarian: filterVegetarian,
                       is_vegan: filterVegan,
+                      is_quick: filterQuick,
                     })
                   }
                 />

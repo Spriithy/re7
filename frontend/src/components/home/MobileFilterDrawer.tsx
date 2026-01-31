@@ -9,6 +9,7 @@ import {
 import { SlidersHorizontal, X } from "lucide-react";
 import type { Category } from "@/lib/api-types";
 import { DietFilterButton } from "./DietFilterButton";
+import { QuickFilterButton } from "./QuickFilterButton";
 import { CategoryFilterButton } from "./CategoryFilterButton";
 import { usePrefetchRecipes } from "./usePrefetchRecipes";
 
@@ -17,6 +18,7 @@ interface MobileFilterDrawerProps {
   selectedCategoryId: string | null;
   filterVegetarian: boolean;
   filterVegan: boolean;
+  filterQuick: boolean;
   activeFilterCount: number;
   searchQuery?: string;
   isOpen: boolean;
@@ -24,6 +26,7 @@ interface MobileFilterDrawerProps {
   onCategoryChange: (categoryId: string | null) => void;
   onVegetarianChange: (value: boolean) => void;
   onVeganChange: (value: boolean) => void;
+  onQuickChange: (value: boolean) => void;
 }
 
 export function MobileFilterDrawer({
@@ -31,6 +34,7 @@ export function MobileFilterDrawer({
   selectedCategoryId,
   filterVegetarian,
   filterVegan,
+  filterQuick,
   activeFilterCount,
   searchQuery = "",
   isOpen,
@@ -38,6 +42,7 @@ export function MobileFilterDrawer({
   onCategoryChange,
   onVegetarianChange,
   onVeganChange,
+  onQuickChange,
 }: MobileFilterDrawerProps) {
   const prefetchRecipes = usePrefetchRecipes();
   return (
@@ -77,6 +82,28 @@ export function MobileFilterDrawer({
                 <div className="scrollbar-hide flex-1 overflow-y-auto px-5 py-5">
                   <div className="mb-5">
                     <h3 className="text-ink-700 mb-3 text-sm font-medium">
+                      Temps de préparation
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      <QuickFilterButton
+                        isActive={filterQuick}
+                        onClick={() => onQuickChange(!filterQuick)}
+                        onPrefetch={() =>
+                          prefetchRecipes({
+                            search: searchQuery,
+                            category_id: selectedCategoryId,
+                            is_vegetarian: filterVegetarian,
+                            is_vegan: filterVegan,
+                            is_quick: !filterQuick,
+                          })
+                        }
+                        size="md"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mb-5">
+                    <h3 className="text-ink-700 mb-3 text-sm font-medium">
                       Régime alimentaire
                     </h3>
                     <div className="flex flex-wrap gap-2">
@@ -90,6 +117,7 @@ export function MobileFilterDrawer({
                             category_id: selectedCategoryId,
                             is_vegetarian: !filterVegetarian,
                             is_vegan: filterVegan,
+                            is_quick: filterQuick,
                           })
                         }
                         size="md"
@@ -104,6 +132,7 @@ export function MobileFilterDrawer({
                             category_id: selectedCategoryId,
                             is_vegetarian: filterVegetarian,
                             is_vegan: !filterVegan,
+                            is_quick: filterQuick,
                           })
                         }
                         size="md"
@@ -127,6 +156,7 @@ export function MobileFilterDrawer({
                               category_id: null,
                               is_vegetarian: filterVegetarian,
                               is_vegan: filterVegan,
+                              is_quick: filterQuick,
                             })
                           }
                           size="md"
@@ -143,6 +173,7 @@ export function MobileFilterDrawer({
                                 category_id: category.id,
                                 is_vegetarian: filterVegetarian,
                                 is_vegan: filterVegan,
+                                is_quick: filterQuick,
                               })
                             }
                             size="md"

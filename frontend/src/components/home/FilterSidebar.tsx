@@ -1,5 +1,6 @@
 import type { Category } from "@/lib/api-types";
 import { DietFilterButton } from "./DietFilterButton";
+import { QuickFilterButton } from "./QuickFilterButton";
 import { CategoryFilterButton } from "./CategoryFilterButton";
 import { usePrefetchRecipes } from "./usePrefetchRecipes";
 
@@ -8,10 +9,12 @@ interface FilterSidebarProps {
   selectedCategoryId: string | null;
   filterVegetarian: boolean;
   filterVegan: boolean;
+  filterQuick: boolean;
   searchQuery?: string;
   onCategoryChange: (categoryId: string | null) => void;
   onVegetarianChange: (value: boolean) => void;
   onVeganChange: (value: boolean) => void;
+  onQuickChange: (value: boolean) => void;
 }
 
 export function FilterSidebar({
@@ -19,16 +22,41 @@ export function FilterSidebar({
   selectedCategoryId,
   filterVegetarian,
   filterVegan,
+  filterQuick,
   searchQuery = "",
   onCategoryChange,
   onVegetarianChange,
   onVeganChange,
+  onQuickChange,
 }: FilterSidebarProps) {
   const prefetchRecipes = usePrefetchRecipes();
   return (
     <aside className="sticky top-24 h-fit w-64 shrink-0 p-6">
-      {/* Diet filters group */}
+      {/* Time filter group */}
       <div className="flex flex-col gap-2">
+        <h3 className="text-ink-500 px-1 text-xs font-semibold tracking-wider uppercase">
+          Temps
+        </h3>
+        <div className="flex flex-col gap-1.5">
+          <QuickFilterButton
+            isActive={filterQuick}
+            onClick={() => onQuickChange(!filterQuick)}
+            onPrefetch={() =>
+              prefetchRecipes({
+                search: searchQuery,
+                category_id: selectedCategoryId,
+                is_vegetarian: filterVegetarian,
+                is_vegan: filterVegan,
+                is_quick: !filterQuick,
+              })
+            }
+            size="md"
+          />
+        </div>
+      </div>
+
+      {/* Diet filters group */}
+      <div className="mt-6 flex flex-col gap-2">
         <h3 className="text-ink-500 px-1 text-xs font-semibold tracking-wider uppercase">
           Régimes
         </h3>
@@ -43,6 +71,7 @@ export function FilterSidebar({
                 category_id: selectedCategoryId,
                 is_vegetarian: !filterVegetarian,
                 is_vegan: filterVegan,
+                is_quick: filterQuick,
               })
             }
             size="md"
@@ -57,6 +86,7 @@ export function FilterSidebar({
                 category_id: selectedCategoryId,
                 is_vegetarian: filterVegetarian,
                 is_vegan: !filterVegan,
+                is_quick: filterQuick,
               })
             }
             size="md"
@@ -81,6 +111,7 @@ export function FilterSidebar({
                   category_id: null,
                   is_vegetarian: filterVegetarian,
                   is_vegan: filterVegan,
+                  is_quick: filterQuick,
                 })
               }
               size="md"
@@ -97,6 +128,7 @@ export function FilterSidebar({
                     category_id: category.id,
                     is_vegetarian: filterVegetarian,
                     is_vegan: filterVegan,
+                    is_quick: filterQuick,
                   })
                 }
                 size="md"

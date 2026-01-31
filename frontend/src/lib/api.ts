@@ -307,6 +307,7 @@ export const recipeApi = {
     category_id?: string;
     is_vegetarian?: boolean;
     is_vegan?: boolean;
+    is_quick?: boolean;
   }) => {
     const searchParams = new URLSearchParams();
     if (params) {

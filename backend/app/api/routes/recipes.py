@@ -164,6 +164,7 @@ async def list_recipes(
     category_id: str | None = Query(None),
     is_vegetarian: bool | None = Query(None),
     is_vegan: bool | None = Query(None),
+    is_quick: bool | None = Query(None),
 ) -> RecipeListResponse:
     """List recipes with pagination."""
     # Base query
@@ -186,6 +187,13 @@ async def list_recipes(
         query = query.where(Recipe.is_vegetarian == is_vegetarian)
     if is_vegan is not None:
         query = query.where(Recipe.is_vegan == is_vegan)
+    if is_quick is True:
+        # Quick recipes: total time (prep + cook) < 30 minutes
+        # Use coalesce to treat NULL as 0
+        total_time = func.coalesce(Recipe.prep_time_minutes, 0) + func.coalesce(
+            Recipe.cook_time_minutes, 0
+        )
+        query = query.where(total_time <= 30)
 
     # Count total
     count_query = select(func.count(Recipe.id))
@@ -201,6 +209,11 @@ async def list_recipes(
         count_query = count_query.where(Recipe.is_vegetarian == is_vegetarian)
     if is_vegan is not None:
         count_query = count_query.where(Recipe.is_vegan == is_vegan)
+    if is_quick is True:
+        total_time = func.coalesce(Recipe.prep_time_minutes, 0) + func.coalesce(
+            Recipe.cook_time_minutes, 0
+        )
+        count_query = count_query.where(total_time < 30)
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
 

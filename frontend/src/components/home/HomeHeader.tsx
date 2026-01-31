@@ -12,12 +12,14 @@ interface HomeHeaderProps {
   selectedCategoryId: string | null;
   filterVegetarian: boolean;
   filterVegan: boolean;
+  filterQuick: boolean;
   activeFilterCount: number;
   isFilterDrawerOpen: boolean;
   onFilterDrawerOpenChange: (isOpen: boolean) => void;
   onCategoryChange: (categoryId: string | null) => void;
   onVegetarianChange: (value: boolean) => void;
   onVeganChange: (value: boolean) => void;
+  onQuickChange: (value: boolean) => void;
 }
 
 export function HomeHeader({
@@ -27,12 +29,14 @@ export function HomeHeader({
   selectedCategoryId,
   filterVegetarian,
   filterVegan,
+  filterQuick,
   activeFilterCount,
   isFilterDrawerOpen,
   onFilterDrawerOpenChange,
   onCategoryChange,
   onVegetarianChange,
   onVeganChange,
+  onQuickChange,
 }: HomeHeaderProps) {
   return (
     <AppHeader
@@ -81,6 +85,7 @@ export function HomeHeader({
           selectedCategoryId={selectedCategoryId}
           filterVegetarian={filterVegetarian}
           filterVegan={filterVegan}
+          filterQuick={filterQuick}
           activeFilterCount={activeFilterCount}
           searchQuery={searchQuery}
           isOpen={isFilterDrawerOpen}
@@ -88,6 +93,7 @@ export function HomeHeader({
           onCategoryChange={onCategoryChange}
           onVegetarianChange={onVegetarianChange}
           onVeganChange={onVeganChange}
+          onQuickChange={onQuickChange}
         />
       </div>
 
@@ -98,10 +104,12 @@ export function HomeHeader({
           selectedCategoryId={selectedCategoryId}
           filterVegetarian={filterVegetarian}
           filterVegan={filterVegan}
+          filterQuick={filterQuick}
           searchQuery={searchQuery}
           onCategoryChange={onCategoryChange}
           onVegetarianChange={onVegetarianChange}
           onVeganChange={onVeganChange}
+          onQuickChange={onQuickChange}
         />
       </div>
     </AppHeader>

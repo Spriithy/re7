@@ -24,6 +24,8 @@ function HomePage() {
     setFilterVegetarian,
     filterVegan,
     setFilterVegan,
+    filterQuick,
+    setFilterQuick,
     isFilterDrawerOpen,
     setIsFilterDrawerOpen,
     categories,
@@ -57,12 +59,14 @@ function HomePage() {
         selectedCategoryId={selectedCategoryId}
         filterVegetarian={filterVegetarian}
         filterVegan={filterVegan}
+        filterQuick={filterQuick}
         activeFilterCount={activeFilterCount}
         isFilterDrawerOpen={isFilterDrawerOpen}
         onFilterDrawerOpenChange={setIsFilterDrawerOpen}
         onCategoryChange={setSelectedCategoryId}
         onVegetarianChange={setFilterVegetarian}
         onVeganChange={setFilterVegan}
+        onQuickChange={setFilterQuick}
       />
 
       <div className="mx-auto max-w-7xl px-4 py-6 sm:py-8">
@@ -89,10 +93,12 @@ function HomePage() {
               selectedCategoryId={selectedCategoryId}
               filterVegetarian={filterVegetarian}
               filterVegan={filterVegan}
+              filterQuick={filterQuick}
               searchQuery={searchQuery}
               onCategoryChange={setSelectedCategoryId}
               onVegetarianChange={setFilterVegetarian}
               onVeganChange={setFilterVegan}
+              onQuickChange={setFilterQuick}
             />
           </div>
         </div>

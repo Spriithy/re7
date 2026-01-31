@@ -9,6 +9,7 @@ export function useRecipeFilters() {
   );
   const [filterVegetarian, setFilterVegetarian] = useState(false);
   const [filterVegan, setFilterVegan] = useState(false);
+  const [filterQuick, setFilterQuick] = useState(false);
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const { data: categories = [] } = useQuery({
@@ -24,6 +25,7 @@ export function useRecipeFilters() {
     ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
     ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
     ...(filterVegan ? { is_vegan: true as const } : {}),
+    ...(filterQuick ? { is_quick: true as const } : {}),
   };
 
   const {
@@ -38,6 +40,7 @@ export function useRecipeFilters() {
         category_id: selectedCategoryId ?? undefined,
         is_vegetarian: filterVegetarian || undefined,
         is_vegan: filterVegan || undefined,
+        is_quick: filterQuick || undefined,
       }),
     placeholderData: (previousData) => previousData,
   });
@@ -47,10 +50,15 @@ export function useRecipeFilters() {
   const activeFilterCount =
     (filterVegetarian ? 1 : 0) +
     (filterVegan ? 1 : 0) +
+    (filterQuick ? 1 : 0) +
     (selectedCategoryId ? 1 : 0);
 
   const hasActiveFilters =
-    !!searchQuery || !!selectedCategoryId || filterVegetarian || filterVegan;
+    !!searchQuery ||
+    !!selectedCategoryId ||
+    filterVegetarian ||
+    filterVegan ||
+    filterQuick;
 
   return {
     searchQuery,
@@ -61,6 +69,8 @@ export function useRecipeFilters() {
     setFilterVegetarian,
     filterVegan,
     setFilterVegan,
+    filterQuick,
+    setFilterQuick,
     isFilterDrawerOpen,
     setIsFilterDrawerOpen,
     categories,
