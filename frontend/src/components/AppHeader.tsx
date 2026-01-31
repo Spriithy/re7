@@ -16,7 +16,7 @@ interface AppHeaderProps {
   /** Additional content below the main header row */
   children?: React.ReactNode;
   /** Whether this is the home page (affects max-width and styling) */
-  variant?: "default" | "home" | "narrow";
+  variant?: "default" | "home";
 }
 
 export function AppHeader({
@@ -28,12 +28,7 @@ export function AppHeader({
   children,
   variant = "default",
 }: AppHeaderProps) {
-  const maxWidthClass =
-    variant === "home"
-      ? "max-w-7xl"
-      : variant === "narrow"
-        ? "max-w-2xl"
-        : "max-w-4xl";
+  const maxWidthClass = variant === "home" ? "max-w-7xl" : "max-w-4xl";
 
   return (
     <header className="sticky top-0 z-40 bg-white/60 shadow-sm backdrop-blur-sm">
@@ -54,7 +49,7 @@ export function AppHeader({
                 to="/"
                 className="font-heading text-warm-700 text-xl font-bold sm:text-2xl"
               >
-                {title || "Re7"}
+                {title ?? "Re7"}
               </Link>
               {subtitle && (
                 <p className="text-ink-500 text-xs sm:text-sm">{subtitle}</p>

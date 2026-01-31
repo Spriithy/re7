@@ -1,4 +1,5 @@
 import type { Category } from "@/lib/api-types";
+import { ToggleButton } from "react-aria-components";
 import { CategoryIcon } from "@/components/CategoryIcon";
 
 interface CategoryFilterButtonProps {
@@ -28,39 +29,30 @@ export function CategoryFilterButton({
     ? "bg-warm-600 text-white shadow-md border-warm-600"
     : "bg-warm-50/40 text-warm-700 border-warm-200 hover:bg-warm-100";
 
-  if (!category) {
-    return (
-      <button
-        onClick={onClick}
-        onMouseEnter={onPrefetch}
-        onFocus={onPrefetch}
-        className={`${size === "md" ? "flex justify-center" : ""} ${baseStyles} ${sizeStyles} ${colorStyles}`}
-        aria-pressed={isActive}
-        type="button"
-      >
-        <span className="leading-none">Toutes catégories</span>
-      </button>
-    );
-  }
+  const layoutStyles = category
+    ? `flex items-center gap-1.5${size === "md" ? " justify-center" : ""}`
+    : size === "md"
+      ? "flex justify-center"
+      : "";
 
   return (
-    <button
-      onClick={onClick}
-      onMouseEnter={onPrefetch}
-      onFocus={onPrefetch}
-      className={`flex items-center gap-1.5 ${size === "md" ? "justify-center" : ""} ${baseStyles} ${sizeStyles} ${colorStyles}`}
-      aria-pressed={isActive}
-      type="button"
+    <ToggleButton
+      isSelected={isActive}
+      onChange={() => onClick()}
+      onHoverStart={onPrefetch ? () => onPrefetch() : undefined}
+      onFocus={onPrefetch ? () => onPrefetch() : undefined}
+      className={`${layoutStyles} ${baseStyles} ${sizeStyles} ${colorStyles}`}
     >
-      <CategoryIcon
-        iconName={category.icon_name}
-        className={`shrink-0 ${isActive ? "text-white" : ""}`}
-        size={iconSize}
-        style={{
-          color: isActive ? "white" : category.color,
-        }}
-      />
-      <span className="leading-none">{category.name}</span>
-    </button>
+      {category && (
+        <CategoryIcon
+          iconName={category.icon_name}
+          className={`shrink-0 ${isActive ? "text-white" : "text-warm-600"}`}
+          size={iconSize}
+        />
+      )}
+      <span className="leading-none">
+        {category ? category.name : "Toutes catégories"}
+      </span>
+    </ToggleButton>
   );
 }

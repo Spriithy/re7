@@ -1,7 +1,7 @@
 """add_user_profile_fields
 
-Revision ID: 100caed1f562
-Revises: 7189b355d875
+Revision ID: 004
+Revises: 003
 Create Date: 2026-01-25 10:44:52.562905
 
 """
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '100caed1f562'
-down_revision: Union[str, None] = '7189b355d875'
+revision: str = '004'
+down_revision: Union[str, None] = '003'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

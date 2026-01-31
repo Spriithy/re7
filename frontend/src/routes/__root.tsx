@@ -5,14 +5,9 @@ import { AuthProvider } from "@/lib/auth/AuthProvider";
 import { ErrorPage } from "@/components/ErrorPage";
 import { RootErrorBoundary } from "@/components/RootErrorBoundary";
 
-const TanStackDevtools = lazy(() =>
-  import("@tanstack/react-devtools").then((m) => ({
-    default: m.TanStackDevtools,
-  }))
-);
-const TanStackRouterDevtoolsPanel = lazy(() =>
-  import("@tanstack/react-router-devtools").then((m) => ({
-    default: m.TanStackRouterDevtoolsPanel,
+const ReactQueryDevtools = lazy(() =>
+  import("@tanstack/react-query-devtools").then((m) => ({
+    default: m.ReactQueryDevtools,
   }))
 );
 
@@ -49,21 +44,7 @@ function RootComponent() {
         <Outlet />
         {import.meta.env.DEV ? (
           <Suspense fallback={null}>
-            <TanStackDevtools
-              config={{
-                position: "bottom-left",
-              }}
-              plugins={[
-                {
-                  name: "Tanstack Router",
-                  render: (
-                    <Suspense fallback={null}>
-                      <TanStackRouterDevtoolsPanel />
-                    </Suspense>
-                  ),
-                },
-              ]}
-            />
+            <ReactQueryDevtools buttonPosition="bottom-left" />
           </Suspense>
         ) : null}
       </AuthProvider>

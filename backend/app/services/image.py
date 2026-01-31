@@ -122,3 +122,44 @@ def delete_user_avatar(avatar_path: str) -> bool:
     Returns True if file was deleted, False if it didn't exist.
     """
     return delete_image(avatar_path)
+
+
+async def save_category_image(file: UploadFile, category_id: str) -> str:
+    """
+    Save an uploaded image for a category to the uploads/categories directory.
+    Returns the relative path to the saved file.
+    """
+    validate_image(file)
+
+    # Read file content
+    content = await file.read()
+
+    # Check file size
+    if len(content) > MAX_FILE_SIZE:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Fichier trop volumineux. Taille maximale: {MAX_FILE_SIZE // (1024 * 1024)}MB",
+        )
+
+    # Generate unique filename
+    ext = Path(file.filename).suffix.lower() if file.filename else ".jpg"
+    filename = f"{category_id}_{uuid.uuid4().hex[:8]}{ext}"
+
+    # Create categories directory if needed
+    categories_dir = settings.uploads_dir / "categories"
+    categories_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save file
+    file_path = categories_dir / filename
+    file_path.write_bytes(content)
+
+    # Return relative path from uploads directory
+    return f"categories/{filename}"
+
+
+def delete_category_image(image_path: str) -> bool:
+    """
+    Delete a category image file from the uploads directory.
+    Returns True if file was deleted, False if it didn't exist.
+    """
+    return delete_image(image_path)

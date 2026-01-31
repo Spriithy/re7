@@ -1,3 +1,4 @@
+import { ToggleButton } from "react-aria-components";
 import { Leaf, Sprout } from "lucide-react";
 
 interface DietFilterButtonProps {
@@ -32,19 +33,18 @@ export function DietFilterButton({
     : "bg-emerald-50/40 text-emerald-800 border-emerald-300 hover:bg-emerald-100";
 
   return (
-    <button
-      onClick={onClick}
-      onMouseEnter={onPrefetch}
-      onFocus={onPrefetch}
+    <ToggleButton
+      isSelected={isActive}
+      onChange={() => onClick()}
+      onHoverStart={onPrefetch ? () => onPrefetch() : undefined}
+      onFocus={onPrefetch ? () => onPrefetch() : undefined}
       className={`${baseStyles} ${sizeStyles} ${colorStyles}`}
-      aria-pressed={isActive}
-      type="button"
     >
       <Icon
         className="shrink-0"
         style={{ width: iconSize, height: iconSize }}
       />
       <span className="leading-none">{label}</span>
-    </button>
+    </ToggleButton>
   );
 }

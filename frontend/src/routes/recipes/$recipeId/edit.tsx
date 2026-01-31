@@ -46,7 +46,6 @@ function EditRecipePage() {
           title="Modifier la recette"
           showBackButton
           backTo={`/recipes/${recipeId}`}
-          variant="narrow"
         />
         <div className="flex min-h-[50vh] items-center justify-center">
           <div className="text-ink-500">Chargement...</div>
@@ -69,7 +68,6 @@ function EditRecipePage() {
         title="Modifier la recette"
         showBackButton
         backTo={`/recipes/${recipeId}`}
-        variant="narrow"
       />
 
       <div className="mx-auto max-w-2xl px-4 py-4 sm:py-6">

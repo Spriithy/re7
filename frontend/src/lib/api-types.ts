@@ -57,8 +57,18 @@ export interface Category {
   name: string;
   slug: string;
   icon_name: string;
-  color: string;
+  image_path: string | null;
   created_at: string;
+}
+
+export interface CategoryCreate {
+  name: string;
+  icon_name: string;
+}
+
+export interface CategoryUpdate {
+  name?: string;
+  icon_name?: string;
 }
 
 // Recipe types

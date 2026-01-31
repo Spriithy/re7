@@ -34,5 +34,5 @@ export function RecipeDetailNav({
     </div>
   );
 
-  return <AppHeader showBackButton actions={actionButtons} variant="narrow" />;
+  return <AppHeader showBackButton actions={actionButtons} />;
 }

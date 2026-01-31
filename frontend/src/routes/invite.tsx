@@ -56,7 +56,7 @@ function InvitePage() {
 
   return (
     <main className="from-warm-50 to-paper-100 min-h-screen bg-linear-to-b">
-      <AppHeader title="Inviter quelqu'un" showBackButton variant="narrow" />
+      <AppHeader title="Inviter quelqu'un" showBackButton />
 
       <div className="mx-auto w-full max-w-sm px-4 py-8">
         <p className="text-ink-600 text-center text-sm">

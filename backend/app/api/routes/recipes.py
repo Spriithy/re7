@@ -5,6 +5,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import selectinload
 
 from app.api.deps import CurrentUser, DbSession
+from app.core.database import normalize_text
 from app.models.category import Category
 from app.models.recipe import Ingredient, Recipe, RecipePrerequisite, Step
 from app.schemas.recipe import (
@@ -171,9 +172,12 @@ async def list_recipes(
         selectinload(Recipe.category),
     )
 
-    # Apply filters
+    # Apply filters (accent-insensitive search using normalize_text SQL function)
     if search:
-        query = query.where(Recipe.title.ilike(f"%{search}%"))
+        normalized_search = normalize_text(search)
+        query = query.where(
+            func.normalize_text(Recipe.title).contains(normalized_search)
+        )
     if author_id:
         query = query.where(Recipe.author_id == author_id)
     if category_id:
@@ -186,7 +190,9 @@ async def list_recipes(
     # Count total
     count_query = select(func.count(Recipe.id))
     if search:
-        count_query = count_query.where(Recipe.title.ilike(f"%{search}%"))
+        count_query = count_query.where(
+            func.normalize_text(Recipe.title).contains(normalized_search)
+        )
     if author_id:
         count_query = count_query.where(Recipe.author_id == author_id)
     if category_id:

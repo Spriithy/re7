@@ -8,6 +8,8 @@ import type {
   InvitedUser,
   InviteResponse,
   Category,
+  CategoryCreate,
+  CategoryUpdate,
   Recipe,
   RecipeCreate,
   RecipeUpdate,
@@ -20,8 +22,11 @@ export type {
   UserCreate,
   Token,
   User,
+  InvitedUser,
   InviteResponse,
   Category,
+  CategoryCreate,
+  CategoryUpdate,
   Difficulty,
   Ingredient,
   IngredientCreate,
@@ -177,6 +182,50 @@ export const inviteApi = {
 // Category API
 export const categoryApi = {
   list: () => request<Category[]>("/api/categories"),
+
+  get: (id: string) =>
+    request<Category>(`/api/categories/${encodeURIComponent(id)}`),
+
+  create: (data: CategoryCreate, token: string) =>
+    request<Category>("/api/categories", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
+    }),
+
+  update: (id: string, data: CategoryUpdate, token: string) =>
+    request<Category>(`/api/categories/${encodeURIComponent(id)}`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      token,
+    }),
+
+  delete: (id: string, token: string) =>
+    requestNoContent(`/api/categories/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      token,
+    }),
+
+  uploadImage: (id: string, file: File, token: string) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    return requestWithFormData<Category>(
+      `/api/categories/${encodeURIComponent(id)}/image`,
+      formData,
+      token
+    );
+  },
+
+  deleteImage: (id: string, token: string) =>
+    requestNoContent(`/api/categories/${encodeURIComponent(id)}/image`, {
+      method: "DELETE",
+      token,
+    }),
+
+  getRecipeCount: (id: string) =>
+    request<{ count: number }>(
+      `/api/categories/${encodeURIComponent(id)}/recipes/count`
+    ),
 };
 
 // Auth API

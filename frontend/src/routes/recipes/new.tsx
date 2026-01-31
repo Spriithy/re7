@@ -27,7 +27,7 @@ function CreateRecipePage() {
 
   return (
     <main className="from-warm-50 to-paper-100 min-h-screen bg-linear-to-b">
-      <AppHeader title="Nouvelle recette" showBackButton variant="narrow" />
+      <AppHeader title="Nouvelle recette" showBackButton />
 
       <div className="mx-auto max-w-2xl px-4 py-4 sm:py-6">
         <RecipeForm mode="create" />

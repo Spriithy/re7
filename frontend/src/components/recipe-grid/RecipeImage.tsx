@@ -13,7 +13,10 @@ export function RecipeImage({
   className = "",
   aspectRatio = "1/1",
 }: RecipeImageProps) {
-  const imageUrl = getImageUrl(recipe.image_path);
+  // Fallback chain: recipe image → category image → category icon
+  const recipeImageUrl = getImageUrl(recipe.image_path);
+  const categoryImageUrl = getImageUrl(recipe.category?.image_path ?? null);
+  const imageUrl = recipeImageUrl ?? categoryImageUrl;
 
   if (imageUrl) {
     return (
@@ -29,7 +32,6 @@ export function RecipeImage({
   return (
     <DefaultCategoryIcon
       iconName={recipe.category?.icon_name ?? null}
-      color={recipe.category?.color ?? "#F97316"}
       className={className}
     />
   );

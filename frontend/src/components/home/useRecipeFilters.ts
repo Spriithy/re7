@@ -16,20 +16,22 @@ export function useRecipeFilters() {
     queryFn: () => categoryApi.list(),
   });
 
+  // Only include active filters in the query key so inactive filters
+  // don't pollute the cache key (e.g. is_vegetarian: false would cause
+  // the backend to exclude vegetarian recipes)
+  const activeFilters = {
+    ...(searchQuery ? { search: searchQuery } : {}),
+    ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
+    ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
+    ...(filterVegan ? { is_vegan: true as const } : {}),
+  };
+
   const {
     data: recipesData,
     isLoading,
     isPending,
   } = useQuery({
-    queryKey: [
-      "recipes",
-      {
-        search: searchQuery,
-        category_id: selectedCategoryId,
-        is_vegetarian: filterVegetarian,
-        is_vegan: filterVegan,
-      },
-    ],
+    queryKey: ["recipes", activeFilters],
     queryFn: () =>
       recipeApi.list({
         search: searchQuery || undefined,

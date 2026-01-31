@@ -1,9 +1,29 @@
+import unicodedata
 from collections.abc import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import event
 
 from app.core.config import settings
+
+
+def normalize_text(text: str | None) -> str:
+    """
+    Normalize text for accent-insensitive search.
+    Removes accents and converts to lowercase.
+    Examples:
+        "Crème brûlée" -> "creme brulee"
+        "Bœuf Bourguignon" -> "boeuf bourguignon"
+    """
+    if text is None:
+        return ""
+    # Handle French ligatures that don't decompose with NFKD
+    text = text.replace("œ", "oe").replace("Œ", "OE")
+    text = text.replace("æ", "ae").replace("Æ", "AE")
+    # Normalize unicode characters (é -> e, etc.)
+    text = unicodedata.normalize("NFKD", text)
+    text = text.encode("ascii", "ignore").decode("ascii")
+    return text.lower()
 
 
 class Base(DeclarativeBase):
@@ -16,7 +36,7 @@ engine = create_async_engine(
 )
 
 
-# Enable WAL mode for SQLite
+# Enable WAL mode for SQLite and register custom functions
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
@@ -24,6 +44,8 @@ def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.execute("PRAGMA foreign_keys=ON")
     cursor.close()
+    # Register normalize_text function for accent-insensitive search
+    dbapi_connection.create_function("normalize_text", 1, normalize_text)
 
 
 async_session_maker = async_sessionmaker(

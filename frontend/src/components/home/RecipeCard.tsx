@@ -23,49 +23,58 @@ export const RecipeCard = memo(function RecipeCard({
       className="group block"
       preload="intent"
     >
-      <article className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
-        <div className="relative aspect-[4/3] overflow-hidden">
+      <article className="relative aspect-[5/6] overflow-hidden rounded-2xl shadow-sm transition-shadow duration-200 hover:shadow-md">
+
+        {/* Full-bleed image */}
+        <div className="absolute inset-0 overflow-hidden">
           <RecipeImage
             recipe={recipe}
-            className="transition-transform duration-300 group-hover:scale-105"
-            aspectRatio="4/3"
+            className="h-full transition-transform duration-500 group-hover:scale-105"
+            aspectRatio="auto"
           />
         </div>
 
-        <div className="flex flex-1 flex-col p-4">
-          <h3 className="font-heading text-ink-900 mb-2 line-clamp-2 text-lg font-semibold">
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
+
+        {/* Category badge — top left */}
+        {recipe.category && (
+          <div className="absolute top-3 left-3 z-10">
+            <CategoryBadge category={recipe.category} size="sm" />
+          </div>
+        )}
+
+        {/* Diet badges — top right */}
+        <div className="absolute top-3 right-3 z-10 flex gap-1.5">
+          {recipe.is_vegan && <DietBadge type="vegan" size="sm" />}
+          {recipe.is_vegetarian && !recipe.is_vegan && (
+            <DietBadge type="vegetarian" size="sm" />
+          )}
+        </div>
+
+        {/* Overlay content — pinned to bottom */}
+        <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white">
+          <h3 className="font-heading mb-1 line-clamp-2 text-xl font-bold drop-shadow-sm">
             {recipe.title}
           </h3>
 
           {recipe.description && (
-            <p className="text-ink-500 mb-3 line-clamp-2 text-sm">
+            <p className="mb-2 line-clamp-2 text-sm text-white/80 drop-shadow-sm">
               {recipe.description}
             </p>
           )}
 
-          <div className="mt-auto space-y-2">
-            <div className="flex flex-wrap items-center gap-2">
-              {recipe.category && (
-                <CategoryBadge category={recipe.category} size="sm" />
-              )}
-              {recipe.is_vegan && <DietBadge type="vegan" size="sm" />}
-              {recipe.is_vegetarian && !recipe.is_vegan && (
-                <DietBadge type="vegetarian" size="sm" />
-              )}
-            </div>
-
-            <div className="text-ink-500 flex items-center justify-between text-xs">
-              {totalTime > 0 && (
-                <span className="flex items-center gap-1">
-                  <Clock className="h-3 w-3" />
-                  {totalTime} min
-                </span>
-              )}
+          <div className="flex items-center gap-3 text-xs text-white/70">
+            {totalTime > 0 && (
               <span className="flex items-center gap-1">
-                <User className="h-3 w-3" />
-                {recipe.author.full_name || recipe.author.username}
+                <Clock className="h-3 w-3" />
+                {totalTime} min
               </span>
-            </div>
+            )}
+            <span className="flex items-center gap-1">
+              <User className="h-3 w-3" />
+              {recipe.author.full_name ?? recipe.author.username}
+            </span>
           </div>
         </div>
       </article>

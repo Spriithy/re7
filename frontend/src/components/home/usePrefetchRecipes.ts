@@ -14,22 +14,22 @@ export function usePrefetchRecipes() {
   return (params: PrefetchParams) => {
     const { search, category_id, is_vegetarian, is_vegan } = params;
 
+    // Only include active filters in the key — must match useRecipeFilters
+    const activeFilters = {
+      ...(search ? { search } : {}),
+      ...(category_id ? { category_id } : {}),
+      ...(is_vegetarian ? { is_vegetarian: true as const } : {}),
+      ...(is_vegan ? { is_vegan: true as const } : {}),
+    };
+
     void queryClient.prefetchQuery({
-      queryKey: [
-        "recipes",
-        {
-          search: search ?? "",
-          category_id,
-          is_vegetarian: is_vegetarian ?? false,
-          is_vegan: is_vegan ?? false,
-        },
-      ],
+      queryKey: ["recipes", activeFilters],
       queryFn: () =>
         recipeApi.list({
-          search: search ?? undefined,
+          search: search || undefined,
           category_id: category_id ?? undefined,
-          is_vegetarian: is_vegetarian ?? undefined,
-          is_vegan: is_vegan ?? undefined,
+          is_vegetarian: is_vegetarian || undefined,
+          is_vegan: is_vegan || undefined,
         }),
     });
   };

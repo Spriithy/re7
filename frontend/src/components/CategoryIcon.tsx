@@ -10,15 +10,23 @@ import {
   Droplets,
   Fish,
   CookingPot,
-  type LucideIcon,
   Beef,
+  Wheat,
+  Cherry,
+  Citrus,
+  IceCream,
+  Pizza,
+  Sandwich,
+  Carrot,
+  Croissant,
+  type LucideIcon,
 } from "lucide-react";
 
 const iconMap: Record<string, LucideIcon> = {
+  plats: CookingPot,
   entrees: UtensilsCrossed,
   viandes: Beef,
   poissons: Fish,
-  plats: CookingPot,
   "soupes-potages": Soup,
   salades: Salad,
   desserts: Cake,
@@ -27,6 +35,14 @@ const iconMap: Record<string, LucideIcon> = {
   "sauces-condiments": Droplets,
   "petit-dejeuner": Coffee,
   aperitifs: Wine,
+  viennoiseries: Croissant,
+  pains: Wheat,
+  fruits: Cherry,
+  agrumes: Citrus,
+  glaces: IceCream,
+  pizzas: Pizza,
+  sandwichs: Sandwich,
+  healthy: Carrot,
 };
 
 interface CategoryIconProps {
