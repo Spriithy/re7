@@ -1,6 +1,8 @@
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMemo, useState } from "react";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { recipeApi, categoryApi } from "@/lib/api";
+
+const PAGE_SIZE = 12;
 
 export function useRecipeFilters() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,31 +19,36 @@ export function useRecipeFilters() {
     queryFn: () => categoryApi.list(),
   });
 
+  const filterParams = useMemo(
+    () => ({
+      search: searchQuery || undefined,
+      category_id: selectedCategoryId ?? undefined,
+      is_vegetarian: filterVegetarian || undefined,
+      is_vegan: filterVegan || undefined,
+      is_quick: filterQuick || undefined,
+    }),
+    [searchQuery, selectedCategoryId, filterVegetarian, filterVegan, filterQuick]
+  );
+
   const {
-    data: recipesData,
+    data,
     isLoading,
     isPending,
-  } = useQuery({
-    queryKey: [
-      "recipes",
-      searchQuery,
-      selectedCategoryId,
-      filterVegetarian,
-      filterVegan,
-      filterQuick,
-    ],
-    queryFn: () =>
-      recipeApi.list({
-        search: searchQuery || undefined,
-        category_id: selectedCategoryId ?? undefined,
-        is_vegetarian: filterVegetarian || undefined,
-        is_vegan: filterVegan || undefined,
-        is_quick: filterQuick || undefined,
-      }),
-    placeholderData: (previousData) => previousData,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+  } = useInfiniteQuery({
+    queryKey: ["recipes", filterParams],
+    queryFn: ({ pageParam = 1 }) =>
+      recipeApi.list({ ...filterParams, page: pageParam, page_size: PAGE_SIZE }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.page >= lastPage.total_pages ? undefined : lastPage.page + 1,
+    placeholderData: (prev) => prev,
   });
 
-  const recipes = recipesData?.items ?? [];
+  const recipes = data?.pages.flatMap((page) => page.items) ?? [];
+  const totalCount = data?.pages[0]?.total ?? 0;
 
   const activeFilterCount =
     (filterVegetarian ? 1 : 0) +
@@ -71,8 +78,12 @@ export function useRecipeFilters() {
     setIsFilterDrawerOpen,
     categories,
     recipes,
+    totalCount,
     isLoading,
     isPending,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     activeFilterCount,
     hasActiveFilters,
   };

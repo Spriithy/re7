@@ -6,6 +6,8 @@ interface MyRecipesSectionProps {
   isLoading?: boolean;
 }
 
+const noop = () => {};
+
 export function MyRecipesSection({
   recipes,
   isLoading = false,
@@ -26,9 +28,21 @@ export function MyRecipesSection({
 
       {/* Recipe grid or empty state */}
       {isLoading ? (
-        <RecipeGrid recipes={[]} isLoading={true} />
+        <RecipeGrid
+          recipes={[]}
+          isLoading={true}
+          isFetchingNextPage={false}
+          hasNextPage={false}
+          fetchNextPage={noop}
+        />
       ) : recipes.length > 0 ? (
-        <RecipeGrid recipes={recipes} isLoading={false} />
+        <RecipeGrid
+          recipes={recipes}
+          isLoading={false}
+          isFetchingNextPage={false}
+          hasNextPage={false}
+          fetchNextPage={noop}
+        />
       ) : (
         <div className="py-12 text-center">
           <p className="text-ink-600 text-lg">

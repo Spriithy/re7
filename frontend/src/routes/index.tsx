@@ -30,7 +30,11 @@ function HomePage() {
     setIsFilterDrawerOpen,
     categories,
     recipes,
+    totalCount,
     isLoading: recipesLoading,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
     activeFilterCount,
     hasActiveFilters,
   } = useRecipeFilters();
@@ -74,12 +78,18 @@ function HomePage() {
           {/* Main content */}
           <main className="min-w-0 flex-1">
             <RecipeResultsHeader
-              recipeCount={recipes.length}
+              recipeCount={totalCount}
               filterVegetarian={filterVegetarian}
               filterVegan={filterVegan}
             />
 
-            <RecipeGrid recipes={recipes} isLoading={recipesLoading} />
+            <RecipeGrid
+              recipes={recipes}
+              isLoading={recipesLoading}
+              isFetchingNextPage={isFetchingNextPage}
+              hasNextPage={hasNextPage ?? false}
+              fetchNextPage={fetchNextPage}
+            />
 
             {!recipesLoading && recipes.length === 0 && (
               <EmptyState hasActiveFilters={hasActiveFilters} />

@@ -92,7 +92,9 @@ export const RecipeCard = memo(function RecipeCard({
               {totalTime > 0 && (
                 <span className="flex items-center gap-1">
                   <Clock className="h-3 w-3" />
-                  <span className="text-white">{totalTime} min</span>
+                  <span className={hasImage ? "text-white" : "text-ink-700"}>
+                    {totalTime} min
+                  </span>
                 </span>
               )}
             </div>
@@ -103,7 +105,9 @@ export const RecipeCard = memo(function RecipeCard({
             >
               <span className="max-w-20 truncate">
                 par&nbsp;
-                <span className="font-medium text-white">
+                <span
+                  className={`font-medium ${hasImage ? "text-white" : "text-ink-700"}`}
+                >
                   {recipe.author.full_name ?? recipe.author.username}
                 </span>
               </span>
