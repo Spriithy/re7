@@ -1,11 +1,12 @@
 import { memo } from "react";
 import { Link } from "@tanstack/react-router";
-import { Clock, User } from "lucide-react";
+import { Clock } from "lucide-react";
 import type { RecipeListItem } from "@/lib/api-types";
 import { RecipeImage } from "@/components/recipe-grid/RecipeImage";
 import { recipeHasImage } from "@/lib/recipe-utils";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { DietBadge } from "@/components/DietBadge";
+import { CreatorAvatar } from "@/components/CreatorAvatar";
 import { useRecipePrefetch } from "@/hooks/useRecipePrefetch";
 
 interface RecipeCardProps {
@@ -82,21 +83,32 @@ export const RecipeCard = memo(function RecipeCard({
             </p>
           )}
 
-          <div
-            className={`flex items-center gap-3 text-xs ${
-              hasImage ? "text-white/70" : "text-ink-500"
-            }`}
-          >
-            {totalTime > 0 && (
-              <span className="flex items-center gap-1">
-                <Clock className="h-3 w-3" />
-                {totalTime} min
+          <div className="flex items-center justify-between">
+            <div
+              className={`flex items-center gap-3 text-xs ${
+                hasImage ? "text-white/70" : "text-ink-500"
+              }`}
+            >
+              {totalTime > 0 && (
+                <span className="flex items-center gap-1">
+                  <Clock className="h-3 w-3" />
+                  <span className="text-white">{totalTime} min</span>
+                </span>
+              )}
+            </div>
+            <div
+              className={`flex items-center gap-1.5 text-xs ${
+                hasImage ? "text-white/70" : "text-ink-500"
+              }`}
+            >
+              <span className="max-w-20 truncate">
+                par&nbsp;
+                <span className="font-medium text-white">
+                  {recipe.author.full_name ?? recipe.author.username}
+                </span>
               </span>
-            )}
-            <span className="flex items-center gap-1">
-              <User className="h-3 w-3" />
-              {recipe.author.full_name ?? recipe.author.username}
-            </span>
+              <CreatorAvatar author={recipe.author} size="sm" />
+            </div>
           </div>
         </div>
       </article>
