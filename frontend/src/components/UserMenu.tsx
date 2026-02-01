@@ -24,6 +24,7 @@ export function UserMenu() {
   const router = useRouter();
   const isMobile = useIsMobile();
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   if (isLoading || !isAuthenticated || !user) {
     return null;
@@ -32,17 +33,19 @@ export function UserMenu() {
   const displayName = user.full_name ?? user.username;
   const initials = getInitials(displayName);
   const avatarUrl = getImageUrl(user.avatar_url);
+  const hasAvatar = avatarUrl !== null && !imageError;
 
   const triggerButton = (
     <Button
       aria-label="Menu utilisateur"
       className="bg-warm-600 hover:bg-warm-700 data-focus-visible:ring-warm-500 flex h-9 w-9 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white shadow-md ring-1 ring-black/10 transition focus:outline-none data-focus-visible:ring-2 data-focus-visible:ring-offset-2 sm:h-10 sm:w-10"
     >
-      {avatarUrl ? (
+      {hasAvatar ? (
         <img
           src={avatarUrl}
           alt={displayName}
           className="h-full w-full object-cover"
+          onError={() => setImageError(true)}
         />
       ) : (
         initials
@@ -67,11 +70,12 @@ export function UserMenu() {
                     <div className="mb-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="bg-warm-600 flex h-10 w-10 items-center justify-center overflow-hidden rounded-full text-sm font-semibold text-white shadow-md ring-1 ring-black/10">
-                          {avatarUrl ? (
+                          {hasAvatar ? (
                             <img
                               src={avatarUrl}
                               alt={displayName}
                               className="h-full w-full object-cover"
+                              onError={() => setImageError(true)}
                             />
                           ) : (
                             initials

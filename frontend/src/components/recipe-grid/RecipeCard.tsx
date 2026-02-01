@@ -33,7 +33,7 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
             loading="lazy"
           />
           {/* Gradient overlay at bottom */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/50 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-black/50 to-transparent" />
 
           {/* Like badge */}
           <div className="text-ink-700 absolute top-2 right-2 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-xs font-medium backdrop-blur-sm">

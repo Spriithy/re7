@@ -32,6 +32,7 @@ export function ProfileAvatar({
 }: ProfileAvatarProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
 
   const displayName = user.full_name ?? user.username;
   const initials = displayName
@@ -42,7 +43,7 @@ export function ProfileAvatar({
     .slice(0, 2);
 
   const avatarUrl = previewUrl ?? getImageUrl(user.avatar_url);
-  const hasAvatar = avatarUrl !== null;
+  const hasAvatar = avatarUrl !== null && !imageError;
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,6 +80,7 @@ export function ProfileAvatar({
 
   const handleDeleteClick = () => {
     setPreviewUrl(null);
+    setImageError(false);
     onDelete();
   };
 
@@ -92,6 +94,7 @@ export function ProfileAvatar({
               src={avatarUrl}
               alt={displayName}
               className="h-full w-full object-cover"
+              onError={() => setImageError(true)}
             />
           ) : (
             <div className="from-warm-400 to-warm-600 flex h-full w-full items-center justify-center bg-gradient-to-br text-2xl font-bold text-white sm:text-3xl">
