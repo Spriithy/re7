@@ -18,9 +18,7 @@ class InviteValidation(BaseModel):
 @router.get("/validate/{token}", response_model=InviteValidation)
 async def validate_invite(token: str, db: DbSession) -> InviteValidation:
     """Check if an invite token is valid. Public endpoint."""
-    result = await db.execute(
-        select(InviteLink).where(InviteLink.token == token)
-    )
+    result = await db.execute(select(InviteLink).where(InviteLink.token == token))
     invite = result.scalar_one_or_none()
 
     if invite is None or not invite.is_valid:
@@ -55,9 +53,7 @@ async def list_invites(
     db: DbSession,
 ) -> list[InviteResponse]:
     """List all invite links. Admin only."""
-    result = await db.execute(
-        select(InviteLink).order_by(InviteLink.created_at.desc())
-    )
+    result = await db.execute(select(InviteLink).order_by(InviteLink.created_at.desc()))
     invites = result.scalars().all()
     return [InviteResponse.from_orm_with_used(invite) for invite in invites]
 
@@ -69,9 +65,7 @@ async def delete_invite(
     db: DbSession,
 ) -> None:
     """Delete an invite link. Admin only."""
-    result = await db.execute(
-        select(InviteLink).where(InviteLink.id == invite_id)
-    )
+    result = await db.execute(select(InviteLink).where(InviteLink.id == invite_id))
     invite = result.scalar_one_or_none()
 
     if invite is None:

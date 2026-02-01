@@ -28,11 +28,11 @@ export function usePrefetchRecipes() {
       queryKey: ["recipes", activeFilters],
       queryFn: () =>
         recipeApi.list({
-          search: search || undefined,
+          search: search ?? undefined,
           category_id: category_id ?? undefined,
-          is_vegetarian: is_vegetarian || undefined,
-          is_vegan: is_vegan || undefined,
-          is_quick: is_quick || undefined,
+          is_vegetarian: is_vegetarian ?? undefined,
+          is_vegan: is_vegan ?? undefined,
+          is_quick: is_quick ?? undefined,
         }),
     });
   };

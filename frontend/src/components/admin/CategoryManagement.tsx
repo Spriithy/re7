@@ -2,7 +2,12 @@ import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus } from "lucide-react";
 import { Button } from "react-aria-components";
-import { categoryApi, type Category, type CategoryCreate, type CategoryUpdate } from "@/lib/api";
+import {
+  categoryApi,
+  type Category,
+  type CategoryCreate,
+  type CategoryUpdate,
+} from "@/lib/api";
 import { CategoryList } from "./CategoryList";
 import { CategoryFormModal } from "./CategoryFormModal";
 import { DeleteCategoryModal } from "./DeleteCategoryModal";
@@ -15,7 +20,9 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [deletingCategory, setDeletingCategory] = useState<Category | null>(null);
+  const [deletingCategory, setDeletingCategory] = useState<Category | null>(
+    null
+  );
 
   // Fetch categories
   const { data: categories = [], isLoading } = useQuery({

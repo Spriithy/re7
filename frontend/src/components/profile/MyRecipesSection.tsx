@@ -13,12 +13,12 @@ export function MyRecipesSection({
   return (
     <div>
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-lg font-heading font-semibold text-ink-900">
+      <div className="mb-6 flex items-center gap-3">
+        <h2 className="font-heading text-ink-900 text-lg font-semibold">
           Mes recettes
         </h2>
         {!isLoading && (
-          <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 bg-warm-100 text-warm-900 text-sm font-medium rounded-full">
+          <span className="bg-warm-100 text-warm-900 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-sm font-medium">
             {recipes.length}
           </span>
         )}
@@ -34,7 +34,7 @@ export function MyRecipesSection({
           <p className="text-ink-600 text-lg">
             Vous n'avez pas encore créé de recettes
           </p>
-          <p className="text-ink-500 text-sm mt-2">
+          <p className="text-ink-500 mt-2 text-sm">
             Commencez à partager vos recettes préférées
           </p>
         </div>

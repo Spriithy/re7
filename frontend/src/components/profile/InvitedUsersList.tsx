@@ -1,6 +1,16 @@
 import { getImageUrl } from "@/lib/api";
 import type { InvitedUser } from "@/lib/api";
 
+// Cache formatter at module level to avoid recreation on every render
+const dateFormatter = new Intl.DateTimeFormat("fr-FR", {
+  year: "numeric",
+  month: "long",
+});
+
+function formatDate(dateString: string) {
+  return dateFormatter.format(new Date(dateString));
+}
+
 interface InvitedUsersListProps {
   users: InvitedUser[];
   isLoading?: boolean;
@@ -10,23 +20,15 @@ export function InvitedUsersList({
   users,
   isLoading = false,
 }: InvitedUsersListProps) {
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return new Intl.DateTimeFormat("fr-FR", {
-      year: "numeric",
-      month: "long",
-    }).format(date);
-  };
-
   return (
     <div>
       {/* Section header */}
-      <div className="flex items-center gap-3 mb-6">
-        <h2 className="text-lg font-heading font-semibold text-ink-900">
+      <div className="mb-6 flex items-center gap-3">
+        <h2 className="font-heading text-ink-900 text-lg font-semibold">
           Mes invitations
         </h2>
         {!isLoading && (
-          <span className="inline-flex items-center justify-center h-6 min-w-6 px-2 bg-warm-100 text-warm-900 text-sm font-medium rounded-full">
+          <span className="bg-warm-100 text-warm-900 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-2 text-sm font-medium">
             {users.length}
           </span>
         )}
@@ -34,11 +36,11 @@ export function InvitedUsersList({
 
       {/* Loading state */}
       {isLoading && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="animate-pulse bg-gray-100 rounded-lg h-24"
+              className="h-24 animate-pulse rounded-lg bg-gray-100"
             />
           ))}
         </div>
@@ -46,9 +48,9 @@ export function InvitedUsersList({
 
       {/* User grid */}
       {!isLoading && users.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {users.map((user) => {
-            const displayName = user.full_name || user.username;
+            const displayName = user.full_name ?? user.username;
             const initials = displayName
               .split(" ")
               .map((n) => n[0])
@@ -60,11 +62,11 @@ export function InvitedUsersList({
             return (
               <div
                 key={user.id}
-                className="flex items-center gap-3 p-4 border border-ink-200 rounded-lg hover:border-warm-400 hover:bg-warm-50/30 transition-colors"
+                className="border-ink-200 hover:border-warm-400 hover:bg-warm-50/30 flex items-center gap-3 rounded-lg border p-4 transition-colors"
               >
                 {/* Avatar */}
                 <div className="flex-shrink-0">
-                  <div className="h-12 w-12 rounded-full overflow-hidden bg-warm-100">
+                  <div className="bg-warm-100 h-12 w-12 overflow-hidden rounded-full">
                     {avatarUrl ? (
                       <img
                         src={avatarUrl}
@@ -72,7 +74,7 @@ export function InvitedUsersList({
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <div className="h-full w-full flex items-center justify-center bg-gradient-to-br from-warm-400 to-warm-600 text-white text-sm font-bold">
+                      <div className="from-warm-400 to-warm-600 flex h-full w-full items-center justify-center bg-gradient-to-br text-sm font-bold text-white">
                         {initials}
                       </div>
                     )}
@@ -81,10 +83,10 @@ export function InvitedUsersList({
 
                 {/* User info */}
                 <div className="min-w-0 flex-1">
-                  <div className="font-medium text-ink-900 truncate">
+                  <div className="text-ink-900 truncate font-medium">
                     {displayName}
                   </div>
-                  <div className="text-sm text-ink-600">
+                  <div className="text-ink-600 text-sm">
                     Membre depuis {formatDate(user.created_at)}
                   </div>
                 </div>
@@ -97,10 +99,8 @@ export function InvitedUsersList({
       {/* Empty state */}
       {!isLoading && users.length === 0 && (
         <div className="py-12 text-center">
-          <p className="text-ink-600 text-lg">
-            Vous n'avez invité personne
-          </p>
-          <p className="text-ink-500 text-sm mt-2">
+          <p className="text-ink-600 text-lg">Vous n'avez invité personne</p>
+          <p className="text-ink-500 mt-2 text-sm">
             Partagez l'application avec vos proches
           </p>
         </div>

@@ -105,9 +105,7 @@ async def get_invited_users(
     if not user_ids:
         return []
 
-    result = await db.execute(
-        select(User).where(User.id.in_(user_ids))
-    )
+    result = await db.execute(select(User).where(User.id.in_(user_ids)))
     users = result.scalars().all()
 
     return [InvitedUserResponse.model_validate(user) for user in users]

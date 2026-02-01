@@ -26,10 +26,12 @@ export function DeleteCategoryModal({
   category,
 }: DeleteCategoryModalProps) {
   // Fetch recipe count when modal is open
+  const categoryId = category?.id;
   const { data: countData, isLoading: countLoading } = useQuery({
-    queryKey: ["categories", category?.id, "recipes", "count"],
-    queryFn: () => categoryApi.getRecipeCount(category!.id),
-    enabled: isOpen && !!category,
+    queryKey: ["categories", categoryId, "recipes", "count"],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures categoryId is defined
+    queryFn: () => categoryApi.getRecipeCount(categoryId!),
+    enabled: isOpen && !!categoryId,
   });
 
   const recipeCount = countData?.count ?? 0;

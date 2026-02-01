@@ -6,6 +6,7 @@ import { RecipeImage } from "@/components/recipe-grid/RecipeImage";
 import { recipeHasImage } from "@/lib/recipe-utils";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { DietBadge } from "@/components/DietBadge";
+import { useRecipePrefetch } from "@/hooks/useRecipePrefetch";
 
 interface RecipeCardProps {
   recipe: RecipeListItem;
@@ -14,6 +15,7 @@ interface RecipeCardProps {
 export const RecipeCard = memo(function RecipeCard({
   recipe,
 }: RecipeCardProps) {
+  const { prefetchRecipe } = useRecipePrefetch();
   const totalTime =
     (recipe.prep_time_minutes ?? 0) + (recipe.cook_time_minutes ?? 0);
   const hasImage = recipeHasImage(recipe);
@@ -24,6 +26,8 @@ export const RecipeCard = memo(function RecipeCard({
       params={{ recipeId: recipe.id }}
       className="group block"
       preload="intent"
+      onMouseEnter={() => prefetchRecipe(recipe.id)}
+      onFocus={() => prefetchRecipe(recipe.id)}
     >
       <article className="relative aspect-5/6 overflow-hidden rounded-2xl transition-shadow duration-200">
         {/* Full-bleed image or placeholder */}

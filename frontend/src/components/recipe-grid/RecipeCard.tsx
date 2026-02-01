@@ -2,12 +2,14 @@ import { Link } from "@tanstack/react-router";
 import { Heart, Clock } from "lucide-react";
 import type { Recipe } from "./types";
 import { getRandomImage, getAspectRatio } from "./utils";
+import { useRecipePrefetch } from "@/hooks/useRecipePrefetch";
 
 interface RecipeCardProps {
   recipe: Recipe;
 }
 
 export function RecipeCard({ recipe }: RecipeCardProps) {
+  const { prefetchRecipe } = useRecipePrefetch();
   const imageUrl = getRandomImage(recipe.id);
   const aspectRatio = getAspectRatio(recipe.id);
   const totalTime = (recipe.prepTime ?? 0) + (recipe.cookTime ?? 0);
@@ -18,6 +20,8 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       params={{ recipeId: recipe.id }}
       className="group mb-3 block break-inside-avoid"
       preload="intent"
+      onMouseEnter={() => prefetchRecipe(recipe.id)}
+      onFocus={() => prefetchRecipe(recipe.id)}
     >
       <article className="overflow-hidden rounded-2xl bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
         {/* Image */}

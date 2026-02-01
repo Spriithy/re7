@@ -45,9 +45,7 @@ async def create_category(
 
     # Check if name or slug already exists
     existing = await db.execute(
-        select(Category).where(
-            (Category.name == data.name) | (Category.slug == slug)
-        )
+        select(Category).where((Category.name == data.name) | (Category.slug == slug))
     )
     if existing.scalar_one_or_none():
         raise HTTPException(
@@ -75,9 +73,7 @@ async def get_category(
     Get a single category by ID.
     Public endpoint.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -98,9 +94,7 @@ async def update_category(
     Update a category.
     Admin only.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -145,9 +139,7 @@ async def delete_category(
     Recipes in this category will become uncategorized.
     Admin only.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -181,9 +173,7 @@ async def upload_category_image(
     Upload an image for a category.
     Admin only.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -214,9 +204,7 @@ async def delete_category_image_endpoint(
     Delete the image for a category.
     Admin only.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -240,9 +228,7 @@ async def get_category_recipe_count(
     Useful for delete confirmation.
     Public endpoint.
     """
-    result = await db.execute(
-        select(Category).where(Category.id == category_id)
-    )
+    result = await db.execute(select(Category).where(Category.id == category_id))
     category = result.scalar_one_or_none()
     if not category:
         raise HTTPException(
@@ -251,7 +237,9 @@ async def get_category_recipe_count(
         )
 
     count_result = await db.execute(
-        select(func.count()).select_from(Recipe).where(Recipe.category_id == category_id)
+        select(func.count())
+        .select_from(Recipe)
+        .where(Recipe.category_id == category_id)
     )
     count = count_result.scalar() or 0
 

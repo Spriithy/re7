@@ -17,9 +17,7 @@ router = APIRouter()
 @router.post("/login", response_model=Token)
 async def login(credentials: UserLogin, db: DbSession) -> Token:
     """Authenticate user and return access token."""
-    result = await db.execute(
-        select(User).where(User.username == credentials.username)
-    )
+    result = await db.execute(select(User).where(User.username == credentials.username))
     user = result.scalar_one_or_none()
 
     if user is None or not verify_password(credentials.password, user.password_hash):
@@ -36,9 +34,7 @@ async def login(credentials: UserLogin, db: DbSession) -> Token:
 async def register(user_data: UserCreate, db: DbSession) -> Token:
     """Register a new user with an invite token."""
     # Check if username is taken
-    result = await db.execute(
-        select(User).where(User.username == user_data.username)
-    )
+    result = await db.execute(select(User).where(User.username == user_data.username))
     if result.scalar_one_or_none() is not None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

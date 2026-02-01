@@ -127,3 +127,59 @@ body {
 .animate-slide-down {
   animation: slide-down 150ms ease-in;
 }
+
+/* Print styles for recipe pages */
+@media print {
+  /* Reset background and colors */
+  body {
+    @apply bg-white text-black;
+  }
+
+  /* Hide navigation and interactive elements */
+  nav,
+  header,
+  [data-print-hide],
+  button:not([data-print-keep]),
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Ensure content is visible */
+  main {
+    @apply bg-white;
+  }
+
+  /* Better typography for print */
+  h1,
+  h2,
+  h3 {
+    page-break-after: avoid;
+  }
+
+  /* Keep sections together */
+  section {
+    page-break-inside: avoid;
+  }
+
+  /* Ensure ingredients and steps don't break awkwardly */
+  li {
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and decorative elements */
+  * {
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+
+  /* Ensure links are readable in print */
+  a {
+    text-decoration: underline;
+  }
+
+  /* Optimize image size for print */
+  img {
+    max-height: 200px;
+    object-fit: cover;
+  }
+}

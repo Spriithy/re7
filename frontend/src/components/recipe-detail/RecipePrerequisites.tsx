@@ -13,7 +13,7 @@ export function RecipePrerequisites({
   }
 
   return (
-    <section className="border-paper-300 border-b py-6">
+    <section className="border-paper-300 print:border-ink-300 border-b py-6">
       <h2 className="font-heading text-ink-900 text-2xl font-semibold">
         Prérequis
       </h2>
@@ -25,11 +25,11 @@ export function RecipePrerequisites({
               key={prereq.id}
               className="text-ink-800 flex items-baseline gap-2"
             >
-              <span className="bg-warm-500 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
+              <span className="bg-warm-500 print:bg-ink-900 h-1.5 w-1.5 flex-shrink-0 rounded-full" />
               <Link
                 to="/recipes/$recipeId"
                 params={{ recipeId: prereq.prerequisite_recipe_id }}
-                className="text-warm-700 hover:underline"
+                className="text-warm-700 print:text-ink-900 hover:underline"
                 preload="intent"
               >
                 {prereq.prerequisite_recipe_title ?? "Recette"}

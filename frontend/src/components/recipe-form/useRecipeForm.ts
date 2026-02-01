@@ -1,5 +1,6 @@
 import { useState, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   ApiError,
   recipeApi,
@@ -33,6 +34,7 @@ interface UseRecipeFormProps {
 
 export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { token } = useAuth();
 
   // Form state
@@ -249,6 +251,10 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
           await recipeApi.uploadImage(recipe.id, imageFile, token);
         }
 
+        // Invalidate recipe caches to reflect image changes
+        void queryClient.invalidateQueries({ queryKey: ["recipes"] });
+        void queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
+
         void navigate({
           to: "/recipes/$recipeId",
           params: { recipeId: recipe.id },
@@ -282,6 +288,7 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
       removeExistingImage,
       imageFile,
       navigate,
+      queryClient,
     ]
   );
 

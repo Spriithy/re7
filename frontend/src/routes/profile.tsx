@@ -21,24 +21,31 @@ function ProfilePage() {
   const [profileUpdateSuccess, setProfileUpdateSuccess] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
 
+  // Extract IDs for stable query keys
+  const userId = user?.id;
+
   // Query user's recipes - always call hooks, use enabled flag to control execution
   const { data: recipesData, isLoading: recipesLoading } = useQuery({
-    queryKey: ["recipes", "mine", user?.id],
-    queryFn: () => recipeApi.list({ author_id: user!.id }),
-    enabled: !!user && !!token && isAuthenticated,
+    queryKey: ["recipes", "mine", userId],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures userId is defined
+    queryFn: () => recipeApi.list({ author_id: userId! }),
+    enabled: !!userId && !!token && isAuthenticated,
   });
 
   // Query invited users
   const { data: invitedUsers = [], isLoading: invitedUsersLoading } = useQuery({
-    queryKey: ["users", "invited"],
+    queryKey: ["users", "invited", token],
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures token is defined
     queryFn: () => userApi.getInvitedUsers(token!),
     enabled: !!token && isAuthenticated,
   });
 
   // Profile update mutation
   const profileUpdateMutation = useMutation({
-    mutationFn: (fullName: string | null) =>
-      userApi.updateProfile({ full_name: fullName }, token!),
+    mutationFn: (fullName: string | null) => {
+      if (!token) throw new Error("Not authenticated");
+      return userApi.updateProfile({ full_name: fullName }, token);
+    },
     onSuccess: async () => {
       await refreshUser();
       setProfileUpdateSuccess(true);
@@ -48,11 +55,19 @@ function ProfilePage() {
 
   // Password change mutation
   const passwordChangeMutation = useMutation({
-    mutationFn: ({ current, newPass }: { current: string; newPass: string }) =>
-      userApi.changePassword(
+    mutationFn: ({
+      current,
+      newPass,
+    }: {
+      current: string;
+      newPass: string;
+    }) => {
+      if (!token) throw new Error("Not authenticated");
+      return userApi.changePassword(
         { current_password: current, new_password: newPass },
-        token!
-      ),
+        token
+      );
+    },
     onSuccess: () => {
       setPasswordChangeSuccess(true);
       setTimeout(() => setPasswordChangeSuccess(false), 3000);
@@ -61,7 +76,10 @@ function ProfilePage() {
 
   // Avatar upload mutation
   const avatarUploadMutation = useMutation({
-    mutationFn: (file: File) => userApi.uploadAvatar(file, token!),
+    mutationFn: (file: File) => {
+      if (!token) throw new Error("Not authenticated");
+      return userApi.uploadAvatar(file, token);
+    },
     onSuccess: async () => {
       await refreshUser();
     },
@@ -69,13 +87,16 @@ function ProfilePage() {
 
   // Avatar delete mutation
   const avatarDeleteMutation = useMutation({
-    mutationFn: () => userApi.deleteAvatar(token!),
+    mutationFn: () => {
+      if (!token) throw new Error("Not authenticated");
+      return userApi.deleteAvatar(token);
+    },
     onSuccess: async () => {
       await refreshUser();
     },
   });
 
-  const recipes = recipesData?.items || [];
+  const recipes = recipesData?.items ?? [];
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -114,9 +135,9 @@ function ProfilePage() {
               onSave={(fullName) => profileUpdateMutation.mutate(fullName)}
               isSaving={profileUpdateMutation.isPending}
               error={
-                profileUpdateMutation.error?.message ||
-                avatarUploadMutation.error?.message ||
-                avatarDeleteMutation.error?.message ||
+                profileUpdateMutation.error?.message ??
+                avatarUploadMutation.error?.message ??
+                avatarDeleteMutation.error?.message ??
                 null
               }
               success={profileUpdateSuccess}
@@ -131,7 +152,7 @@ function ProfilePage() {
               passwordChangeMutation.mutate({ current, newPass })
             }
             isSaving={passwordChangeMutation.isPending}
-            error={passwordChangeMutation.error?.message || null}
+            error={passwordChangeMutation.error?.message ?? null}
             success={passwordChangeSuccess}
           />
         </div>

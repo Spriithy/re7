@@ -16,31 +16,7 @@ import type {
   RecipeListResponse,
 } from "./api-types";
 
-// Re-export types for convenience
-export type {
-  UserLogin,
-  UserCreate,
-  Token,
-  User,
-  InvitedUser,
-  InviteResponse,
-  Category,
-  CategoryCreate,
-  CategoryUpdate,
-  Difficulty,
-  Ingredient,
-  IngredientCreate,
-  Step,
-  StepCreate,
-  Prerequisite,
-  PrerequisiteCreate,
-  RecipeAuthor,
-  Recipe,
-  RecipeListItem,
-  RecipeListResponse,
-  RecipeCreate,
-  RecipeUpdate,
-} from "./api-types";
+export type * from "./api-types";
 
 const API_BASE_URL =
   (import.meta.env.VITE_API_URL as string | undefined) ??

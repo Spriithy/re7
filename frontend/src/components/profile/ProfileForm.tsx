@@ -19,12 +19,12 @@ export function ProfileForm({
   error = null,
   success = false,
 }: ProfileFormProps) {
-  const [fullName, setFullName] = useState(user.full_name || "");
+  const [fullName, setFullName] = useState(user.full_name ?? "");
   const [hasChanges, setHasChanges] = useState(false);
 
   const handleFullNameChange = (value: string) => {
     setFullName(value);
-    setHasChanges(value !== (user.full_name || ""));
+    setHasChanges(value !== (user.full_name ?? ""));
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,7 +35,7 @@ export function ProfileForm({
 
   return (
     <div>
-      <h2 className="text-lg font-heading font-semibold text-ink-900 mb-4">
+      <h2 className="font-heading text-ink-900 mb-4 text-lg font-semibold">
         Informations du profil
       </h2>
 
@@ -46,24 +46,24 @@ export function ProfileForm({
           onChange={handleFullNameChange}
           isDisabled={isSaving}
         >
-          <Label className="block text-sm font-medium text-ink-700 mb-1">
+          <Label className="text-ink-700 mb-1 block text-sm font-medium">
             Nom complet
           </Label>
           <Input
-            className="w-full px-3 py-2 border border-ink-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-warm-500 focus:border-transparent disabled:opacity-50 disabled:bg-gray-50"
+            className="border-ink-300 focus:ring-warm-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none disabled:bg-gray-50 disabled:opacity-50"
             placeholder="Votre nom complet (optionnel)"
           />
         </TextField>
 
         {/* Username (read-only) */}
         <div>
-          <Label className="block text-sm font-medium text-ink-700 mb-1">
+          <Label className="text-ink-700 mb-1 block text-sm font-medium">
             Identifiant
           </Label>
-          <div className="px-3 py-2 bg-gray-50 border border-ink-200 rounded-lg text-ink-600">
+          <div className="border-ink-200 text-ink-600 rounded-lg border bg-gray-50 px-3 py-2">
             @{user.username}
           </div>
-          <p className="mt-1 text-xs text-ink-500">
+          <p className="text-ink-500 mt-1 text-xs">
             L'identifiant ne peut pas être modifié
           </p>
         </div>
@@ -73,7 +73,7 @@ export function ProfileForm({
           <Button
             type="submit"
             isDisabled={!hasChanges || isSaving}
-            className="w-full px-4 py-2 bg-warm-600 text-white rounded-lg hover:bg-warm-700 pressed:bg-warm-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-2 text-white transition-colors disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isSaving ? "Enregistrement..." : "Enregistrer"}
           </Button>
@@ -81,14 +81,14 @@ export function ProfileForm({
 
         {/* Success message */}
         {success && (
-          <div className="p-3 bg-green-50 border border-green-200 rounded-lg text-green-800 text-sm">
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
             Profil mis à jour avec succès
           </div>
         )}
 
         {/* Error message */}
         {error && (
-          <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-sm">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
             {error}
           </div>
         )}
