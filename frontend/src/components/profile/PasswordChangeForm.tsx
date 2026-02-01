@@ -23,8 +23,8 @@ export function PasswordChangeForm({
   return (
     <div>
       {/* Collapsible header */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
+      <Button
+        onPress={() => setIsOpen(!isOpen)}
         className="hover:bg-warm-50/50 flex w-full items-center justify-between rounded-t-2xl px-6 py-4 transition-colors"
       >
         <h2 className="font-heading text-ink-900 text-lg font-semibold">
@@ -35,7 +35,7 @@ export function PasswordChangeForm({
         ) : (
           <ChevronDown className="text-ink-600" size={20} />
         )}
-      </button>
+      </Button>
 
       {/* Collapsible content */}
       {isOpen && (

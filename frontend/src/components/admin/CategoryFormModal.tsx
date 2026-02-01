@@ -8,6 +8,7 @@ import {
   TextField,
   Label,
   Input,
+  Form,
 } from "react-aria-components";
 import { X } from "lucide-react";
 import type { Category, CategoryCreate, CategoryUpdate } from "@/lib/api";
@@ -116,7 +117,7 @@ function CategoryFormContent({
       </div>
 
       {/* Form */}
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <Form onSubmit={handleSubmit} className="space-y-6">
         {/* Name field */}
         <TextField className="space-y-2">
           <Label className="text-ink-700 text-sm font-medium">Nom</Label>
@@ -131,7 +132,7 @@ function CategoryFormContent({
 
         {/* Icon selector */}
         <div className="space-y-2">
-          <label className="text-ink-700 text-sm font-medium">Icône</label>
+          <Label className="text-ink-700 text-sm font-medium">Icône</Label>
           <IconSelector selectedIcon={iconName} onSelect={setIconName} />
         </div>
 
@@ -155,7 +156,7 @@ function CategoryFormContent({
             {isSubmitting ? "..." : isEditing ? "Enregistrer" : "Créer"}
           </Button>
         </div>
-      </form>
+      </Form>
     </>
   );
 }

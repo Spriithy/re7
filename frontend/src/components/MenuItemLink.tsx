@@ -1,4 +1,5 @@
 import { useNavigate, useRouter } from "@tanstack/react-router";
+import { Button } from "react-aria-components";
 import type { User } from "lucide-react";
 
 interface MenuItemLinkProps {
@@ -22,17 +23,17 @@ export function MenuItemLink({
   };
 
   return (
-    <button
+    <Button
       className="text-ink-700 hover:bg-warm-50 hover:text-warm-900 flex w-full cursor-pointer items-center gap-3 rounded-lg px-4 py-3 text-base transition outline-none sm:px-3 sm:py-2.5 sm:text-sm"
-      onClick={() => {
+      onPress={() => {
         onClose?.();
         void navigate({ to: href });
       }}
-      onMouseEnter={handlePreload}
+      onHoverStart={handlePreload}
       onFocus={handlePreload}
     >
       <Icon className="h-5 w-5 sm:h-4 sm:w-4" />
       {children}
-    </button>
+    </Button>
   );
 }
