@@ -8,21 +8,15 @@ interface RecipeHeroProps {
   difficultyLabel: string;
 }
 
-function PrintMeta({ recipe, difficultyLabel }: RecipeHeroProps) {
-  const parts: string[] = [];
-  if (recipe.category) parts.push(recipe.category.name);
-  parts.push(difficultyLabel);
-  if (recipe.is_vegan) parts.push("Végan");
-  else if (recipe.is_vegetarian) parts.push("Végétarien");
-
-  return (
-    <p className="text-ink-600 mt-1 hidden text-sm print:block">
-      {parts.join(" • ")}
-    </p>
-  );
-}
-
 export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
+  const printMetaParts = (() => {
+    const parts: string[] = [];
+    if (recipe.category) parts.push(recipe.category.name);
+    parts.push(difficultyLabel);
+    if (recipe.is_vegan) parts.push("Végan");
+    else if (recipe.is_vegetarian) parts.push("Végétarien");
+    return parts.join(" • ");
+  })();
   // Check for recipe image, then category image as fallback
   const recipeImageUrl = getImageUrl(recipe.image_path);
   const categoryImageUrl = getImageUrl(recipe.category?.image_path ?? null);
@@ -52,7 +46,9 @@ export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
             <h1 className="font-heading print:text-ink-900 text-2xl font-bold text-white sm:text-3xl md:text-4xl">
               {recipe.title}
             </h1>
-            <PrintMeta recipe={recipe} difficultyLabel={difficultyLabel} />
+            <p className="text-ink-600 mt-1 hidden text-sm print:block">
+              {printMetaParts}
+            </p>
           </div>
         </div>
       </div>
@@ -75,7 +71,9 @@ export function RecipeHero({ recipe, difficultyLabel }: RecipeHeroProps) {
         <h1 className="font-heading text-ink-900 text-2xl font-bold sm:text-3xl md:text-4xl">
           {recipe.title}
         </h1>
-        <PrintMeta recipe={recipe} difficultyLabel={difficultyLabel} />
+        <p className="text-ink-600 mt-1 hidden text-sm print:block">
+          {printMetaParts}
+        </p>
       </div>
     </div>
   );

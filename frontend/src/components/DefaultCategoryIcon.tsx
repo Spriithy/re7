@@ -1,4 +1,4 @@
-import { CategoryIcon } from "../CategoryIcon";
+import { CategoryIcon } from "@/components/CategoryIcon";
 import { BookOpenText } from "lucide-react";
 
 interface DefaultCategoryIconProps {

@@ -2,6 +2,7 @@ import { TextField, Input, Button } from "react-aria-components";
 import { Trash2 } from "lucide-react";
 import type { IngredientCreate } from "@/lib/api";
 import { FRENCH_COOKING_UNITS } from "@/lib/constants";
+import { inputStyles } from "@/components/ui/styles";
 import { AdaptiveComboBox } from "@/components/ui/AdaptiveComboBox";
 
 interface IngredientRowProps {
@@ -30,18 +31,19 @@ export function IngredientRow({
     <div className="space-y-2 py-2 sm:flex sm:items-center sm:gap-2 sm:space-y-0 sm:py-0">
       {/* Quantity and Unit - row on mobile */}
       <div className="flex items-start gap-2">
-        <TextField className="w-20 shrink-0">
+        <TextField
+          value={ingredient.quantity?.toString() ?? ""}
+          onChange={(val) => {
+            updateField("quantity", val === "" ? null : parseFloat(val));
+          }}
+          className="w-20 shrink-0"
+        >
           <Input
             type="number"
             step="0.01"
             min="0"
-            value={ingredient.quantity ?? ""}
-            onChange={(e) => {
-              const val = e.target.value;
-              updateField("quantity", val === "" ? null : parseFloat(val));
-            }}
             placeholder="Qté"
-            className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
+            className={`${inputStyles} text-sm`}
           />
         </TextField>
 
@@ -55,25 +57,24 @@ export function IngredientRow({
           className="flex-1 sm:w-28 sm:flex-none"
         />
 
-        {/* Remove button - visible on mobile in this row */}
+        {/* Remove button - responsive sizing */}
         <Button
           onPress={() => onRemove(index)}
           isDisabled={!canRemove}
-          className="text-ink-400 hover:bg-ink-100 hover:text-ink-600 pressed:bg-ink-200 shrink-0 rounded-lg p-2 disabled:cursor-not-allowed disabled:opacity-30 sm:hidden"
+          className="text-ink-400 hover:bg-ink-100 hover:text-ink-600 pressed:bg-ink-200 flex size-9 shrink-0 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-30 sm:hidden"
           aria-label="Supprimer l'ingrédient"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="size-4" />
         </Button>
       </div>
 
       {/* Name - full width on mobile */}
-      <TextField className="flex-1">
-        <Input
-          value={ingredient.name}
-          onChange={(e) => updateField("name", e.target.value)}
-          placeholder="Nom de l'ingrédient"
-          className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-3 py-2 text-sm focus:ring-2 focus:outline-none"
-        />
+      <TextField
+        value={ingredient.name}
+        onChange={(val) => updateField("name", val)}
+        className="flex-1"
+      >
+        <Input placeholder="Nom de l'ingrédient" className={`${inputStyles} text-sm`} />
       </TextField>
 
       {/* Remove button - hidden on mobile, visible on desktop */}

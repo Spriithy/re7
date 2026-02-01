@@ -31,7 +31,7 @@ export function FilterSidebar({
 }: FilterSidebarProps) {
   const prefetchRecipes = usePrefetchRecipes();
   return (
-    <aside className="sticky top-24 h-fit w-64 shrink-0 p-6">
+    <aside className="sticky top-24 h-fit w-64 shrink-0 px-4 py-6">
       {/* Time filter group */}
       <div className="flex flex-col gap-2">
         <h3 className="text-ink-500 px-1 text-xs font-semibold tracking-wider uppercase">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Form, TextField, Label, Input, Button } from "react-aria-components";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import { inputStyles } from "@/components/ui/styles";
 
 interface PasswordChangeFormProps {
   onSave: (currentPassword: string, newPassword: string) => void;
@@ -75,8 +76,8 @@ function PasswordFormContent({
     setValidationError(null);
 
     // Validation
-    if (newPassword.length < 6) {
-      setValidationError("Le mot de passe doit contenir au moins 6 caractères");
+    if (newPassword.length < 8) {
+      setValidationError("Le mot de passe doit contenir au moins 8 caractères");
       return;
     }
 
@@ -90,8 +91,8 @@ function PasswordFormContent({
 
   const isFormValid =
     currentPassword.length > 0 &&
-    newPassword.length >= 6 &&
-    confirmPassword.length >= 6 &&
+    newPassword.length >= 8 &&
+    confirmPassword.length >= 8 &&
     newPassword === confirmPassword;
 
   return (
@@ -99,52 +100,58 @@ function PasswordFormContent({
       <Form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {/* Current password */}
         <TextField
-          type="password"
           value={currentPassword}
           onChange={setCurrentPassword}
           isDisabled={isSaving}
           isRequired
+          className="space-y-1"
         >
-          <Label className="text-ink-700 mb-1 block text-sm font-medium">
+          <Label className="text-ink-700 block text-sm font-medium">
             Mot de passe actuel
           </Label>
           <Input
-            className="border-ink-300 focus:ring-warm-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none disabled:bg-gray-50 disabled:opacity-50"
+            type="password"
+            autoComplete="current-password"
             placeholder="Votre mot de passe actuel"
+            className={inputStyles}
           />
         </TextField>
 
         {/* New password */}
         <TextField
-          type="password"
           value={newPassword}
           onChange={setNewPassword}
           isDisabled={isSaving}
           isRequired
+          className="space-y-1"
         >
-          <Label className="text-ink-700 mb-1 block text-sm font-medium">
+          <Label className="text-ink-700 block text-sm font-medium">
             Nouveau mot de passe
           </Label>
           <Input
-            className="border-ink-300 focus:ring-warm-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none disabled:bg-gray-50 disabled:opacity-50"
-            placeholder="Au moins 6 caractères"
+            type="password"
+            autoComplete="new-password"
+            placeholder="Au moins 8 caractères"
+            className={inputStyles}
           />
         </TextField>
 
         {/* Confirm password */}
         <TextField
-          type="password"
           value={confirmPassword}
           onChange={setConfirmPassword}
           isDisabled={isSaving}
           isRequired
+          className="space-y-1"
         >
-          <Label className="text-ink-700 mb-1 block text-sm font-medium">
+          <Label className="text-ink-700 block text-sm font-medium">
             Confirmer le mot de passe
           </Label>
           <Input
-            className="border-ink-300 focus:ring-warm-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none disabled:bg-gray-50 disabled:opacity-50"
+            type="password"
+            autoComplete="new-password"
             placeholder="Retapez votre nouveau mot de passe"
+            className={inputStyles}
           />
         </TextField>
 

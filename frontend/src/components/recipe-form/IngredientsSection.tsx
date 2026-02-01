@@ -1,6 +1,7 @@
 import { Button } from "react-aria-components";
 import { Plus } from "lucide-react";
 import type { IngredientCreate } from "@/lib/api";
+import { FormSection } from "@/components/ui/FormSection";
 import { IngredientRow } from "./IngredientRow";
 
 interface IngredientsSectionProps {
@@ -17,11 +18,9 @@ export function IngredientsSection({
   onAdd,
 }: IngredientsSectionProps) {
   return (
-    <section className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-heading text-ink-900 text-lg font-semibold">
-          Ingrédients
-        </h3>
+    <FormSection title="Ingrédients" className="">
+      <div className="mb-4 flex items-center justify-between">
+        <div />
         <Button
           onPress={onAdd}
           className="bg-warm-100 text-warm-700 hover:bg-warm-200 flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium"
@@ -31,18 +30,16 @@ export function IngredientsSection({
         </Button>
       </div>
 
-      <div className="space-y-1 sm:space-y-2">
-        {ingredients.map((ingredient, index) => (
-          <IngredientRow
-            key={index}
-            ingredient={ingredient}
-            index={index}
-            onChange={onUpdate}
-            onRemove={onRemove}
-            canRemove={ingredients.length > 1}
-          />
-        ))}
-      </div>
-    </section>
+      {ingredients.map((ingredient, index) => (
+        <IngredientRow
+          key={index}
+          ingredient={ingredient}
+          index={index}
+          onChange={onUpdate}
+          onRemove={onRemove}
+          canRemove={ingredients.length > 1}
+        />
+      ))}
+    </FormSection>
   );
 }

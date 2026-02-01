@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Form, TextField, Label, Input, Button } from "react-aria-components";
+import { inputStyles } from "@/components/ui/styles";
 
 interface ProfileFormProps {
   user: {
@@ -45,13 +46,15 @@ export function ProfileForm({
           value={fullName}
           onChange={handleFullNameChange}
           isDisabled={isSaving}
+          className="space-y-1"
         >
-          <Label className="text-ink-700 mb-1 block text-sm font-medium">
+          <Label className="text-ink-700 block text-sm font-medium">
             Nom complet
           </Label>
           <Input
-            className="border-ink-300 focus:ring-warm-500 w-full rounded-lg border px-3 py-2 focus:border-transparent focus:ring-2 focus:outline-none disabled:bg-gray-50 disabled:opacity-50"
+            autoComplete="name"
             placeholder="Votre nom complet (optionnel)"
+            className={inputStyles}
           />
         </TextField>
 

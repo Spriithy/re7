@@ -31,7 +31,7 @@ export function AppHeader({
   const maxWidthClass = variant === "home" ? "max-w-7xl" : "max-w-4xl";
 
   return (
-    <header className="sticky top-0 z-40 bg-white/60 shadow-sm backdrop-blur-sm">
+    <header className="sticky top-0 z-40 bg-white/60 shadow-sm backdrop-blur-md">
       <div className={`mx-auto px-4 py-3 sm:py-4 ${maxWidthClass}`}>
         <div className="flex items-center gap-3">
           {/* Left section: Back button or Brand */}

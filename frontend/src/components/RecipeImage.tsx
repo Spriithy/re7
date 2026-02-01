@@ -1,6 +1,6 @@
 import type { Recipe, RecipeListItem } from "@/lib/api";
 import { getImageUrl } from "@/lib/api";
-import { DefaultCategoryIcon } from "./DefaultCategoryIcon";
+import { DefaultCategoryIcon } from "@/components/DefaultCategoryIcon";
 
 interface RecipeImageProps {
   recipe: Recipe | RecipeListItem;

@@ -2,7 +2,7 @@ import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 import type { RecipeListItem } from "@/lib/api-types";
-import { RecipeImage } from "@/components/recipe-grid/RecipeImage";
+import { RecipeImage } from "@/components/RecipeImage";
 import { recipeHasImage } from "@/lib/recipe-utils";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { DietBadge } from "@/components/DietBadge";
