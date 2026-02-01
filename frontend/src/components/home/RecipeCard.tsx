@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { Clock, User } from "lucide-react";
 import type { RecipeListItem } from "@/lib/api-types";
 import { RecipeImage } from "@/components/recipe-grid/RecipeImage";
+import { recipeHasImage } from "@/lib/recipe-utils";
 import { CategoryBadge } from "@/components/CategoryBadge";
 import { DietBadge } from "@/components/DietBadge";
 
@@ -15,6 +16,7 @@ export const RecipeCard = memo(function RecipeCard({
 }: RecipeCardProps) {
   const totalTime =
     (recipe.prep_time_minutes ?? 0) + (recipe.cook_time_minutes ?? 0);
+  const hasImage = recipeHasImage(recipe);
 
   return (
     <Link
@@ -23,19 +25,25 @@ export const RecipeCard = memo(function RecipeCard({
       className="group block"
       preload="intent"
     >
-      <article className="relative aspect-[5/6] overflow-hidden rounded-2xl shadow-sm transition-shadow duration-200 hover:shadow-md">
-
-        {/* Full-bleed image */}
+      <article className="relative aspect-5/6 overflow-hidden rounded-2xl transition-shadow duration-200">
+        {/* Full-bleed image or placeholder */}
         <div className="absolute inset-0 overflow-hidden">
           <RecipeImage
             recipe={recipe}
-            className="h-full transition-transform duration-500 group-hover:scale-105"
+            className={`h-full ${hasImage ? "transition-transform duration-500 ease-out group-hover:scale-105" : ""}`}
             aspectRatio="auto"
           />
         </div>
 
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
+        {/* Gradient overlay - only for actual images */}
+        {hasImage && (
+          <div className="absolute inset-0 bg-linear-to-t from-black/75 via-black/25 to-transparent" />
+        )}
+
+        {/* Subtle border for placeholder mode to define edges */}
+        {!hasImage && (
+          <div className="absolute inset-0 rounded-2xl ring-1 ring-black/5 ring-inset" />
+        )}
 
         {/* Category badge — top left */}
         {recipe.category && (
@@ -53,18 +61,28 @@ export const RecipeCard = memo(function RecipeCard({
         </div>
 
         {/* Overlay content — pinned to bottom */}
-        <div className="absolute inset-x-0 bottom-0 z-10 p-4 text-white">
-          <h3 className="font-heading mb-1 line-clamp-2 text-xl font-bold drop-shadow-sm">
+        <div
+          className={`absolute inset-x-0 bottom-0 z-10 p-4 ${
+            hasImage ? "text-white" : "text-ink-900"
+          }`}
+        >
+          <h3 className="font-heading mb-1 line-clamp-2 text-xl font-bold">
             {recipe.title}
           </h3>
 
           {recipe.description && (
-            <p className="mb-2 line-clamp-2 text-sm text-white/80 drop-shadow-sm">
+            <p
+              className={`mb-2 line-clamp-2 text-sm ${hasImage ? "text-white/80" : "text-ink-600"}`}
+            >
               {recipe.description}
             </p>
           )}
 
-          <div className="flex items-center gap-3 text-xs text-white/70">
+          <div
+            className={`flex items-center gap-3 text-xs ${
+              hasImage ? "text-white/70" : "text-ink-500"
+            }`}
+          >
             {totalTime > 0 && (
               <span className="flex items-center gap-1">
                 <Clock className="h-3 w-3" />
