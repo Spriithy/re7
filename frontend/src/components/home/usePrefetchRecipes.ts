@@ -1,6 +1,8 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { recipeApi } from "@/lib/api";
 
+const PAGE_SIZE = 12;
+
 interface PrefetchParams {
   search?: string;
   category_id?: string | null;
@@ -24,16 +26,20 @@ export function usePrefetchRecipes() {
       ...(is_quick ? { is_quick: true as const } : {}),
     };
 
-    void queryClient.prefetchQuery({
+    // Must use prefetchInfiniteQuery to match useInfiniteQuery in useRecipeFilters
+    void queryClient.prefetchInfiniteQuery({
       queryKey: ["recipes", activeFilters],
-      queryFn: () =>
+      queryFn: ({ pageParam = 1 }) =>
         recipeApi.list({
+          page: pageParam,
+          page_size: PAGE_SIZE,
           search: search ?? undefined,
           category_id: category_id ?? undefined,
           is_vegetarian: is_vegetarian ?? undefined,
           is_vegan: is_vegan ?? undefined,
           is_quick: is_quick ?? undefined,
         }),
+      initialPageParam: 1,
     });
   };
 }

@@ -44,7 +44,6 @@ export function useRecipeFilters() {
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page >= lastPage.total_pages ? undefined : lastPage.page + 1,
-    placeholderData: (prev) => prev,
   });
 
   const recipes = data?.pages.flatMap((page) => page.items) ?? [];
