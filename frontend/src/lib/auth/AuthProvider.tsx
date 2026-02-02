@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { authApi, type UserLogin, type UserCreate } from "../api";
 import type { AuthState } from "./types";
 import { AuthContext } from "./AuthContext";
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     void initAuth();
   }, []);
 
-  const login = useCallback(async (credentials: UserLogin) => {
+  async function login(credentials: UserLogin) {
     const tokenData = await authApi.login(credentials);
     saveToken(tokenData);
 
@@ -59,9 +59,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       isAuthenticated: true,
     });
-  }, []);
+  }
 
-  const register = useCallback(async (data: UserCreate) => {
+  async function register(data: UserCreate) {
     const tokenData = await authApi.register(data);
     saveToken(tokenData);
 
@@ -72,9 +72,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       isAuthenticated: true,
     });
-  }, []);
+  }
 
-  const logout = useCallback(() => {
+  function logout() {
     clearToken();
     setState({
       user: null,
@@ -82,9 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       isLoading: false,
       isAuthenticated: false,
     });
-  }, []);
+  }
 
-  const refreshUser = useCallback(async () => {
+  async function refreshUser() {
     const storedToken = getStoredToken();
     if (!storedToken) return;
 
@@ -98,7 +98,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If refresh fails, log out the user
       logout();
     }
-  }, [logout]);
+  }
 
   return (
     <AuthContext.Provider

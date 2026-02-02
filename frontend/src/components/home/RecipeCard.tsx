@@ -1,4 +1,3 @@
-import { memo } from "react";
 import { Link } from "@tanstack/react-router";
 import { Clock } from "lucide-react";
 import type { RecipeListItem } from "@/lib/api-types";
@@ -13,9 +12,7 @@ interface RecipeCardProps {
   recipe: RecipeListItem;
 }
 
-export const RecipeCard = memo(function RecipeCard({
-  recipe,
-}: RecipeCardProps) {
+export function RecipeCard({ recipe }: RecipeCardProps) {
   const { prefetchRecipe } = useRecipePrefetch();
   const totalTime =
     (recipe.prep_time_minutes ?? 0) + (recipe.cook_time_minutes ?? 0);
@@ -118,4 +115,4 @@ export const RecipeCard = memo(function RecipeCard({
       </article>
     </Link>
   );
-});
+}

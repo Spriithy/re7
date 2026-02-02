@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -97,54 +97,51 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Ingredient handlers
-  const updateIngredient = useCallback(
-    (index: number, ingredient: IngredientCreate) => {
-      setIngredients((prev) => {
-        const newIngredients = [...prev];
-        newIngredients[index] = ingredient;
-        return newIngredients;
-      });
-    },
-    []
-  );
+  function updateIngredient(index: number, ingredient: IngredientCreate) {
+    setIngredients((prev) => {
+      const newIngredients = [...prev];
+      newIngredients[index] = ingredient;
+      return newIngredients;
+    });
+  }
 
-  const removeIngredient = useCallback((index: number) => {
+  function removeIngredient(index: number) {
     setIngredients((prev) => {
       if (prev.length > 1) {
         return prev.filter((_, i) => i !== index);
       }
       return prev;
     });
-  }, []);
+  }
 
-  const addIngredient = useCallback(() => {
+  function addIngredient() {
     setIngredients((prev) => [...prev, emptyIngredient()]);
-  }, []);
+  }
 
   // Step handlers
-  const updateStep = useCallback((index: number, step: StepCreate) => {
+  function updateStep(index: number, step: StepCreate) {
     setSteps((prev) => {
       const newSteps = [...prev];
       newSteps[index] = step;
       return newSteps;
     });
-  }, []);
+  }
 
-  const removeStep = useCallback((index: number) => {
+  function removeStep(index: number) {
     setSteps((prev) => {
       if (prev.length > 1) {
         return prev.filter((_, i) => i !== index);
       }
       return prev;
     });
-  }, []);
+  }
 
-  const addStep = useCallback(() => {
+  function addStep() {
     setSteps((prev) => [...prev, emptyStep()]);
-  }, []);
+  }
 
   // Image handlers
-  const handleImageSelect = useCallback((file: File) => {
+  function handleImageSelect(file: File) {
     setImageFile(file);
     setRemoveExistingImage(false);
     const reader = new FileReader();
@@ -152,145 +149,121 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
       setImagePreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
-  }, []);
+  }
 
-  const handleImageRemove = useCallback(() => {
+  function handleImageRemove() {
     setImageFile(null);
     setImagePreview(null);
     if (mode === "edit" && initialData?.image_path) {
       setRemoveExistingImage(true);
     }
-  }, [mode, initialData?.image_path]);
+  }
 
   // Form submission
-  const handleSubmit = useCallback(
-    async (e: React.FormEvent) => {
-      e.preventDefault();
-      setError(null);
-      setIsSubmitting(true);
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setError(null);
+    setIsSubmitting(true);
 
-      if (!token) {
-        setError("Vous devez être connecté pour modifier une recette");
-        setIsSubmitting(false);
-        return;
-      }
+    if (!token) {
+      setError("Vous devez être connecté pour modifier une recette");
+      setIsSubmitting(false);
+      return;
+    }
 
-      // Validate required fields
-      if (!title.trim()) {
-        setError("Le titre est requis");
-        setIsSubmitting(false);
-        return;
-      }
+    // Validate required fields
+    if (!title.trim()) {
+      setError("Le titre est requis");
+      setIsSubmitting(false);
+      return;
+    }
 
-      // Filter out empty ingredients and steps
-      const validIngredients = ingredients.filter((i) => i.name.trim() !== "");
-      const validSteps = steps.filter((s) => s.instruction.trim() !== "");
+    // Filter out empty ingredients and steps
+    const validIngredients = ingredients.filter((i) => i.name.trim() !== "");
+    const validSteps = steps.filter((s) => s.instruction.trim() !== "");
 
-      if (validIngredients.length === 0) {
-        setError("Ajoutez au moins un ingrédient");
-        setIsSubmitting(false);
-        return;
-      }
+    if (validIngredients.length === 0) {
+      setError("Ajoutez au moins un ingrédient");
+      setIsSubmitting(false);
+      return;
+    }
 
-      if (validSteps.length === 0) {
-        setError("Ajoutez au moins une étape");
-        setIsSubmitting(false);
-        return;
-      }
+    if (validSteps.length === 0) {
+      setError("Ajoutez au moins une étape");
+      setIsSubmitting(false);
+      return;
+    }
 
-      try {
-        let recipe: Recipe;
+    try {
+      let recipe: Recipe;
 
-        if (mode === "create") {
-          const recipeData: RecipeCreate = {
-            title: title.trim(),
-            description: description.trim() || null,
-            category_id: categoryId,
-            servings,
-            serving_unit: servingUnit.trim() || null,
-            prep_time_minutes: prepTime,
-            cook_time_minutes: cookTime,
-            difficulty,
-            source: source.trim() || null,
-            is_vegetarian: isVegetarian,
-            is_vegan: isVegan,
-            ingredients: validIngredients,
-            steps: validSteps,
-            prerequisites: [],
-          };
-          recipe = await recipeApi.create(recipeData, token);
-        } else {
-          if (!initialData) {
-            throw new Error("Initial data is required for edit mode");
-          }
-          const recipeData: RecipeUpdate = {
-            title: title.trim(),
-            description: description.trim() || null,
-            category_id: categoryId,
-            servings,
-            serving_unit: servingUnit.trim() || null,
-            prep_time_minutes: prepTime,
-            cook_time_minutes: cookTime,
-            difficulty,
-            source: source.trim() || null,
-            is_vegetarian: isVegetarian,
-            is_vegan: isVegan,
-            ingredients: validIngredients,
-            steps: validSteps,
-            prerequisites: [],
-          };
-          recipe = await recipeApi.update(initialData.id, recipeData, token);
+      if (mode === "create") {
+        const recipeData: RecipeCreate = {
+          title: title.trim(),
+          description: description.trim() || null,
+          category_id: categoryId,
+          servings,
+          serving_unit: servingUnit.trim() || null,
+          prep_time_minutes: prepTime,
+          cook_time_minutes: cookTime,
+          difficulty,
+          source: source.trim() || null,
+          is_vegetarian: isVegetarian,
+          is_vegan: isVegan,
+          ingredients: validIngredients,
+          steps: validSteps,
+          prerequisites: [],
+        };
+        recipe = await recipeApi.create(recipeData, token);
+      } else {
+        if (!initialData) {
+          throw new Error("Initial data is required for edit mode");
         }
-
-        // Handle image changes
-        if (removeExistingImage && mode === "edit" && initialData?.image_path) {
-          await recipeApi.deleteImage(recipe.id, token);
-        }
-
-        if (imageFile) {
-          await recipeApi.uploadImage(recipe.id, imageFile, token);
-        }
-
-        // Invalidate recipe caches to reflect image changes
-        void queryClient.invalidateQueries({ queryKey: ["recipes"] });
-        void queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
-
-        void navigate({
-          to: "/recipes/$recipeId",
-          params: { recipeId: recipe.id },
-        });
-      } catch (err) {
-        if (err instanceof ApiError) {
-          setError(err.detail);
-        } else {
-          setError("Une erreur est survenue. Veuillez réessayer.");
-        }
-        setIsSubmitting(false);
+        const recipeData: RecipeUpdate = {
+          title: title.trim(),
+          description: description.trim() || null,
+          category_id: categoryId,
+          servings,
+          serving_unit: servingUnit.trim() || null,
+          prep_time_minutes: prepTime,
+          cook_time_minutes: cookTime,
+          difficulty,
+          source: source.trim() || null,
+          is_vegetarian: isVegetarian,
+          is_vegan: isVegan,
+          ingredients: validIngredients,
+          steps: validSteps,
+          prerequisites: [],
+        };
+        recipe = await recipeApi.update(initialData.id, recipeData, token);
       }
-    },
-    [
-      token,
-      title,
-      description,
-      categoryId,
-      servings,
-      servingUnit,
-      prepTime,
-      cookTime,
-      difficulty,
-      source,
-      isVegetarian,
-      isVegan,
-      ingredients,
-      steps,
-      mode,
-      initialData,
-      removeExistingImage,
-      imageFile,
-      navigate,
-      queryClient,
-    ]
-  );
+
+      // Handle image changes
+      if (removeExistingImage && mode === "edit" && initialData?.image_path) {
+        await recipeApi.deleteImage(recipe.id, token);
+      }
+
+      if (imageFile) {
+        await recipeApi.uploadImage(recipe.id, imageFile, token);
+      }
+
+      // Invalidate recipe caches to reflect image changes
+      void queryClient.invalidateQueries({ queryKey: ["recipes"] });
+      void queryClient.invalidateQueries({ queryKey: ["recipe", recipe.id] });
+
+      void navigate({
+        to: "/recipes/$recipeId",
+        params: { recipeId: recipe.id },
+      });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setError(err.detail);
+      } else {
+        setError("Une erreur est survenue. Veuillez réessayer.");
+      }
+      setIsSubmitting(false);
+    }
+  }
 
   return {
     // Form state

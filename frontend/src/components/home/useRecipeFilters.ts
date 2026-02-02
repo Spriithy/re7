@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { recipeApi, categoryApi } from "@/lib/api";
 
@@ -20,16 +20,13 @@ export function useRecipeFilters() {
   });
 
   // Only include active filters in the key — must match usePrefetchRecipes
-  const filterParams = useMemo(
-    () => ({
-      ...(searchQuery ? { search: searchQuery } : {}),
-      ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
-      ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
-      ...(filterVegan ? { is_vegan: true as const } : {}),
-      ...(filterQuick ? { is_quick: true as const } : {}),
-    }),
-    [searchQuery, selectedCategoryId, filterVegetarian, filterVegan, filterQuick]
-  );
+  const filterParams = {
+    ...(searchQuery ? { search: searchQuery } : {}),
+    ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
+    ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
+    ...(filterVegan ? { is_vegan: true as const } : {}),
+    ...(filterQuick ? { is_quick: true as const } : {}),
+  };
 
   const {
     data,
@@ -41,7 +38,11 @@ export function useRecipeFilters() {
   } = useInfiniteQuery({
     queryKey: ["recipes", filterParams],
     queryFn: ({ pageParam = 1 }) =>
-      recipeApi.list({ ...filterParams, page: pageParam, page_size: PAGE_SIZE }),
+      recipeApi.list({
+        ...filterParams,
+        page: pageParam,
+        page_size: PAGE_SIZE,
+      }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page >= lastPage.total_pages ? undefined : lastPage.page + 1,
