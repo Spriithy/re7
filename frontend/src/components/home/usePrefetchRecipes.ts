@@ -27,17 +27,14 @@ export function usePrefetchRecipes() {
     };
 
     // Must use prefetchInfiniteQuery to match useInfiniteQuery in useRecipeFilters
+    // Use activeFilters for API call too - only pass truthy filter values
     void queryClient.prefetchInfiniteQuery({
       queryKey: ["recipes", activeFilters],
       queryFn: ({ pageParam = 1 }) =>
         recipeApi.list({
           page: pageParam,
           page_size: PAGE_SIZE,
-          search: search ?? undefined,
-          category_id: category_id ?? undefined,
-          is_vegetarian: is_vegetarian ?? undefined,
-          is_vegan: is_vegan ?? undefined,
-          is_quick: is_quick ?? undefined,
+          ...activeFilters,
         }),
       initialPageParam: 1,
     });

@@ -19,13 +19,14 @@ export function useRecipeFilters() {
     queryFn: () => categoryApi.list(),
   });
 
+  // Only include active filters in the key — must match usePrefetchRecipes
   const filterParams = useMemo(
     () => ({
-      search: searchQuery || undefined,
-      category_id: selectedCategoryId ?? undefined,
-      is_vegetarian: filterVegetarian || undefined,
-      is_vegan: filterVegan || undefined,
-      is_quick: filterQuick || undefined,
+      ...(searchQuery ? { search: searchQuery } : {}),
+      ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
+      ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
+      ...(filterVegan ? { is_vegan: true as const } : {}),
+      ...(filterQuick ? { is_quick: true as const } : {}),
     }),
     [searchQuery, selectedCategoryId, filterVegetarian, filterVegan, filterQuick]
   );
