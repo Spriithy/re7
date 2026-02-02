@@ -51,11 +51,15 @@ function HomePage() {
   // Redirect to login if not authenticated (after loading is complete)
   if (!isAuthenticated) {
     void navigate({ to: "/login" });
-    return null;
+    return (
+      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center bg-linear-to-b">
+        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+      </div>
+    );
   }
 
   return (
-    <div className="from-warm-50 to-paper-100 min-h-screen">
+    <div className="from-warm-50 to-paper-100 min-h-screen bg-linear-to-b">
       <HomeHeader
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}

@@ -23,13 +23,21 @@ function AdminPage() {
   // Redirect to login if not authenticated
   if (!isAuthenticated || !user || !token) {
     void navigate({ to: "/login" });
-    return null;
+    return (
+      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center bg-linear-to-b">
+        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+      </div>
+    );
   }
 
   // Redirect to home if not admin
   if (!user.is_admin) {
     void navigate({ to: "/" });
-    return null;
+    return (
+      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center bg-linear-to-b">
+        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
+      </div>
+    );
   }
 
   return (
