@@ -1,5 +1,9 @@
-import { useState } from "react";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useState, useDeferredValue } from "react";
+import {
+  useInfiniteQuery,
+  useQuery,
+  keepPreviousData,
+} from "@tanstack/react-query";
 import { recipeApi, categoryApi } from "@/lib/api";
 
 const PAGE_SIZE = 12;
@@ -19,14 +23,8 @@ export function useRecipeFilters() {
     queryFn: () => categoryApi.list(),
   });
 
-  // Only include active filters in the key — must match usePrefetchRecipes
-  const filterParams = {
-    ...(searchQuery ? { search: searchQuery } : {}),
-    ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
-    ...(filterVegetarian ? { is_vegetarian: true as const } : {}),
-    ...(filterVegan ? { is_vegan: true as const } : {}),
-    ...(filterQuick ? { is_quick: true as const } : {}),
-  };
+  // Defer search updates to prevent UI flickering during rapid typing
+  const deferredSearchQuery = useDeferredValue(searchQuery);
 
   const {
     data,
@@ -35,17 +33,30 @@ export function useRecipeFilters() {
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
+    isPlaceholderData,
   } = useInfiniteQuery({
-    queryKey: ["recipes", filterParams],
+    queryKey: [
+      "recipes",
+      deferredSearchQuery,
+      selectedCategoryId,
+      filterVegetarian,
+      filterVegan,
+      filterQuick,
+    ],
     queryFn: ({ pageParam = 1 }) =>
       recipeApi.list({
-        ...filterParams,
+        ...(deferredSearchQuery ? { search: deferredSearchQuery } : {}),
+        ...(selectedCategoryId ? { category_id: selectedCategoryId } : {}),
+        ...(filterVegetarian ? { is_vegetarian: true } : {}),
+        ...(filterVegan ? { is_vegan: true } : {}),
+        ...(filterQuick ? { is_quick: true } : {}),
         page: pageParam,
         page_size: PAGE_SIZE,
       }),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.page >= lastPage.total_pages ? undefined : lastPage.page + 1,
+    placeholderData: keepPreviousData,
   });
 
   const recipes = data?.pages.flatMap((page) => page.items) ?? [];
@@ -82,6 +93,7 @@ export function useRecipeFilters() {
     totalCount,
     isLoading,
     isPending,
+    isPlaceholderData,
     isFetchingNextPage,
     hasNextPage,
     fetchNextPage,
