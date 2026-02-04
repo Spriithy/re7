@@ -100,6 +100,7 @@ function PasswordFormContent({
       <Form onSubmit={handleSubmit} className="mt-4 space-y-4">
         {/* Current password */}
         <TextField
+          name="currentPassword"
           value={currentPassword}
           onChange={setCurrentPassword}
           isDisabled={isSaving}
@@ -119,6 +120,7 @@ function PasswordFormContent({
 
         {/* New password */}
         <TextField
+          name="newPassword"
           value={newPassword}
           onChange={setNewPassword}
           isDisabled={isSaving}
@@ -138,6 +140,7 @@ function PasswordFormContent({
 
         {/* Confirm password */}
         <TextField
+          name="confirmPassword"
           value={confirmPassword}
           onChange={setConfirmPassword}
           isDisabled={isSaving}

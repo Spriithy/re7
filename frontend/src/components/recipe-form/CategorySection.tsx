@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { categoryApi } from "@/lib/api";
 import {
@@ -10,6 +10,7 @@ import {
   ModalOverlay,
   ListBox,
   ListBoxItem,
+  Popover,
 } from "react-aria-components";
 import { ChevronDown, X } from "lucide-react";
 import { CategoryIcon } from "@/components/CategoryIcon";
@@ -27,25 +28,6 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
   });
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  // Handle click outside on desktop
-  useEffect(() => {
-    if (!isMobile && isOpen) {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (
-          dropdownRef.current &&
-          !dropdownRef.current.contains(event.target as Node)
-        ) {
-          setIsOpen(false);
-        }
-      };
-
-      document.addEventListener("mousedown", handleClickOutside);
-      return () =>
-        document.removeEventListener("mousedown", handleClickOutside);
-    }
-  }, [isOpen, isMobile]);
 
   if (isLoading) {
     return (
@@ -142,48 +124,46 @@ export function CategorySection({ value, onChange }: CategorySectionProps) {
           </ModalOverlay>
         </DialogTrigger>
       ) : (
-        <div className="relative" ref={dropdownRef}>
-          <Button
-            onPress={() => setIsOpen(!isOpen)}
-            className="border-ink-200 text-ink-900 hover:bg-ink-50 focus:border-warm-500 focus:ring-warm-500/20 flex h-10 w-full items-center justify-between rounded-lg border bg-white px-4 py-2 text-sm transition focus:ring-2 focus:outline-none"
-          >
+        <DialogTrigger isOpen={isOpen} onOpenChange={setIsOpen}>
+          <Button className="border-ink-200 text-ink-900 hover:bg-ink-50 focus:border-warm-500 focus:ring-warm-500/20 flex h-10 w-full items-center justify-between rounded-lg border bg-white px-4 py-2 text-sm transition focus:ring-2 focus:outline-none">
             {displayValue}
             <ChevronDown className="text-ink-400 ml-2 h-4 w-4" />
           </Button>
-          {isOpen && (
-            <div className="border-ink-200 absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-auto rounded-lg border bg-white shadow-lg">
-              <ListBox
-                aria-label="Catégories"
-                selectionMode="single"
-                className="p-1 outline-none"
-                onAction={(key) => handleSelect(key as string)}
+          <Popover
+            placement="bottom start"
+            className="border-ink-200 z-50 w-[var(--trigger-width)] rounded-lg border bg-white shadow-lg"
+          >
+            <ListBox
+              aria-label="Catégories"
+              selectionMode="single"
+              className="max-h-60 overflow-auto p-1 outline-none"
+              onAction={(key) => handleSelect(key as string)}
+            >
+              <ListBoxItem
+                id="none"
+                textValue="Aucune catégorie"
+                className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 cursor-pointer rounded px-3 py-2 text-sm outline-none"
               >
+                Aucune catégorie
+              </ListBoxItem>
+              {categories?.map((category) => (
                 <ListBoxItem
-                  id="none"
-                  textValue="Aucune catégorie"
-                  className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 cursor-pointer rounded px-3 py-2 text-sm outline-none"
+                  key={category.id}
+                  id={category.id}
+                  textValue={category.name}
+                  className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 flex cursor-pointer items-center gap-2 rounded px-3 py-2 text-sm outline-none"
                 >
-                  Aucune catégorie
+                  <CategoryIcon
+                    iconName={category.icon_name}
+                    size={20}
+                    className="text-ink-600 flex-shrink-0"
+                  />
+                  {category.name}
                 </ListBoxItem>
-                {categories?.map((category) => (
-                  <ListBoxItem
-                    key={category.id}
-                    id={category.id}
-                    textValue={category.name}
-                    className="text-ink-900 hover:bg-warm-100 focus:bg-warm-100 flex cursor-pointer items-center gap-2 rounded px-3 py-2 text-sm outline-none"
-                  >
-                    <CategoryIcon
-                      iconName={category.icon_name}
-                      size={20}
-                      className="text-ink-600 flex-shrink-0"
-                    />
-                    {category.name}
-                  </ListBoxItem>
-                ))}
-              </ListBox>
-            </div>
-          )}
-        </div>
+              ))}
+            </ListBox>
+          </Popover>
+        </DialogTrigger>
       )}
     </div>
   );

@@ -43,6 +43,7 @@ export function ProfileForm({
       <Form onSubmit={handleSubmit} className="space-y-4">
         {/* Full name field */}
         <TextField
+          name="fullName"
           value={fullName}
           onChange={handleFullNameChange}
           isDisabled={isSaving}

@@ -1,4 +1,4 @@
-import { Checkbox, Label } from "react-aria-components";
+import { Checkbox } from "react-aria-components";
 import { Leaf, Sprout } from "lucide-react";
 
 interface DietOptionsSectionProps {
@@ -16,13 +16,14 @@ export function DietOptionsSection({
 }: DietOptionsSectionProps) {
   return (
     <div className="space-y-3">
-      <Label className="text-ink-900 text-sm font-medium">
+      <h3 className="text-ink-900 text-sm font-medium">
         Régime alimentaire
-      </Label>
+      </h3>
       <div className="grid grid-cols-2 gap-3">
         <Checkbox
           isSelected={isVegetarian}
           onChange={onVegetarianChange}
+          aria-label="Végétarien"
           className="group cursor-pointer"
         >
           <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm group-data-selected:hover:border-emerald-500">
@@ -55,6 +56,7 @@ export function DietOptionsSection({
         <Checkbox
           isSelected={isVegan}
           onChange={onVeganChange}
+          aria-label="Végane"
           className="group cursor-pointer"
         >
           <div className="border-ink-200 hover:border-ink-300 flex items-center gap-2.5 rounded-lg border-2 bg-white px-4 py-3 transition-all group-data-selected:border-emerald-500 group-data-selected:bg-emerald-50 group-data-selected:shadow-sm hover:shadow-sm group-data-selected:hover:border-emerald-500">

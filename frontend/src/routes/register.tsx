@@ -231,6 +231,7 @@ function RegisterPage() {
 
           <Form onSubmit={handleSubmit} className="mt-6 space-y-5">
             <TextField
+              name="username"
               isRequired
               minLength={3}
               maxLength={50}
@@ -249,6 +250,7 @@ function RegisterPage() {
             </TextField>
 
             <TextField
+              name="password"
               isRequired
               minLength={6}
               type="password"
@@ -267,6 +269,7 @@ function RegisterPage() {
             </TextField>
 
             <TextField
+              name="confirmPassword"
               isRequired
               minLength={6}
               type="password"

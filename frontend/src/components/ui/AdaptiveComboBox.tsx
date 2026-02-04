@@ -9,6 +9,7 @@ import {
   Modal,
   ModalOverlay,
   TextField,
+  Popover,
 } from "react-aria-components";
 import { ChevronDown, X, Search } from "lucide-react";
 import { useIsMobile } from "@/components/utils/useIsMobile";
@@ -162,42 +163,37 @@ export function AdaptiveComboBox({
     );
   }
 
-  // Desktop: Standard dropdown with popover
+  // Desktop: Standard dropdown with React Aria Popover
   return (
     <div className={`relative ${className}`}>
-      <TextField className="w-full">
-        <div className="relative">
-          <Input
-            value={value ?? ""}
-            onChange={(e) => {
-              onChange(e.target.value || null);
-              setIsDesktopOpen(true);
-            }}
-            onFocus={() => setIsDesktopOpen(true)}
-            onBlur={() => {
-              // Delay to allow click on option
-              setTimeout(() => setIsDesktopOpen(false), 150);
-            }}
-            placeholder={placeholder}
-            className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-3 py-2 pr-8 text-sm focus:ring-2 focus:outline-none"
-          />
-          <Button
-            onPress={() => setIsDesktopOpen(!isDesktopOpen)}
-            className="text-ink-400 hover:text-ink-600 absolute top-0 right-0 flex h-full w-8 items-center justify-center rounded-r-lg"
-            excludeFromTabOrder
-          >
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
-      </TextField>
-
-      {/* Desktop popover */}
-      {isDesktopOpen && filteredOptions.length > 0 && (
-        <div className="border-ink-200 absolute top-full right-0 left-0 z-50 mt-1 max-h-60 overflow-auto rounded-lg border bg-white p-1 shadow-lg">
+      <DialogTrigger isOpen={isDesktopOpen} onOpenChange={setIsDesktopOpen}>
+        <TextField className="w-full">
+          <div className="relative">
+            <Input
+              value={value ?? ""}
+              onChange={(e) => {
+                onChange(e.target.value || null);
+                setIsDesktopOpen(true);
+              }}
+              placeholder={placeholder}
+              className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-3 py-2 pr-8 text-sm focus:ring-2 focus:outline-none"
+            />
+            <Button
+              className="text-ink-400 hover:text-ink-600 absolute top-0 right-0 flex h-full w-8 items-center justify-center rounded-r-lg"
+              excludeFromTabOrder
+            >
+              <ChevronDown className="h-4 w-4" />
+            </Button>
+          </div>
+        </TextField>
+        <Popover
+          placement="bottom start"
+          className="border-ink-200 z-50 w-[var(--trigger-width)] rounded-lg border bg-white p-1 shadow-lg"
+        >
           <ListBox
             aria-label="Options"
             selectionMode="single"
-            className="outline-none"
+            className="max-h-60 overflow-auto outline-none"
             onAction={(key) => handleSelect(key as string)}
           >
             {filteredOptions.map((opt) => (
@@ -211,8 +207,8 @@ export function AdaptiveComboBox({
               </ListBoxItem>
             ))}
           </ListBox>
-        </div>
-      )}
+        </Popover>
+      </DialogTrigger>
     </div>
   );
 }

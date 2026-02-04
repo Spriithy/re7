@@ -1,4 +1,4 @@
-import { Button } from "react-aria-components";
+import { ToggleButton } from "react-aria-components";
 import {
   Salad,
   UtensilsCrossed,
@@ -53,9 +53,9 @@ export function IconSelector({ selectedIcon, onSelect }: IconSelectorProps) {
       {iconOptions.map(({ name, Icon }) => {
         const isSelected = selectedIcon === name;
         return (
-          <Button
+          <ToggleButton
             key={name}
-            type="button"
+            isSelected={isSelected}
             onPress={() => onSelect(name)}
             className={`flex size-12 flex-col place-content-center items-center gap-1 rounded-lg border-2 p-2 transition-all ${
               isSelected
@@ -63,10 +63,9 @@ export function IconSelector({ selectedIcon, onSelect }: IconSelectorProps) {
                 : "hover:border-ink-200 text-ink-500 hover:text-ink-700 border-transparent"
             }`}
             aria-label={name}
-            aria-pressed={isSelected}
           >
             <Icon className="h-5 w-5" />
-          </Button>
+          </ToggleButton>
         );
       })}
     </div>
