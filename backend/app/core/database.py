@@ -1,8 +1,9 @@
-import unicodedata
 from collections.abc import AsyncGenerator
+
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy import event
+from unidecode import unidecode
 
 from app.core.config import settings
 
@@ -10,20 +11,17 @@ from app.core.config import settings
 def normalize_text(text: str | None) -> str:
     """
     Normalize text for accent-insensitive search.
-    Removes accents and converts to lowercase.
+    Uses unidecode for robust French character handling.
     Examples:
         "Crème brûlée" -> "creme brulee"
         "Bœuf Bourguignon" -> "boeuf bourguignon"
+        "Café" -> "cafe"
     """
     if text is None:
         return ""
-    # Handle French ligatures that don't decompose with NFKD
-    text = text.replace("œ", "oe").replace("Œ", "OE")
-    text = text.replace("æ", "ae").replace("Æ", "AE")
-    # Normalize unicode characters (é -> e, etc.)
-    text = unicodedata.normalize("NFKD", text)
-    text = text.encode("ascii", "ignore").decode("ascii")
-    return text.lower()
+    # unidecode handles all Unicode characters including French ligatures
+    normalized = unidecode(text)
+    return normalized.lower()
 
 
 class Base(DeclarativeBase):
@@ -36,13 +34,22 @@ engine = create_async_engine(
 )
 
 
-# Enable WAL mode for SQLite and register custom functions
+# Enable WAL mode and optimized SQLite settings
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
+    
+    # Core settings (already present)
     cursor.execute("PRAGMA journal_mode=WAL")
     cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.execute("PRAGMA foreign_keys=ON")
+    
+    # Performance optimizations
+    cursor.execute("PRAGMA busy_timeout=5000")  # Wait up to 5s if DB is locked
+    cursor.execute("PRAGMA cache_size=-64000")  # 64MB cache (negative = pages, 25MB total)
+    cursor.execute("PRAGMA temp_store=memory")  # Store temp tables in RAM
+    cursor.execute("PRAGMA mmap_size=268435456")  # 256MB memory-mapped I/O
+    
     cursor.close()
     # Register normalize_text function for accent-insensitive search
     dbapi_connection.create_function("normalize_text", 1, normalize_text)
