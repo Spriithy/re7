@@ -5,14 +5,16 @@ import { AuthContext } from "./AuthContext";
 import { saveToken, clearToken, getStoredToken } from "./storage";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // Optimistic initialization: assume authenticated if token exists to prevent loading flash
+  const storedToken = getStoredToken();
   const [state, setState] = useState<AuthState>({
     user: null,
-    token: null,
-    isLoading: true,
-    isAuthenticated: false,
+    token: storedToken,
+    isLoading: !!storedToken, // Only show loading if we have a token to validate
+    isAuthenticated: !!storedToken, // Optimistically assume authenticated
   });
 
-  // Initialize auth state from stored token
+  // Validate token in background
   useEffect(() => {
     const initAuth = async () => {
       const storedToken = getStoredToken();
@@ -52,9 +54,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokenData = await authApi.login(credentials);
     saveToken(tokenData);
 
-    const user = await authApi.me(tokenData.access_token);
     setState({
-      user,
+      user: tokenData.user ?? null,
       token: tokenData.access_token,
       isLoading: false,
       isAuthenticated: true,
@@ -65,9 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const tokenData = await authApi.register(data);
     saveToken(tokenData);
 
-    const user = await authApi.me(tokenData.access_token);
     setState({
-      user,
+      user: tokenData.user ?? null,
       token: tokenData.access_token,
       isLoading: false,
       isAuthenticated: true,

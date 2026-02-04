@@ -8,6 +8,7 @@ from sqlalchemy import (
     DateTime,
     Enum as SQLEnum,
     ForeignKey,
+    Index,
     Integer,
     Numeric,
     String,
@@ -31,6 +32,15 @@ class Difficulty(str, Enum):
 
 class Recipe(Base):
     __tablename__ = "recipes"
+
+    # Indexes for frequently queried columns
+    __table_args__ = (
+        Index("idx_recipe_author", "author_id"),
+        Index("idx_recipe_category", "category_id"),
+        Index("idx_recipe_created", "created_at"),
+        Index("idx_recipe_vegetarian", "is_vegetarian"),
+        Index("idx_recipe_vegan", "is_vegan"),
+    )
 
     id: Mapped[str] = mapped_column(
         String(36),

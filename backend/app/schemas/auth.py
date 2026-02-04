@@ -31,6 +31,10 @@ class Token(BaseModel):
     expires_at: datetime
 
 
+class TokenWithUser(Token):
+    user: UserResponse
+
+
 class TokenPayload(BaseModel):
     sub: str  # user id
     exp: datetime

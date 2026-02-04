@@ -32,9 +32,10 @@ function ProfilePage() {
     enabled: !!userId && !!token && isAuthenticated,
   });
 
-  // Query invited users
+  // Query invited users - use stable query key without token to prevent refetch on token refresh
   const { data: invitedUsers = [], isLoading: invitedUsersLoading } = useQuery({
-    queryKey: ["users", "invited", token],
+    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- Token is stable per session, we don't want refetch on token changes
+    queryKey: ["users", "invited"],
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures token is defined
     queryFn: () => userApi.getInvitedUsers(token!),
     enabled: !!token && isAuthenticated,

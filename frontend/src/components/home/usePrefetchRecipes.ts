@@ -17,24 +17,19 @@ export function usePrefetchRecipes() {
   return (params: PrefetchParams) => {
     const { search, category_id, is_vegetarian, is_vegan, is_quick } = params;
 
-    // Only include active filters in the key — must match useRecipeFilters
-    const activeFilters = {
-      ...(search ? { search } : {}),
-      ...(category_id ? { category_id } : {}),
-      ...(is_vegetarian ? { is_vegetarian: true as const } : {}),
-      ...(is_vegan ? { is_vegan: true as const } : {}),
-      ...(is_quick ? { is_quick: true as const } : {}),
-    };
-
-    // Must use prefetchInfiniteQuery to match useInfiniteQuery in useRecipeFilters
-    // Use activeFilters for API call too - only pass truthy filter values
+    // Query key must exactly match useRecipeFilters.ts for cache to work
+    // useRecipeFilters uses: ["recipes", deferredSearchQuery, selectedCategoryId, filterVegetarian, filterVegan, filterQuick]
     void queryClient.prefetchInfiniteQuery({
-      queryKey: ["recipes", activeFilters],
+      queryKey: ["recipes", search, category_id, is_vegetarian, is_vegan, is_quick],
       queryFn: ({ pageParam = 1 }) =>
         recipeApi.list({
           page: pageParam,
           page_size: PAGE_SIZE,
-          ...activeFilters,
+          ...(search ? { search } : {}),
+          ...(category_id ? { category_id } : {}),
+          ...(is_vegetarian ? { is_vegetarian: true } : {}),
+          ...(is_vegan ? { is_vegan: true } : {}),
+          ...(is_quick ? { is_quick: true } : {}),
         }),
       initialPageParam: 1,
     });

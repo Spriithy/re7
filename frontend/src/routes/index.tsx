@@ -91,7 +91,7 @@ function HomePage() {
               recipes={recipes}
               isLoading={recipesLoading}
               isFetchingNextPage={isFetchingNextPage}
-              hasNextPage={hasNextPage ?? false}
+              hasNextPage={hasNextPage}
               fetchNextPage={fetchNextPage}
             />
 
