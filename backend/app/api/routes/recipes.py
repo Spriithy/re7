@@ -154,6 +154,43 @@ async def create_recipe(
     return build_recipe_response(recipe)
 
 
+def apply_recipe_filters(
+    query,
+    search: str | None = None,
+    author_id: str | None = None,
+    category_id: str | None = None,
+    is_vegetarian: bool | None = None,
+    is_vegan: bool | None = None,
+    is_quick: bool | None = None,
+):
+    """Apply common filters to a recipe query.
+    
+    This helper ensures consistent filtering between list queries and count queries.
+    """
+    if search:
+        normalized_search = normalize_text(search)
+        query = query.where(
+            func.normalize_text(Recipe.title).contains(normalized_search)
+        )
+    if author_id:
+        query = query.where(Recipe.author_id == author_id)
+    if category_id:
+        query = query.where(Recipe.category_id == category_id)
+    if is_vegetarian is not None:
+        query = query.where(Recipe.is_vegetarian == is_vegetarian)
+    if is_vegan is not None:
+        query = query.where(Recipe.is_vegan == is_vegan)
+    if is_quick is True:
+        # Quick recipes: total time (prep + cook) <= 30 minutes
+        # Use coalesce to treat NULL as 0
+        total_time = func.coalesce(Recipe.prep_time_minutes, 0) + func.coalesce(
+            Recipe.cook_time_minutes, 0
+        )
+        query = query.where(total_time <= 30)
+    
+    return query
+
+
 @router.get("", response_model=RecipeListResponse)
 async def list_recipes(
     db: DbSession,
@@ -173,47 +210,27 @@ async def list_recipes(
         selectinload(Recipe.category),
     )
 
-    # Apply filters (accent-insensitive search using normalize_text SQL function)
-    if search:
-        normalized_search = normalize_text(search)
-        query = query.where(
-            func.normalize_text(Recipe.title).contains(normalized_search)
-        )
-    if author_id:
-        query = query.where(Recipe.author_id == author_id)
-    if category_id:
-        query = query.where(Recipe.category_id == category_id)
-    if is_vegetarian is not None:
-        query = query.where(Recipe.is_vegetarian == is_vegetarian)
-    if is_vegan is not None:
-        query = query.where(Recipe.is_vegan == is_vegan)
-    if is_quick is True:
-        # Quick recipes: total time (prep + cook) < 30 minutes
-        # Use coalesce to treat NULL as 0
-        total_time = func.coalesce(Recipe.prep_time_minutes, 0) + func.coalesce(
-            Recipe.cook_time_minutes, 0
-        )
-        query = query.where(total_time <= 30)
+    # Apply filters to list query
+    query = apply_recipe_filters(
+        query,
+        search=search,
+        author_id=author_id,
+        category_id=category_id,
+        is_vegetarian=is_vegetarian,
+        is_vegan=is_vegan,
+        is_quick=is_quick,
+    )
 
-    # Count total
-    count_query = select(func.count(Recipe.id))
-    if search:
-        count_query = count_query.where(
-            func.normalize_text(Recipe.title).contains(normalized_search)
-        )
-    if author_id:
-        count_query = count_query.where(Recipe.author_id == author_id)
-    if category_id:
-        count_query = count_query.where(Recipe.category_id == category_id)
-    if is_vegetarian is not None:
-        count_query = count_query.where(Recipe.is_vegetarian == is_vegetarian)
-    if is_vegan is not None:
-        count_query = count_query.where(Recipe.is_vegan == is_vegan)
-    if is_quick is True:
-        total_time = func.coalesce(Recipe.prep_time_minutes, 0) + func.coalesce(
-            Recipe.cook_time_minutes, 0
-        )
-        count_query = count_query.where(total_time < 30)
+    # Count total with same filters
+    count_query = apply_recipe_filters(
+        select(func.count(Recipe.id)),
+        search=search,
+        author_id=author_id,
+        category_id=category_id,
+        is_vegetarian=is_vegetarian,
+        is_vegan=is_vegan,
+        is_quick=is_quick,
+    )
     total_result = await db.execute(count_query)
     total = total_result.scalar() or 0
 
