@@ -7,7 +7,7 @@ services:
     environment:
       ENVIRONMENT: development
       DATABASE_URL: sqlite+aiosqlite:///./re7.db
-      CORS_ORIGINS: '["http://localhost:3000"]'
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://127.0.0.1:3000}
       WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID}
     ports:
       - "8000:8000"
@@ -20,7 +20,7 @@ services:
     container_name: re7-frontend
     working_dir: /app
     environment:
-      VITE_API_URL: http://localhost:8000
+      VITE_API_URL: ${VITE_API_URL:-}
       VITE_WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID}
       VITE_WORKOS_REDIRECT_URI: ${VITE_WORKOS_REDIRECT_URI:-http://localhost:3000/callback}
     ports:

@@ -17,6 +17,15 @@ To build this application for production:
 bun --bun run build
 ```
 
+## API Base URL
+
+The frontend now defaults to same-origin requests for `/api/*` and `/uploads/*`.
+
+- For a reverse proxy or regular domain setup, leave `VITE_API_URL` empty and route `/api` plus `/uploads` to the backend on the same host.
+- For local split-host development, set `VITE_API_URL` explicitly, for example `http://localhost:8000` or `http://100.x.y.z:8000` on Tailscale.
+
+The backend accepts `CORS_ORIGINS` either as a JSON array or a comma-separated list.
+
 ## Testing
 
 This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:

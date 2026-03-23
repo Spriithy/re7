@@ -17,12 +17,9 @@ import type {
   RecipeUpdate,
   RecipeListResponse,
 } from "./api-types";
+import { buildApiUrl } from "./api-url";
 
 export type * from "./api-types";
-
-const API_BASE_URL =
-  (import.meta.env.VITE_API_URL as string | undefined) ??
-  "http://localhost:8000";
 
 export class ApiError extends Error {
   constructor(
@@ -64,7 +61,7 @@ async function request<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(buildApiUrl(endpoint), {
     ...fetchOptions,
     headers,
   });
@@ -97,7 +94,7 @@ async function requestNoContent(
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(buildApiUrl(endpoint), {
     ...fetchOptions,
     headers,
   });
@@ -122,7 +119,7 @@ async function requestWithFormData<T>(
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  const response = await fetch(buildApiUrl(endpoint), {
     method: "POST",
     headers,
     body: formData,
@@ -353,5 +350,5 @@ export const recipeApi = {
 // Helper to get full image URL
 export function getImageUrl(imagePath: string | null): string | null {
   if (!imagePath) return null;
-  return `${API_BASE_URL}/uploads/${imagePath}`;
+  return buildApiUrl(`/uploads/${imagePath}`);
 }
