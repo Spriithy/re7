@@ -23,6 +23,10 @@ A fast, accessible, mobile-first web application for sharing recipes within a sm
 - **State/Data**: Tanstack stack (Query, Router, etc.)
 - **React Compiler**: Enabled
 
+### Task Completion Requirements
+
+- All of `bun fmt`, `bun lint`, and `bun typecheck` must pass before considering tasks completed.
+
 ### Tooling
 
 - **Package Manager**: Bun
@@ -42,11 +46,17 @@ A fast, accessible, mobile-first web application for sharing recipes within a sm
 - **Typography**: Readable, slightly traditional/serif feel for headings
 - **Mobile**: Primary target, works in kitchen context
 
-## Development Workflow
+## Core Priorities
 
-1. **Initialize**: Set up Tanstack Start frontend + FastAPI backend
-2. **UI/UX Research**: Explore design patterns, iterate on visual direction
-3. **Implement phases**: Core → Engagement → Sharing
+1. Performance first.
+2. Reliability first.
+3. Keep behavior predictable under load and during failures.
+
+If a tradeoff is required, choose correctness and robustness over short-term convenience.
+
+## Maintainability
+
+Long term maintainability is a core priority. If you add new functionality, first check if there is shared logic that can be extracted to a separate module. Duplicate logic across multiple files is a code smell and should be avoided. Don't be afraid to change existing code. Don't take shortcuts by just adding local logic to solve a problem.
 
 ## Code Conventions
 
@@ -59,7 +69,6 @@ A fast, accessible, mobile-first web application for sharing recipes within a sm
 
 ### TypeScript (Frontend)
 
-- Strict TypeScript
 - React Aria for all interactive UI
 - Tanstack Query for server state
 - Server components for static content
@@ -69,23 +78,3 @@ A fast, accessible, mobile-first web application for sharing recipes within a sm
 
 - All user-facing text in French
 - Code comments, variable names, commits in English
-
-## Commands
-
-```bash
-# Backend
-cd backend
-uvicorn app.main:app --reload --port 8000
-
-# Frontend
-cd frontend
-bun install
-bun run dev
-```
-
-## Notes
-
-- Single admin user manages invite links
-- No comments feature (not planned)
-- No meal planning or shopping lists
-- Focus on speed and simplicity
