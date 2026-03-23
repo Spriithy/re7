@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth/useAuth";
 import { HomeHeader } from "@/components/home/HomeHeader";
 import { RecipeResultsHeader } from "@/components/home/RecipeResultsHeader";
@@ -13,7 +13,6 @@ export const Route = createFileRoute("/")({
 });
 
 function HomePage() {
-  const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
   const {
     searchQuery,
@@ -50,12 +49,7 @@ function HomePage() {
 
   // Redirect to login if not authenticated (after loading is complete)
   if (!isAuthenticated) {
-    void navigate({ to: "/login" });
-    return (
-      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center bg-linear-to-b">
-        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
-      </div>
-    );
+    return <Navigate to="/login" />;
   }
 
   return (

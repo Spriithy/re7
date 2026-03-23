@@ -10,6 +10,17 @@ export interface UserCreate {
   invite_token: string;
 }
 
+export interface WorkOSLinkRequest {
+  username: string;
+  invite_token: string;
+  full_name?: string | null;
+}
+
+export interface WorkOSLinkExistingRequest {
+  username: string;
+  password: string;
+}
+
 export interface Token {
   access_token: string;
   token_type: string;

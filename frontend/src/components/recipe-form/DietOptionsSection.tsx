@@ -16,9 +16,7 @@ export function DietOptionsSection({
 }: DietOptionsSectionProps) {
   return (
     <div className="space-y-3">
-      <h3 className="text-ink-900 text-sm font-medium">
-        Régime alimentaire
-      </h3>
+      <h3 className="text-ink-900 text-sm font-medium">Régime alimentaire</h3>
       <div className="grid grid-cols-2 gap-3">
         <Checkbox
           isSelected={isVegetarian}

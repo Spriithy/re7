@@ -7,9 +7,25 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import decode_token
+from app.core.workos import WorkOSAccessTokenClaims, verify_workos_access_token
 from app.models.user import User
+from app.services.identity import WORKOS_PROVIDER, get_user_by_identity
 
 security = HTTPBearer()
+
+
+async def get_current_workos_user(
+    credentials: Annotated[HTTPAuthorizationCredentials, Depends(security)],
+) -> WorkOSAccessTokenClaims:
+    workos_user = await verify_workos_access_token(credentials.credentials)
+    if workos_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired token",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    return workos_user
 
 
 async def get_current_user(
@@ -19,20 +35,31 @@ async def get_current_user(
     token = credentials.credentials
     payload = decode_token(token)
 
-    if payload is None:
+    if payload is not None:
+        result = await db.execute(select(User).where(User.id == payload.sub))
+        user = result.scalar_one_or_none()
+
+        if user is not None:
+            return user
+
+    workos_user = await verify_workos_access_token(token)
+    if workos_user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    result = await db.execute(select(User).where(User.id == payload.sub))
-    user = result.scalar_one_or_none()
+    user = await get_user_by_identity(
+        db,
+        provider=WORKOS_PROVIDER,
+        provider_user_id=workos_user.sub,
+    )
 
     if user is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found",
+            detail="Authenticated WorkOS user is not linked to a local account",
             headers={"WWW-Authenticate": "Bearer"},
         )
 
@@ -53,4 +80,7 @@ async def get_current_admin(
 # Type aliases for cleaner route signatures
 CurrentUser = Annotated[User, Depends(get_current_user)]
 CurrentAdmin = Annotated[User, Depends(get_current_admin)]
+CurrentWorkOSUser = Annotated[
+    WorkOSAccessTokenClaims, Depends(get_current_workos_user)
+]
 DbSession = Annotated[AsyncSession, Depends(get_db)]

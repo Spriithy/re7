@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     secret_key: str = "change-this-in-production-use-a-real-secret-key"
     algorithm: str = "HS256"
     access_token_expire_days: int = 365  # 1 year
+    workos_client_id: str = ""
 
     # Paths
     base_dir: Path = Path(__file__).resolve().parent.parent.parent
@@ -24,8 +25,9 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:5173"]
 
     model_config = {
-        "env_file": ".env",
+        "env_file": (".env", "../frontend/.env.local"),
         "env_file_encoding": "utf-8",
+        "extra": "ignore",
     }
 
 

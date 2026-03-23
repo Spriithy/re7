@@ -4,7 +4,7 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.core.database import Base
-from app.models import User, InviteLink  # noqa: F401 - Import models to register them
+from app.models import InviteLink, User, UserIdentity  # noqa: F401 - Import models to register them
 
 config = context.config
 

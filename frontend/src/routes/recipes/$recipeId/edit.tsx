@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth/useAuth";
 import { recipeApi } from "@/lib/api";
@@ -10,7 +10,6 @@ export const Route = createFileRoute("/recipes/$recipeId/edit")({
 });
 
 function EditRecipePage() {
-  const navigate = useNavigate();
   const { recipeId } = Route.useParams();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
 
@@ -26,17 +25,12 @@ function EditRecipePage() {
 
   // Redirect if not authenticated
   if (!authLoading && !isAuthenticated) {
-    void navigate({ to: "/login" });
-    return null;
+    return <Navigate to="/login" />;
   }
 
   // Check if user can edit (author or admin)
   if (recipe && user && recipe.author.id !== user.id && !user.is_admin) {
-    void navigate({
-      to: "/recipes/$recipeId",
-      params: { recipeId },
-    });
-    return null;
+    return <Navigate to="/recipes/$recipeId" params={{ recipeId }} />;
   }
 
   if (authLoading || recipeLoading) {

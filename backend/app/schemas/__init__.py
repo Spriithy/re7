@@ -3,6 +3,8 @@ from app.schemas.auth import (
     TokenPayload,
     UserCreate,
     UserLogin,
+    WorkOSLinkExistingRequest,
+    WorkOSLinkRequest,
     UserResponse,
 )
 from app.schemas.invite import InviteCreate, InviteResponse
@@ -27,6 +29,8 @@ __all__ = [
     "TokenPayload",
     "UserCreate",
     "UserLogin",
+    "WorkOSLinkExistingRequest",
+    "WorkOSLinkRequest",
     "UserResponse",
     "InviteCreate",
     "InviteResponse",

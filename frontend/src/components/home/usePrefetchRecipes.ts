@@ -20,7 +20,14 @@ export function usePrefetchRecipes() {
     // Query key must exactly match useRecipeFilters.ts for cache to work
     // useRecipeFilters uses: ["recipes", deferredSearchQuery, selectedCategoryId, filterVegetarian, filterVegan, filterQuick]
     void queryClient.prefetchInfiniteQuery({
-      queryKey: ["recipes", search, category_id, is_vegetarian, is_vegan, is_quick],
+      queryKey: [
+        "recipes",
+        search,
+        category_id,
+        is_vegetarian,
+        is_vegan,
+        is_quick,
+      ],
       queryFn: ({ pageParam = 1 }) =>
         recipeApi.list({
           page: pageParam,

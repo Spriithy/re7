@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/lib/auth/useAuth";
 import { userApi, recipeApi } from "@/lib/api";
@@ -15,7 +15,6 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const navigate = useNavigate();
   const { user, token, isAuthenticated, isLoading, refreshUser } = useAuth();
 
   const [profileUpdateSuccess, setProfileUpdateSuccess] = useState(false);
@@ -110,12 +109,7 @@ function ProfilePage() {
 
   // Redirect to login if not authenticated (after loading is complete)
   if (!isAuthenticated || !user || !token) {
-    void navigate({ to: "/login" });
-    return (
-      <div className="from-warm-50 to-paper-100 flex h-screen min-h-screen items-center justify-center bg-linear-to-b">
-        <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
-      </div>
-    );
+    return <Navigate to="/login" />;
   }
 
   return (

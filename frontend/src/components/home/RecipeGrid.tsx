@@ -19,10 +19,11 @@ export function RecipeGrid({
   hasNextPage,
   fetchNextPage,
 }: RecipeGridProps) {
-  const { ref: loadMoreRef, isIntersecting } = useIntersectionObserver<HTMLDivElement>({
-    rootMargin: "200px",
-    enabled: hasNextPage && !isFetchingNextPage,
-  });
+  const { ref: loadMoreRef, isIntersecting } =
+    useIntersectionObserver<HTMLDivElement>({
+      rootMargin: "200px",
+      enabled: hasNextPage && !isFetchingNextPage,
+    });
 
   useEffect(() => {
     if (isIntersecting && hasNextPage && !isFetchingNextPage) {
@@ -55,7 +56,7 @@ export function RecipeGrid({
       {/* Sentinel element for infinite scroll */}
       <div ref={loadMoreRef} className="mt-8 flex justify-center">
         {isFetchingNextPage && (
-          <div className="flex items-center gap-2 text-warm-600">
+          <div className="text-warm-600 flex items-center gap-2">
             <Loader2 className="h-5 w-5 animate-spin" />
             <span className="text-sm">Chargement...</span>
           </div>

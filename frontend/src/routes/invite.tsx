@@ -1,35 +1,48 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "react-aria-components";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Check, RefreshCw } from "lucide-react";
 import { inviteApi } from "@/lib/api";
+import { useAuth } from "@/lib/auth/useAuth";
 import { AppHeader } from "@/components/AppHeader";
 import { PendingComponent } from "@/components/PendingComponent";
 
-const TOKEN_KEY = "re7-token";
-
 export const Route = createFileRoute("/invite")({
-  beforeLoad: () => {
-    const token = localStorage.getItem(TOKEN_KEY);
-    if (!token) {
-      throw new Error("Redirect to login");
-    }
-    return { token };
-  },
-  loader: async ({ context }) => {
-    const { token } = context as { token: string };
-    const invite = await inviteApi.create(7, token);
-    return { invite };
-  },
-  pendingComponent: PendingComponent,
   component: InvitePage,
 });
 
 function InvitePage() {
-  const { invite } = Route.useLoaderData();
-  const router = useRouter();
+  const { token, user, isAuthenticated, isLoading } = useAuth();
   const [copied, setCopied] = useState(false);
+  const {
+    data: invite,
+    isLoading: inviteLoading,
+    refetch,
+  } = useQuery({
+    queryKey: ["invite", token],
+    queryFn: async () => {
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      return inviteApi.create(7, token);
+    },
+    enabled: !!token && isAuthenticated && !!user?.is_admin,
+  });
+
+  if (!isLoading && (!isAuthenticated || !token || !user)) {
+    return <Navigate to="/login" />;
+  }
+
+  if (!isLoading && !user?.is_admin) {
+    return <Navigate to="/" />;
+  }
+
+  if (isLoading || inviteLoading || !invite) {
+    return <PendingComponent />;
+  }
 
   const registerUrl = `${window.location.origin}/register?invite=${encodeURIComponent(invite.token)}`;
 
@@ -39,7 +52,6 @@ function InvitePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textArea = document.createElement("textarea");
       textArea.value = registerUrl;
       document.body.appendChild(textArea);
@@ -52,8 +64,7 @@ function InvitePage() {
   };
 
   const generateNewCode = async () => {
-    // Invalidate and reload the route to generate a new invite code
-    await router.invalidate();
+    await refetch();
   };
 
   return (

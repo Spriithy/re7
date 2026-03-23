@@ -1,50 +1,74 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
 import {
-  Button,
-  TextField,
-  Label,
-  Input,
-  Form,
-  FieldError,
-} from "react-aria-components";
+  Navigate,
+  createFileRoute,
+  Link,
+  useNavigate,
+} from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { Button, Form, Input, Label, TextField } from "react-aria-components";
+import { authApi, inviteApi } from "@/lib/api";
 import { useAuth } from "@/lib/auth/useAuth";
-import { ApiError } from "@/lib/api";
-import { inviteApi } from "@/lib/api";
-
-interface RegisterSearch {
-  invite: string;
-}
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
-  validateSearch: (search: Record<string, unknown>): RegisterSearch => {
-    const invite = typeof search.invite === "string" ? search.invite : "";
-    return { invite };
-  },
-  loaderDeps: ({ search: { invite } }) => ({ invite }),
-  loader: async ({ deps: { invite } }) => {
-    if (!invite) {
-      return { isValidInvite: false };
-    }
-    const result = await inviteApi.validate(invite);
-    return { isValidInvite: result.valid };
-  },
 });
 
 function RegisterPage() {
   const navigate = useNavigate();
-  const { invite } = Route.useSearch();
-  const { isValidInvite } = Route.useLoaderData();
-  const { register, isAuthenticated, isLoading } = useAuth();
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState<string | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const inviteToken =
+    new URLSearchParams(window.location.search).get("invite") ?? "";
+  const {
+    isAuthenticated,
+    isLoading,
+    signUp,
+    getAccessToken,
+    refreshUser,
+    workosUser,
+    hasWorkosSession,
+    linkingRequired,
+  } = useAuth();
+  const suggestedUsername = useMemo(
+    () => workosUser?.email.split("@", 1)[0] ?? "",
+    [workosUser]
+  );
+  const suggestedFullName = useMemo(
+    () =>
+      [workosUser?.firstName, workosUser?.lastName].filter(Boolean).join(" ") ||
+      (workosUser?.email ?? "") ||
+      "",
+    [workosUser]
+  );
+  const [usernameOverride, setUsernameOverride] = useState<string | null>(null);
+  const [fullNameOverride, setFullNameOverride] = useState<string | null>(null);
+  const username = usernameOverride ?? suggestedUsername;
+  const fullName = fullNameOverride ?? suggestedFullName;
 
-  // Show loading state while checking authentication
-  if (isLoading) {
+  const { data: inviteValidation, isLoading: inviteLoading } = useQuery({
+    queryKey: ["invite-validation", inviteToken],
+    queryFn: () => inviteApi.validate(inviteToken),
+    enabled: inviteToken.length > 0,
+  });
+
+  const linkMutation = useMutation({
+    mutationFn: async () => {
+      const accessToken = await getAccessToken();
+      return authApi.linkWorkOS(
+        {
+          username,
+          invite_token: inviteToken,
+          full_name: fullName || null,
+        },
+        accessToken
+      );
+    },
+    onSuccess: async () => {
+      await refreshUser();
+      void navigate({ to: "/" });
+    },
+  });
+
+  if (isLoading || inviteLoading) {
     return (
       <div className="bg-paper-100 flex h-screen items-center justify-center">
         <div className="border-warm-600 h-12 w-12 animate-spin rounded-full border-4 border-t-transparent" />
@@ -52,154 +76,12 @@ function RegisterPage() {
     );
   }
 
-  // Redirect if already authenticated (after loading is complete)
   if (isAuthenticated) {
-    void navigate({ to: "/" });
-    return null;
+    return <Navigate to="/" />;
   }
 
-  // Show error if invite is invalid
-  if (!isValidInvite) {
-    return (
-      <main className="from-warm-50 to-paper-100 flex min-h-screen flex-col items-center justify-center bg-linear-to-b px-4 py-12">
-        <Link to="/" className="inline-block">
-          <h1 className="font-heading text-warm-900 text-4xl font-bold">Re7</h1>
-        </Link>
-        <p className="font-heading text-warm-700 mt-1 text-lg italic">
-          Recettes de famille
-        </p>
-
-        {/* Tipped over pot illustration */}
-        <svg
-          className="mt-12 h-40 w-40"
-          viewBox="0 0 160 140"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          {/* Spilled liquid puddle */}
-          <ellipse
-            cx="100"
-            cy="125"
-            rx="45"
-            ry="10"
-            className="fill-warm-300/60"
-          />
-          <ellipse
-            cx="115"
-            cy="122"
-            rx="25"
-            ry="6"
-            className="fill-warm-400/40"
-          />
-
-          {/* Pot body - tipped over */}
-          <g transform="rotate(-35 70 90)">
-            {/* Pot base */}
-            <ellipse
-              cx="70"
-              cy="105"
-              rx="35"
-              ry="8"
-              className="fill-warm-600"
-            />
-            {/* Pot body */}
-            <path
-              d="M35 60 C35 85 40 105 70 105 C100 105 105 85 105 60"
-              className="fill-warm-500"
-            />
-            {/* Pot rim */}
-            <ellipse
-              cx="70"
-              cy="60"
-              rx="35"
-              ry="10"
-              className="fill-warm-600"
-            />
-            {/* Inner pot */}
-            <ellipse cx="70" cy="60" rx="28" ry="7" className="fill-warm-700" />
-            {/* Left handle */}
-            <rect
-              x="25"
-              y="55"
-              width="12"
-              height="6"
-              rx="2"
-              className="fill-warm-700"
-            />
-            {/* Right handle */}
-            <rect
-              x="103"
-              y="55"
-              width="12"
-              height="6"
-              rx="2"
-              className="fill-warm-700"
-            />
-          </g>
-
-          {/* Small droplets */}
-          <circle cx="130" cy="115" r="3" className="fill-warm-400/50" />
-          <circle cx="60" cy="128" r="4" className="fill-warm-300/50" />
-          <circle cx="145" cy="120" r="2" className="fill-warm-400/40" />
-        </svg>
-
-        <h2 className="font-heading text-ink-900 mt-8 text-2xl font-semibold">
-          Ce lien n'est plus valide
-        </h2>
-        <p className="text-ink-600 mt-3 max-w-sm text-center">
-          L'invitation a peut-être expiré ou a déjà été utilisée.
-        </p>
-        <p className="text-ink-500 mt-6 text-sm">
-          Demandez un nouveau lien à un membre de la famille.
-        </p>
-        <Link
-          to="/"
-          className="text-warm-700 decoration-warm-300 hover:text-warm-800 hover:decoration-warm-400 mt-8 font-medium underline underline-offset-4 transition"
-        >
-          Retour à l'accueil
-        </Link>
-      </main>
-    );
-  }
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas.");
-      return;
-    }
-
-    setIsSubmitting(true);
-
-    try {
-      await register({
-        username,
-        password,
-        invite_token: invite,
-      });
-      void navigate({ to: "/" });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        if (err.detail === "Username already taken") {
-          setError("Ce nom d'utilisateur est déjà pris.");
-        } else if (err.detail === "Invalid invite token") {
-          setError("Code d'invitation invalide.");
-        } else if (
-          err.detail === "Invite token has expired or already been used"
-        ) {
-          setError("Ce code d'invitation a expiré ou a déjà été utilisé.");
-        } else {
-          setError(err.detail);
-        }
-      } else {
-        setError("Une erreur est survenue. Veuillez réessayer.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const inviteIsValid =
+    inviteToken.length > 0 && inviteValidation?.valid === true;
 
   return (
     <main className="from-warm-100 to-paper-100 flex min-h-screen items-center justify-center bg-gradient-to-b px-4 py-12">
@@ -219,82 +101,89 @@ function RegisterPage() {
           <h2 className="font-heading text-ink-900 text-2xl font-semibold">
             Créer un compte
           </h2>
-          <p className="text-ink-600 mt-2 text-sm">
-            Rejoignez la famille pour partager vos recettes.
-          </p>
 
-          {error && (
-            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
-              {error}
-            </div>
+          {!inviteToken ? (
+            <p className="text-ink-600 mt-3 text-sm">
+              Un lien d'invitation est requis pour rejoindre Re7.
+            </p>
+          ) : !inviteIsValid ? (
+            <p className="mt-3 text-sm text-red-700">
+              Cette invitation est invalide ou expirée.
+            </p>
+          ) : hasWorkosSession && linkingRequired ? (
+            <>
+              <p className="text-ink-600 mt-2 text-sm">
+                Votre compte Google est authentifié. Choisissez votre nom
+                d'utilisateur pour terminer l'inscription.
+              </p>
+
+              {linkMutation.error ? (
+                <p className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+                  {linkMutation.error.message}
+                </p>
+              ) : null}
+
+              <Form
+                className="mt-6 space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  linkMutation.mutate();
+                }}
+              >
+                <TextField
+                  className="space-y-1.5"
+                  value={username}
+                  onChange={setUsernameOverride}
+                  isRequired
+                >
+                  <Label className="text-ink-700 text-sm font-medium">
+                    Nom d'utilisateur
+                  </Label>
+                  <Input className="border-ink-200 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-3 transition outline-none focus:ring-4" />
+                </TextField>
+
+                <TextField
+                  className="space-y-1.5"
+                  value={fullName}
+                  onChange={setFullNameOverride}
+                >
+                  <Label className="text-ink-700 text-sm font-medium">
+                    Nom affiché
+                  </Label>
+                  <Input className="border-ink-200 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-3 transition outline-none focus:ring-4" />
+                </TextField>
+
+                <Button
+                  type="submit"
+                  isPending={linkMutation.isPending}
+                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition"
+                >
+                  Terminer l'inscription
+                </Button>
+              </Form>
+            </>
+          ) : (
+            <>
+              <p className="text-ink-600 mt-2 text-sm">
+                Rejoignez la famille pour partager vos recettes.
+              </p>
+
+              <div className="mt-6 space-y-4">
+                <Button
+                  onPress={() =>
+                    signUp({
+                      state: {
+                        returnTo: `${window.location.pathname}${window.location.search}`,
+                      },
+                    })
+                  }
+                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition"
+                >
+                  Créer mon compte
+                </Button>
+              </div>
+            </>
           )}
-
-          <Form onSubmit={handleSubmit} className="mt-6 space-y-5">
-            <TextField
-              name="username"
-              isRequired
-              minLength={3}
-              maxLength={50}
-              className="space-y-1.5"
-            >
-              <Label className="text-ink-700 text-sm font-medium">
-                Nom d'utilisateur
-              </Label>
-              <Input
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Choisissez un nom d'utilisateur"
-                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
-              />
-              <FieldError className="text-sm text-red-600" />
-            </TextField>
-
-            <TextField
-              name="password"
-              isRequired
-              minLength={6}
-              type="password"
-              className="space-y-1.5"
-            >
-              <Label className="text-ink-700 text-sm font-medium">
-                Mot de passe
-              </Label>
-              <Input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Choisissez un mot de passe"
-                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
-              />
-              <FieldError className="text-sm text-red-600" />
-            </TextField>
-
-            <TextField
-              name="confirmPassword"
-              isRequired
-              minLength={6}
-              type="password"
-              className="space-y-1.5"
-            >
-              <Label className="text-ink-700 text-sm font-medium">
-                Confirmer le mot de passe
-              </Label>
-              <Input
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirmez votre mot de passe"
-                className="border-ink-200 text-ink-900 placeholder:text-ink-400 focus:border-warm-500 focus:ring-warm-500/20 w-full rounded-lg border px-4 py-2.5 focus:ring-2 focus:outline-none"
-              />
-              <FieldError className="text-sm text-red-600" />
-            </TextField>
-
-            <Button
-              type="submit"
-              isDisabled={isSubmitting}
-              className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {isSubmitting ? "Création..." : "Créer mon compte"}
-            </Button>
-          </Form>
 
           <p className="text-ink-600 mt-6 text-center text-sm">
             Déjà un compte ?{" "}

@@ -14,6 +14,17 @@ class UserCreate(BaseModel):
     invite_token: str
 
 
+class WorkOSLinkRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    invite_token: str
+    full_name: str | None = Field(None, max_length=100)
+
+
+class WorkOSLinkExistingRequest(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50)
+    password: str = Field(..., min_length=6)
+
+
 class UserResponse(BaseModel):
     id: str
     username: str

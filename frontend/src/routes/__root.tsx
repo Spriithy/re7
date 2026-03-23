@@ -1,7 +1,7 @@
 import { lazy, Suspense } from "react";
 import { Outlet, createRootRoute } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { AuthProvider } from "@/lib/auth/AuthProvider";
+import { AuthKitProvider } from "@workos-inc/authkit-react";
 import { ErrorPage } from "@/components/ErrorPage";
 import { RootErrorBoundary } from "@/components/RootErrorBoundary";
 
@@ -37,17 +37,33 @@ function getQueryClient() {
 
 function RootComponent() {
   const queryClient = getQueryClient();
+  const clientId = String(import.meta.env.VITE_WORKOS_CLIENT_ID ?? "");
+  const redirectUri = String(import.meta.env.VITE_WORKOS_REDIRECT_URI ?? "");
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+      <AuthKitProvider
+        clientId={clientId}
+        redirectUri={redirectUri}
+        onRedirectCallback={({ state }) => {
+          const redirectState =
+            typeof state === "object" && state !== null
+              ? (state as Record<string, unknown>)
+              : null;
+          const returnTo =
+            typeof redirectState?.returnTo === "string"
+              ? redirectState.returnTo
+              : "/";
+          window.location.replace(returnTo);
+        }}
+      >
         <Outlet />
         {import.meta.env.DEV ? (
           <Suspense fallback={null}>
             <ReactQueryDevtools buttonPosition="bottom-left" />
           </Suspense>
         ) : null}
-      </AuthProvider>
+      </AuthKitProvider>
     </QueryClientProvider>
   );
 }

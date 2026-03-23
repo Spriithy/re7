@@ -1,6 +1,8 @@
 import type {
   UserLogin,
   UserCreate,
+  WorkOSLinkExistingRequest,
+  WorkOSLinkRequest,
   Token,
   User,
   UserUpdateProfile,
@@ -216,6 +218,20 @@ export const authApi = {
     request<Token>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
+    }),
+
+  linkWorkOS: (data: WorkOSLinkRequest, token: string) =>
+    request<User>("/api/auth/workos/link", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
+    }),
+
+  linkExistingWorkOS: (data: WorkOSLinkExistingRequest, token: string) =>
+    request<User>("/api/auth/workos/link-existing", {
+      method: "POST",
+      body: JSON.stringify(data),
+      token,
     }),
 
   me: (token: string) =>

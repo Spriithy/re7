@@ -74,7 +74,10 @@ export function IngredientRow({
         onChange={(val) => updateField("name", val)}
         className="flex-1"
       >
-        <Input placeholder="Nom de l'ingrédient" className={`${inputStyles} text-sm`} />
+        <Input
+          placeholder="Nom de l'ingrédient"
+          className={`${inputStyles} text-sm`}
+        />
       </TextField>
 
       {/* Remove button - hidden on mobile, visible on desktop */}

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Navigate, createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth/useAuth";
 import { AppHeader } from "@/components/AppHeader";
 import { RecipeForm } from "@/components/recipe-form/RecipeForm";
@@ -8,13 +8,11 @@ export const Route = createFileRoute("/recipes/new")({
 });
 
 function CreateRecipePage() {
-  const navigate = useNavigate();
   const { isAuthenticated, isLoading } = useAuth();
 
   // Redirect if not authenticated
   if (!isLoading && !isAuthenticated) {
-    void navigate({ to: "/login" });
-    return null;
+    return <Navigate to="/login" />;
   }
 
   if (isLoading) {
