@@ -7,10 +7,24 @@ import { tanstackRouter } from "@tanstack/router-plugin/vite";
 import { fileURLToPath, URL } from "node:url";
 
 const ReactCompilerConfig = {};
-const allowedHosts = (process.env.VITE_ALLOWED_HOSTS ?? "localhost,127.0.0.1")
-  .split(",")
-  .map((host) => host.trim())
-  .filter(Boolean);
+const allowedHosts = Array.from(
+  new Set(
+    (process.env.VITE_ALLOWED_HOSTS ?? "localhost,127.0.0.1")
+      .split(",")
+      .map((host) => host.trim())
+      .filter(Boolean)
+      .flatMap((host) => {
+        const normalizedHost = host.replace(/\.+$/, "");
+        if (!normalizedHost) {
+          return [];
+        }
+
+        return normalizedHost === "localhost"
+          ? [normalizedHost]
+          : [normalizedHost, `${normalizedHost}.`];
+      }),
+  ),
+);
 const host = process.env.VITE_HOST ?? "0.0.0.0";
 const backendProxyTarget =
   process.env.BACKEND_PROXY_TARGET ?? "http://localhost:8000";

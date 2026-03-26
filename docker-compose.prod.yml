@@ -1,5 +1,6 @@
 services:
   backend:
+    read_only: true
     environment:
       ENVIRONMENT: production
       COOKIE_SECURE: "true"

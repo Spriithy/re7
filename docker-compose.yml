@@ -2,6 +2,16 @@ services:
   backend:
     build:
       context: ./backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETUID
+      - SETGID
+    tmpfs:
+      - /tmp
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       BACKEND_PORT: ${BACKEND_PORT:-8000}
@@ -9,7 +19,7 @@ services:
       APP_PUBLIC_ORIGIN: ${APP_PUBLIC_ORIGIN:-http://localhost:3000}
       API_PUBLIC_ORIGIN: ${API_PUBLIC_ORIGIN:-http://localhost:8000}
       CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
-      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1,backend,frontend}
       UPLOADS_DIR: ${UPLOADS_DIR:-/app/uploads}
       WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID:-}
       WORKOS_API_KEY: ${WORKOS_API_KEY:-}
@@ -23,6 +33,12 @@ services:
   frontend:
     build:
       context: ./frontend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
     environment:
       ENVIRONMENT: ${ENVIRONMENT:-development}
       FRONTEND_PORT: ${FRONTEND_PORT:-3000}

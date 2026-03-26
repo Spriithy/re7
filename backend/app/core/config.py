@@ -32,6 +32,22 @@ def parse_str_list(value: Any) -> list[str]:
     raise ValueError("Expected a list or string")
 
 
+def expand_trusted_hosts(hosts: list[str]) -> list[str]:
+    expanded_hosts: list[str] = []
+
+    for host in hosts:
+        normalized_host = host.strip().rstrip(".")
+        if not normalized_host:
+            continue
+
+        expanded_hosts.append(normalized_host)
+
+        if normalized_host not in {"localhost", "127.0.0.1", "::1"} and not normalized_host.startswith("["):
+            expanded_hosts.append(f"{normalized_host}.")
+
+    return list(dict.fromkeys(expanded_hosts))
+
+
 class Settings(BaseSettings):
     # App
     app_name: str = "Re7"
@@ -77,6 +93,11 @@ class Settings(BaseSettings):
     @classmethod
     def validate_string_list(cls, value: Any) -> list[str]:
         return parse_str_list(value)
+
+    @field_validator("trusted_hosts")
+    @classmethod
+    def validate_trusted_hosts(cls, value: list[str]) -> list[str]:
+        return expand_trusted_hosts(value)
 
     @field_validator("cookie_samesite")
     @classmethod
