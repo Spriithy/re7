@@ -17,127 +17,16 @@ import type {
   RecipeUpdate,
   RecipeListResponse,
 } from "./api-types";
+import {
+  ApiError,
+  getImageUrl,
+  request,
+  requestNoContent,
+  requestWithFormData,
+} from "./api-core";
 
 export type * from "./api-types";
-
-const API_BASE_URL =
-  (import.meta.env.VITE_API_URL as string | undefined) ??
-  "http://localhost:8000";
-
-export class ApiError extends Error {
-  constructor(
-    public status: number,
-    public detail: string
-  ) {
-    super(detail);
-    this.name = "ApiError";
-  }
-}
-
-interface ErrorResponse {
-  detail?: string;
-}
-
-async function parseErrorResponse(response: Response): Promise<ErrorResponse> {
-  try {
-    return (await response.json()) as ErrorResponse;
-  } catch {
-    return { detail: "Une erreur est survenue" };
-  }
-}
-
-interface RequestOptions extends RequestInit {
-  token?: string | null;
-}
-
-async function request<T>(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<T> {
-  const { token, ...fetchOptions } = options;
-
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-  };
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers,
-  });
-
-  if (!response.ok) {
-    const data = await parseErrorResponse(response);
-    throw new ApiError(
-      response.status,
-      data.detail ?? "Une erreur est survenue"
-    );
-  }
-
-  return response.json() as Promise<T>;
-}
-
-async function requestNoContent(
-  endpoint: string,
-  options: RequestOptions = {}
-): Promise<void> {
-  const { token, ...fetchOptions } = options;
-
-  const headers: Record<string, string> = {};
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  // Don't set Content-Type for FormData
-  if (!(fetchOptions.body instanceof FormData)) {
-    headers["Content-Type"] = "application/json";
-  }
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    ...fetchOptions,
-    headers,
-  });
-
-  if (!response.ok) {
-    const data = await parseErrorResponse(response);
-    throw new ApiError(
-      response.status,
-      data.detail ?? "Une erreur est survenue"
-    );
-  }
-}
-
-async function requestWithFormData<T>(
-  endpoint: string,
-  formData: FormData,
-  token?: string | null
-): Promise<T> {
-  const headers: Record<string, string> = {};
-
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
-  }
-
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
-    method: "POST",
-    headers,
-    body: formData,
-  });
-
-  if (!response.ok) {
-    const data = await parseErrorResponse(response);
-    throw new ApiError(
-      response.status,
-      data.detail ?? "Une erreur est survenue"
-    );
-  }
-
-  return response.json() as Promise<T>;
-}
+export { ApiError, getImageUrl };
 
 // Invite API
 export const inviteApi = {
@@ -349,9 +238,3 @@ export const recipeApi = {
       token,
     }),
 };
-
-// Helper to get full image URL
-export function getImageUrl(imagePath: string | null): string | null {
-  if (!imagePath) return null;
-  return `${API_BASE_URL}/uploads/${imagePath}`;
-}

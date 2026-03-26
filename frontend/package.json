@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "vite --port 3000",
     "build": "vite build && tsc",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint .",
@@ -23,7 +24,6 @@
     "@workos-inc/authkit-react": "^0.16.0",
     "babel-plugin-react-compiler": "^1.0.0",
     "lucide-react": "^0.545.0",
-    "nitro": "latest",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.0",
     "react-aria-components": "^1.14.0",

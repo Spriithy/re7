@@ -2,34 +2,41 @@ services:
   backend:
     build:
       context: ./backend
-    container_name: re7-backend
-    working_dir: /app
     environment:
-      ENVIRONMENT: development
-      DATABASE_URL: sqlite+aiosqlite:///./re7.db
-      CORS_ORIGINS: '["http://localhost:3000"]'
-      WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      BACKEND_PORT: ${BACKEND_PORT:-8000}
+      DATABASE_URL: ${DATABASE_URL:-sqlite+aiosqlite:///./data/re7.db}
+      APP_PUBLIC_ORIGIN: ${APP_PUBLIC_ORIGIN:-http://localhost:3000}
+      API_PUBLIC_ORIGIN: ${API_PUBLIC_ORIGIN:-http://localhost:8000}
+      CORS_ORIGINS: ${CORS_ORIGINS:-["http://localhost:3000"]}
+      TRUSTED_HOSTS: ${TRUSTED_HOSTS:-localhost,127.0.0.1}
+      UPLOADS_DIR: ${UPLOADS_DIR:-/app/uploads}
+      WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID:-}
+      WORKOS_API_KEY: ${WORKOS_API_KEY:-}
+      SECRET_KEY: ${SECRET_KEY:-change-this-in-production-use-a-real-secret-key}
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:${BACKEND_PORT:-8000}"
     volumes:
-      - ./backend:/app
+      - backend_data:/app/data
+      - backend_uploads:/app/uploads
 
   frontend:
     build:
       context: ./frontend
-    container_name: re7-frontend
-    working_dir: /app
     environment:
-      VITE_API_URL: http://localhost:8000
-      VITE_WORKOS_CLIENT_ID: ${WORKOS_CLIENT_ID}
+      ENVIRONMENT: ${ENVIRONMENT:-development}
+      FRONTEND_PORT: ${FRONTEND_PORT:-3000}
+      BACKEND_PROXY_TARGET: ${BACKEND_PROXY_TARGET:-http://backend:8000}
+      VITE_API_URL: ${VITE_API_URL:-}
+      VITE_ALLOWED_HOSTS: ${VITE_ALLOWED_HOSTS:-localhost,127.0.0.1}
+      VITE_WORKOS_CLIENT_ID: ${VITE_WORKOS_CLIENT_ID:-}
+      VITE_WORKOS_DEV_MODE: ${VITE_WORKOS_DEV_MODE:-}
       VITE_WORKOS_REDIRECT_URI: ${VITE_WORKOS_REDIRECT_URI:-http://localhost:3000/callback}
     ports:
-      - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - frontend_node_modules:/app/node_modules
+      - "${FRONTEND_PORT:-3000}:${FRONTEND_PORT:-3000}"
     depends_on:
       - backend
 
 volumes:
-  frontend_node_modules:
+  backend_data:
+  backend_uploads:

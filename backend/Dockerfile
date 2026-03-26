@@ -14,4 +14,4 @@ COPY . .
 
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["sh", "-c", "if [ \"$ENVIRONMENT\" = \"production\" ]; then exec uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT:-8000}; fi; exec uvicorn app.main:app --host 0.0.0.0 --port ${BACKEND_PORT:-8000} --reload"]

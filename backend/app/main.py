@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import select
 
@@ -45,6 +46,12 @@ app = FastAPI(
     title=settings.app_name,
     lifespan=lifespan,
 )
+
+if settings.trusted_hosts:
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.trusted_hosts,
+    )
 
 # CORS middleware
 app.add_middleware(
