@@ -4,14 +4,14 @@ Re7 supports three deployment contexts:
 
 - `localhost`
 - `tailscale`
-- `production` behind a shared VPS-level Caddy
+- `production` behind a shared VPS-level Cloudflare Tunnel and Caddy
 
 ## Files
 
 - [.env.example](/home/debian/Re7/.env.example): shared variable reference
 - [.env.localhost.example](/home/debian/Re7/.env.localhost.example): localhost Compose values
 - [.env.tailscale.example](/home/debian/Re7/.env.tailscale.example): Tailnet Compose values
-- [.env.vps.example](/home/debian/Re7/.env.vps.example): production Compose values for a shared-Caddy VPS
+- [.env.vps.example](/home/debian/Re7/.env.vps.example): production Compose values for a shared-Caddy VPS behind Cloudflare Tunnel
 - [docker-compose.yml](/home/debian/Re7/docker-compose.yml): base backend/frontend runtime
 - [docker-compose.prod.yml](/home/debian/Re7/docker-compose.prod.yml): production override
 - [deploy/caddy/re7.example.com.Caddyfile](/home/debian/Re7/deploy/caddy/re7.example.com.Caddyfile): host-level Caddy snippet example
@@ -85,14 +85,28 @@ Configure WorkOS so the redirect URI matches the selected frontend origin:
 
 ## Production
 
-Production assumes one shared Caddy instance already exists on the VPS and handles multiple sites such as `blog.example.com`, `re7.example.com`, and others.
+Production assumes the VPS already has:
 
-Re7 production does not bind `80/443` and does not run its own public reverse proxy. Instead:
+- one shared host-level `cloudflared` service for all public sites
+- one shared host-level Caddy instance for all local hostname routing
+- Tailscale for admin access such as SSH
+
+Host prerequisites:
+
+- Docker Engine with the Compose plugin
+- shared host Caddy
+- shared host `cloudflared`
+- Tailscale for admin access
+- local DNS or an `/etc/hosts` entry that maps `re7.internal` to the shared host Caddy listener
+
+Re7 production does not bind public `80/443` and does not run its own public reverse proxy. Instead:
 
 - the frontend is published on loopback only, by default `127.0.0.1:3400`
 - the backend is not published on the host
 - the frontend proxies `/api`, `/uploads`, and `/health` internally to the backend container
-- the shared host Caddy proxies the public hostname to the Re7 frontend loopback port
+- shared host `cloudflared` forwards `re7.example.com` to `http://re7.internal`
+- shared host Caddy receives the request locally and proxies `re7.example.com` to the Re7 frontend loopback port
+- Cloudflare terminates public TLS
 
 Start the app stack:
 
@@ -106,9 +120,19 @@ docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.
 Default production networking:
 
 - public hostname: `https://$APP_DOMAIN`
-- loopback frontend upstream for host Caddy: `127.0.0.1:${FRONTEND_PUBLIC_PORT:-3400}`
+- local Cloudflare Tunnel origin: `http://re7.internal`
+- loopback frontend upstream for shared host Caddy: `127.0.0.1:${FRONTEND_PUBLIC_PORT:-3400}`
 
-Minimal host-level Caddy site block example:
+Supported production request flow:
+
+1. Browser connects to `https://$APP_DOMAIN`
+2. Cloudflare terminates public TLS
+3. shared host `cloudflared` forwards the hostname to `http://re7.internal`
+4. shared host Caddy matches `Host: $APP_DOMAIN`
+5. shared host Caddy proxies to `127.0.0.1:${FRONTEND_PUBLIC_PORT:-3400}`
+6. the Re7 frontend handles page requests and proxies `/api`, `/uploads`, and `/health` to the backend container
+
+Minimal host-level Caddy site block for Re7:
 
 ```caddyfile
 re7.example.com {
@@ -117,10 +141,12 @@ re7.example.com {
 }
 ```
 
+The shared host `cloudflared` service should route `re7.example.com` to `http://re7.internal`.
+
 See:
 
 - [deploy/caddy/README.md](/home/debian/Re7/deploy/caddy/README.md)
-- [docs/production-runbook.md](/home/debian/Re7/docs/production-runbook.md)
+- [deploy/production-runbook.md](/home/debian/Re7/deploy/production-runbook.md)
 
 ## Switching Environments
 

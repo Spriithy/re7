@@ -3,7 +3,8 @@
 ## Topology
 
 - One VPS
-- One shared host-level Caddy instance for all public sites on the machine
+- One shared host-level `cloudflared` instance for all public sites on the machine
+- One shared host-level Caddy instance for all local hostname routing on the machine
 - Re7 deployed with `docker compose`
 - Re7 frontend published on loopback only, default `127.0.0.1:3400`
 - Re7 backend reachable only from the frontend container on the internal Docker network
@@ -14,31 +15,35 @@
 Public traffic flow:
 
 1. Browser connects to `https://re7.example.com`
-2. Shared VPS Caddy terminates TLS
-3. Shared VPS Caddy proxies all requests to `127.0.0.1:3400`
-4. Re7 frontend handles page requests and proxies `/api`, `/uploads`, and `/health` to the backend container
+2. Cloudflare terminates public TLS
+3. Shared VPS `cloudflared` forwards `re7.example.com` to `http://re7.internal`
+4. Shared VPS Caddy matches the public hostname and proxies to `127.0.0.1:3400`
+5. Re7 frontend handles page requests and proxies `/api`, `/uploads`, and `/health` to the backend container
 
 ## Initial VPS Setup
 
 1. Install Docker Engine with the Compose plugin.
 2. Create a non-root deploy user with SSH key auth only.
 3. Disable password SSH auth in `/etc/ssh/sshd_config`.
-4. Enable UFW:
-   `ufw allow OpenSSH`
-   `ufw allow 80/tcp`
-   `ufw allow 443/tcp`
-   `ufw enable`
+4. Keep SSH reachable through Tailscale only and avoid exposing it on the public internet.
 5. Enable automatic security updates if that matches your baseline.
 6. Install and enable fail2ban.
-7. Install and configure one shared Caddy on the host for all sites on that VPS.
+7. Install and configure one shared host-level `cloudflared` service for all sites on that VPS.
+8. Install and configure one shared Caddy on the host for all sites on that VPS.
+
+Public ingress is provided by the host-level Cloudflare Tunnel setup, not by Re7 opening public host ports.
 
 ## DNS And TLS
 
-1. Point `A` or `AAAA` records for the Re7 hostname to the VPS.
+1. Create a proxied DNS record for the Re7 hostname that is bound to the shared Cloudflare Tunnel.
 2. Copy [.env.vps.example](/home/debian/Re7/.env.vps.example) to `.env.vps`.
 3. Set `APP_DOMAIN` to the Re7 public hostname.
-4. Add a site block for Re7 to the shared host Caddy config.
-5. Reload Caddy after the Re7 site block is added.
+4. Configure the shared host `cloudflared` service to route `re7.example.com` to `http://re7.internal`.
+5. Ensure `re7.internal` resolves locally on the VPS to the shared host Caddy listener.
+6. Add a site block for Re7 to the shared host Caddy config.
+7. Reload Caddy after the Re7 site block is added.
+
+Cloudflare handles public TLS for the supported production path. Shared host Caddy acts as a local hostname router and reverse proxy behind the tunnel.
 
 ## Secrets Checklist
 
@@ -49,6 +54,8 @@ Public traffic flow:
 - `APP_DOMAIN`
 
 ## Shared Caddy Config
+
+Shared host Caddy receives Re7 requests from the shared host `cloudflared` service and proxies them to the Re7 loopback frontend port.
 
 Minimal site block:
 
@@ -67,6 +74,8 @@ re7.example.com {
 
 If `FRONTEND_PUBLIC_PORT` changes, update the Caddy upstream to match.
 
+The shared host `cloudflared` service should route `re7.example.com` to `http://re7.internal`.
+
 Reference files:
 
 - [deploy/caddy/re7.example.com.Caddyfile](/home/debian/Re7/deploy/caddy/re7.example.com.Caddyfile)
@@ -76,16 +85,20 @@ Reference files:
 
 1. `cp .env.vps.example .env.vps`
 2. Edit `.env.vps`.
-3. Add the Re7 site block to the shared host Caddy config.
-4. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
-5. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
-6. Optional first-time seed:
+3. Confirm the shared host `cloudflared` route sends `re7.example.com` to `http://re7.internal`.
+4. Confirm `re7.internal` resolves locally on the VPS to the shared host Caddy listener.
+5. Add the Re7 site block to the shared host Caddy config.
+6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
+7. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
+8. Optional first-time seed:
    `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/seed_default_categories.py`
-7. Optional first admin:
+9. Optional first admin:
    `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/create_admin.py`
-8. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
-9. Reload host Caddy if the site block changed.
-10. Check:
+10. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
+11. Reload host Caddy if the site block changed.
+12. Verify the local route:
+   `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/live`
+13. Check:
    `curl -fsS https://$APP_DOMAIN/health/live`
    `curl -fsS https://$APP_DOMAIN/health/ready`
 
@@ -94,11 +107,13 @@ Reference files:
 1. Run a backup:
    `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/backup.py`
 2. `git pull`
-3. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
-4. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
-5. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
-6. Check `https://$APP_DOMAIN/health/ready`
-7. Run the smoke test checklist below.
+3. Confirm the shared host `cloudflared` route and Re7 Caddy vhost are still present.
+4. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
+5. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
+6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
+7. Check `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/ready`
+8. Check `https://$APP_DOMAIN/health/ready`
+9. Run the smoke test checklist below.
 
 ## Rollback
 
@@ -158,17 +173,20 @@ If the only admin account is lost:
 2. Run `python scripts/create_admin.py` inside the backend container against the current database.
 3. Confirm the new admin can log in and create invites.
 
-## Host Hardening Verification
+## Host Access Verification
 
-- `ufw status`
+- `tailscale status`
 - `fail2ban-client status`
-- `ss -tulpn | rg ':80|:443|:3400|:8000'`
+- `ss -tulpn | rg ':3400|:8000'`
+- `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/live`
 
 Expected result:
 
-- shared host Caddy binds public `80/443`
+- shared host `cloudflared` provides public ingress for the hostname
+- shared host Caddy serves the `re7.example.com` vhost for local tunnel traffic
 - Re7 frontend binds loopback only on `127.0.0.1:${FRONTEND_PUBLIC_PORT:-3400}`
 - Re7 backend is not exposed on the host
+- SSH stays reachable through Tailscale rather than direct public exposure
 
 ## Smoke Test Checklist
 
@@ -185,9 +203,16 @@ Expected result:
 
 ## Common Incident Checks
 
+- shared host `cloudflared` logs and tunnel config
 - host Caddy logs for the Re7 vhost
 - `docker compose ... logs frontend`
 - `docker compose ... logs backend`
 - confirm `alembic upgrade head` ran before restart
 - confirm the uploads volume is mounted and writable
 - confirm the SQLite file exists at the configured `DATABASE_URL`
+
+## Security Notes
+
+- Re7 does not expose public `80/443` itself in the supported VPS deployment path.
+- Shared host `cloudflared` and shared host Caddy are expected to be managed outside this repo.
+- Keep SSH and other admin access on Tailscale-only routes.

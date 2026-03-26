@@ -1,3 +1,4 @@
+# Shared host Caddy vhost for Re7 behind Cloudflare Tunnel.
 re7.example.com {
   encode gzip zstd
 
