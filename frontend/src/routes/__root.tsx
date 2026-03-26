@@ -39,12 +39,18 @@ function RootComponent() {
   const queryClient = getQueryClient();
   const clientId = String(import.meta.env.VITE_WORKOS_CLIENT_ID ?? "");
   const redirectUri = String(import.meta.env.VITE_WORKOS_REDIRECT_URI ?? "");
+  const workosDevMode =
+    String(import.meta.env.VITE_WORKOS_DEV_MODE ?? "").toLowerCase() === "true";
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthKitProvider
         clientId={clientId}
+        devMode={workosDevMode}
         redirectUri={redirectUri}
+        onRefreshFailure={(error) => {
+          console.error("WorkOS session refresh failed", error);
+        }}
         onRedirectCallback={({ state }) => {
           const redirectState =
             typeof state === "object" && state !== null
@@ -54,7 +60,10 @@ function RootComponent() {
             typeof redirectState?.returnTo === "string"
               ? redirectState.returnTo
               : "/";
-          window.location.replace(returnTo);
+
+          if (typeof window !== "undefined") {
+            window.sessionStorage.setItem("re7:auth:returnTo", returnTo);
+          }
         }}
       >
         <Outlet />

@@ -7,14 +7,16 @@ import {
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Button, Form, Input, Label, TextField } from "react-aria-components";
+import { AuthUnavailableNotice } from "@/components/AuthUnavailableNotice";
 import { authApi, inviteApi } from "@/lib/api";
+import { getWorkOSAvailability } from "@/lib/auth/originSecurity";
 import { useAuth } from "@/lib/auth/useAuth";
 
 export const Route = createFileRoute("/register")({
   component: RegisterPage,
 });
 
-function RegisterPage() {
+export function RegisterPage() {
   const navigate = useNavigate();
   const inviteToken =
     new URLSearchParams(window.location.search).get("invite") ?? "";
@@ -43,6 +45,7 @@ function RegisterPage() {
   const [fullNameOverride, setFullNameOverride] = useState<string | null>(null);
   const username = usernameOverride ?? suggestedUsername;
   const fullName = fullNameOverride ?? suggestedFullName;
+  const workosAvailability = getWorkOSAvailability();
 
   const { data: inviteValidation, isLoading: inviteLoading } = useQuery({
     queryKey: ["invite-validation", inviteToken],
@@ -168,16 +171,27 @@ function RegisterPage() {
                 Rejoignez la famille pour partager vos recettes.
               </p>
 
+              {!workosAvailability.canUseWorkOSAuth ? (
+                <AuthUnavailableNotice
+                  currentOrigin={workosAvailability.currentOrigin}
+                />
+              ) : null}
+
               <div className="mt-6 space-y-4">
                 <Button
-                  onPress={() =>
-                    signUp({
+                  onPress={() => {
+                    if (!workosAvailability.canUseWorkOSAuth) {
+                      return;
+                    }
+
+                    void signUp({
                       state: {
                         returnTo: `${window.location.pathname}${window.location.search}`,
                       },
-                    })
-                  }
-                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition"
+                    });
+                  }}
+                  isDisabled={!workosAvailability.canUseWorkOSAuth}
+                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 disabled:bg-warm-300 w-full rounded-lg px-4 py-3 font-semibold text-white transition disabled:text-white/80"
                 >
                   Créer mon compte
                 </Button>

@@ -7,14 +7,14 @@ import {
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Button, Form, Input, Label, TextField } from "react-aria-components";
+import { AuthUnavailableNotice } from "@/components/AuthUnavailableNotice";
 import { authApi } from "@/lib/api";
+import { getWorkOSAvailability } from "@/lib/auth/originSecurity";
 import { useAuth } from "@/lib/auth/useAuth";
 
-export const Route = createFileRoute("/login")({
-  component: LoginPage,
-});
+export const Route = createFileRoute("/login")({ component: LoginPage });
 
-function LoginPage() {
+export function LoginPage() {
   const navigate = useNavigate();
   const {
     isAuthenticated,
@@ -27,6 +27,7 @@ function LoginPage() {
   } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const workosAvailability = getWorkOSAvailability();
 
   const linkMutation = useMutation({
     mutationFn: async () => {
@@ -139,10 +140,27 @@ function LoginPage() {
                 Connectez-vous pour accéder à vos recettes.
               </p>
 
+              {!workosAvailability.canUseWorkOSAuth ? (
+                <AuthUnavailableNotice
+                  currentOrigin={workosAvailability.currentOrigin}
+                />
+              ) : null}
+
               <div className="mt-6 space-y-4">
                 <Button
-                  onPress={() => signIn()}
-                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 w-full rounded-lg px-4 py-3 font-semibold text-white transition"
+                  onPress={() => {
+                    if (!workosAvailability.canUseWorkOSAuth) {
+                      return;
+                    }
+
+                    void signIn({
+                      state: {
+                        returnTo: "/",
+                      },
+                    });
+                  }}
+                  isDisabled={!workosAvailability.canUseWorkOSAuth}
+                  className="bg-warm-600 hover:bg-warm-700 pressed:bg-warm-800 disabled:bg-warm-300 w-full rounded-lg px-4 py-3 font-semibold text-white transition disabled:text-white/80"
                 >
                   Se connecter
                 </Button>
