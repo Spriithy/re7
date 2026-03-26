@@ -2,7 +2,6 @@ import type { User, UserLogin, UserCreate } from "../api";
 
 export interface AuthState {
   user: User | null;
-  token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
 }
@@ -10,6 +9,6 @@ export interface AuthState {
 export interface AuthContextValue extends AuthState {
   login: (credentials: UserLogin) => Promise<void>;
   register: (data: UserCreate) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }

@@ -35,7 +35,7 @@ interface UseRecipeFormProps {
 export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { token } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   // Form state
   const [title, setTitle] = useState(initialData?.title ?? "");
@@ -165,7 +165,7 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
     setError(null);
     setIsSubmitting(true);
 
-    if (!token) {
+    if (!isAuthenticated) {
       setError("Vous devez être connecté pour modifier une recette");
       setIsSubmitting(false);
       return;
@@ -214,7 +214,7 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
           steps: validSteps,
           prerequisites: [],
         };
-        recipe = await recipeApi.create(recipeData, token);
+        recipe = await recipeApi.create(recipeData);
       } else {
         if (!initialData) {
           throw new Error("Initial data is required for edit mode");
@@ -235,16 +235,16 @@ export function useRecipeForm({ mode, initialData }: UseRecipeFormProps) {
           steps: validSteps,
           prerequisites: [],
         };
-        recipe = await recipeApi.update(initialData.id, recipeData, token);
+        recipe = await recipeApi.update(initialData.id, recipeData);
       }
 
       // Handle image changes
       if (removeExistingImage && mode === "edit" && initialData?.image_path) {
-        await recipeApi.deleteImage(recipe.id, token);
+        await recipeApi.deleteImage(recipe.id);
       }
 
       if (imageFile) {
-        await recipeApi.uploadImage(recipe.id, imageFile, token);
+        await recipeApi.uploadImage(recipe.id, imageFile);
       }
 
       // Invalidate recipe caches to reflect image changes

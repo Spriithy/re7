@@ -1,21 +1,21 @@
 import type {
-  UserLogin,
-  UserCreate,
-  WorkOSLinkExistingRequest,
-  WorkOSLinkRequest,
-  Token,
-  User,
-  UserUpdateProfile,
-  UserChangePassword,
-  InvitedUser,
-  InviteResponse,
   Category,
   CategoryCreate,
   CategoryUpdate,
+  InviteResponse,
+  InvitedUser,
   Recipe,
   RecipeCreate,
-  RecipeUpdate,
   RecipeListResponse,
+  RecipeUpdate,
+  SessionResponse,
+  User,
+  UserChangePassword,
+  UserCreate,
+  UserLogin,
+  UserUpdateProfile,
+  WorkOSLinkExistingRequest,
+  WorkOSLinkRequest,
 } from "./api-types";
 import {
   ApiError,
@@ -28,7 +28,6 @@ import {
 export type * from "./api-types";
 export { ApiError, getImageUrl };
 
-// Invite API
 export const inviteApi = {
   validate: (token: string) =>
     request<{ valid: boolean }>(
@@ -38,55 +37,48 @@ export const inviteApi = {
       }
     ),
 
-  create: (expiresInDays = 7, authToken: string) =>
+  create: (expiresInDays = 7) =>
     request<InviteResponse>("/api/invites", {
       method: "POST",
       body: JSON.stringify({ expires_in_days: expiresInDays }),
-      token: authToken,
     }),
 };
 
-// Category API
 export const categoryApi = {
   list: () => request<Category[]>("/api/categories"),
 
   get: (id: string) =>
     request<Category>(`/api/categories/${encodeURIComponent(id)}`),
 
-  create: (data: CategoryCreate, token: string) =>
+  create: (data: CategoryCreate) =>
     request<Category>("/api/categories", {
       method: "POST",
       body: JSON.stringify(data),
-      token,
     }),
 
-  update: (id: string, data: CategoryUpdate, token: string) =>
+  update: (id: string, data: CategoryUpdate) =>
     request<Category>(`/api/categories/${encodeURIComponent(id)}`, {
       method: "PUT",
       body: JSON.stringify(data),
-      token,
     }),
 
-  delete: (id: string, token: string) =>
+  delete: (id: string) =>
     requestNoContent(`/api/categories/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      token,
     }),
 
-  uploadImage: (id: string, file: File, token: string) => {
+  uploadImage: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     return requestWithFormData<Category>(
       `/api/categories/${encodeURIComponent(id)}/image`,
-      formData,
-      token
+      formData
     );
   },
 
-  deleteImage: (id: string, token: string) =>
+  deleteImage: (id: string) =>
     requestNoContent(`/api/categories/${encodeURIComponent(id)}/image`, {
       method: "DELETE",
-      token,
     }),
 
   getRecipeCount: (id: string) =>
@@ -95,89 +87,93 @@ export const categoryApi = {
     ),
 };
 
-// Auth API
 export const authApi = {
   login: (credentials: UserLogin) =>
-    request<Token>("/api/auth/login", {
+    request<SessionResponse>("/api/auth/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     }),
 
   register: (data: UserCreate) =>
-    request<Token>("/api/auth/register", {
+    request<SessionResponse>("/api/auth/register", {
       method: "POST",
       body: JSON.stringify(data),
     }),
 
-  linkWorkOS: (data: WorkOSLinkRequest, token: string) =>
-    request<User>("/api/auth/workos/link", {
+  exchangeWorkOSSession: (workosAccessToken: string) =>
+    request<SessionResponse>("/api/auth/workos/exchange", {
       method: "POST",
-      body: JSON.stringify(data),
-      token,
+      authToken: workosAccessToken,
     }),
 
-  linkExistingWorkOS: (data: WorkOSLinkExistingRequest, token: string) =>
-    request<User>("/api/auth/workos/link-existing", {
+  linkWorkOS: (data: WorkOSLinkRequest, workosAccessToken: string) =>
+    request<SessionResponse>("/api/auth/workos/link", {
       method: "POST",
       body: JSON.stringify(data),
-      token,
+      authToken: workosAccessToken,
     }),
 
-  me: (token: string) =>
+  linkExistingWorkOS: (
+    data: WorkOSLinkExistingRequest,
+    workosAccessToken: string
+  ) =>
+    request<SessionResponse>("/api/auth/workos/link-existing", {
+      method: "POST",
+      body: JSON.stringify(data),
+      authToken: workosAccessToken,
+    }),
+
+  me: () =>
     request<User>("/api/auth/me", {
       method: "GET",
-      token,
     }),
 
-  refresh: (token: string) =>
-    request<Token>("/api/auth/refresh", {
+  refresh: () =>
+    request<SessionResponse>("/api/auth/refresh", {
       method: "POST",
-      token,
+    }),
+
+  logout: () =>
+    requestNoContent("/api/auth/logout", {
+      method: "POST",
     }),
 };
 
-// User API
 export const userApi = {
-  updateProfile: (data: UserUpdateProfile, token: string) =>
+  updateProfile: (data: UserUpdateProfile) =>
     request<User>("/api/users/me", {
       method: "PATCH",
       body: JSON.stringify(data),
-      token,
     }),
 
-  changePassword: (data: UserChangePassword, token: string) =>
+  changePassword: (data: UserChangePassword) =>
     requestNoContent("/api/users/me/password", {
       method: "POST",
       body: JSON.stringify(data),
-      token,
     }),
 
-  uploadAvatar: (file: File, token: string) => {
+  uploadAvatar: (file: File) => {
     const formData = new FormData();
     formData.append("file", file);
-    return requestWithFormData<User>("/api/users/me/avatar", formData, token);
+    return requestWithFormData<User>("/api/users/me/avatar", formData);
   },
 
-  deleteAvatar: (token: string) =>
+  deleteAvatar: () =>
     requestNoContent("/api/users/me/avatar", {
       method: "DELETE",
-      token,
     }),
 
-  getInvitedUsers: (token: string) =>
+  getInvitedUsers: () =>
     request<InvitedUser[]>("/api/users/me/invited", {
       method: "GET",
-      token,
     }),
 };
 
-// Recipe API
 export const recipeApi = {
-  create: (data: RecipeCreate, token: string) =>
+  create: (data: RecipeCreate) =>
     request<Recipe>("/api/recipes", {
       method: "POST",
       body: JSON.stringify(data),
-      token,
     }),
 
   list: (params?: {
@@ -209,32 +205,28 @@ export const recipeApi = {
   get: (id: string) =>
     request<Recipe>(`/api/recipes/${encodeURIComponent(id)}`),
 
-  update: (id: string, data: RecipeUpdate, token: string) =>
+  update: (id: string, data: RecipeUpdate) =>
     request<Recipe>(`/api/recipes/${encodeURIComponent(id)}`, {
       method: "PUT",
       body: JSON.stringify(data),
-      token,
     }),
 
-  delete: (id: string, token: string) =>
+  delete: (id: string) =>
     requestNoContent(`/api/recipes/${encodeURIComponent(id)}`, {
       method: "DELETE",
-      token,
     }),
 
-  uploadImage: (id: string, file: File, token: string) => {
+  uploadImage: (id: string, file: File) => {
     const formData = new FormData();
     formData.append("file", file);
     return requestWithFormData<Recipe>(
       `/api/recipes/${encodeURIComponent(id)}/image`,
-      formData,
-      token
+      formData
     );
   },
 
-  deleteImage: (id: string, token: string) =>
+  deleteImage: (id: string) =>
     requestNoContent(`/api/recipes/${encodeURIComponent(id)}/image`, {
       method: "DELETE",
-      token,
     }),
 };

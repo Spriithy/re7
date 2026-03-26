@@ -14,25 +14,19 @@ export const Route = createFileRoute("/invite")({
 });
 
 function InvitePage() {
-  const { token, user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [copied, setCopied] = useState(false);
   const {
     data: invite,
     isLoading: inviteLoading,
     refetch,
   } = useQuery({
-    queryKey: ["invite", token],
-    queryFn: async () => {
-      if (!token) {
-        throw new Error("Not authenticated");
-      }
-
-      return inviteApi.create(7, token);
-    },
-    enabled: !!token && isAuthenticated && !!user?.is_admin,
+    queryKey: ["invite", user?.id ?? null],
+    queryFn: () => inviteApi.create(7),
+    enabled: isAuthenticated && !!user?.is_admin,
   });
 
-  if (!isLoading && (!isAuthenticated || !token || !user)) {
+  if (!isLoading && (!isAuthenticated || !user)) {
     return <Navigate to="/login" />;
   }
 

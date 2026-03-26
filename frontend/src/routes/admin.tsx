@@ -8,7 +8,7 @@ export const Route = createFileRoute("/admin")({
 });
 
 function AdminPage() {
-  const { user, token, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -20,7 +20,7 @@ function AdminPage() {
   }
 
   // Redirect to login if not authenticated
-  if (!isAuthenticated || !user || !token) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" />;
   }
 
@@ -34,7 +34,7 @@ function AdminPage() {
       <AppHeader title="Administration" showBackButton />
 
       <main className="mx-auto max-w-4xl space-y-4 px-4 py-6 sm:py-8">
-        <CategoryManagement token={token} />
+        <CategoryManagement />
       </main>
     </div>
   );

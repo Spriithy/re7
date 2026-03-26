@@ -1,5 +1,5 @@
 from app.schemas.auth import (
-    Token,
+    SessionResponse,
     TokenPayload,
     UserCreate,
     UserLogin,
@@ -25,7 +25,7 @@ from app.schemas.recipe import (
 )
 
 __all__ = [
-    "Token",
+    "SessionResponse",
     "TokenPayload",
     "UserCreate",
     "UserLogin",

@@ -1,31 +1,35 @@
 # Re7 Deployment Environments
 
-Re7 now uses explicit environment files so you can switch cleanly between:
+Re7 supports three deployment contexts:
 
 - `localhost`
 - `tailscale`
+- `production` behind a shared VPS-level Caddy
 
 ## Files
 
-- `.env.example`: shared variable reference
-- `.env.localhost.example`: Docker Compose values for localhost
-- `.env.tailscale.example`: Docker Compose values for Tailnet access
-- `docker-compose.yml`: base backend/frontend runtime
+- [.env.example](/home/debian/Re7/.env.example): shared variable reference
+- [.env.localhost.example](/home/debian/Re7/.env.localhost.example): localhost Compose values
+- [.env.tailscale.example](/home/debian/Re7/.env.tailscale.example): Tailnet Compose values
+- [.env.vps.example](/home/debian/Re7/.env.vps.example): production Compose values for a shared-Caddy VPS
+- [docker-compose.yml](/home/debian/Re7/docker-compose.yml): base backend/frontend runtime
+- [docker-compose.prod.yml](/home/debian/Re7/docker-compose.prod.yml): production override
+- [deploy/caddy/re7.example.com.Caddyfile](/home/debian/Re7/deploy/caddy/re7.example.com.Caddyfile): host-level Caddy snippet example
 
-## Recommended workflow
+## Recommended Workflow
 
-Copy the example that matches your target environment into an ignored file, then edit the values:
+Copy the example that matches the target environment into an ignored file, then edit the values:
 
 ```bash
 cp .env.localhost.example .env.localhost
 cp .env.tailscale.example .env.tailscale
+cp .env.vps.example .env.vps
 ```
 
 Fill in at least:
 
 - `WORKOS_CLIENT_ID`
 - `VITE_WORKOS_CLIENT_ID`
-- `VITE_WORKOS_DEV_MODE` for development deployments
 - `WORKOS_API_KEY`
 - `SECRET_KEY`
 
@@ -39,36 +43,37 @@ Expected URLs:
 
 - frontend: `http://localhost:3000`
 - backend: `http://localhost:8000`
-- health check: `http://localhost:8000/health`
+- liveness: `http://localhost:8000/health/live`
+- readiness: `http://localhost:8000/health/ready`
 
-The browser talks to the frontend origin only. Vite proxies `/api` and `/uploads` to the backend container using `BACKEND_PROXY_TARGET=http://backend:8000`.
-For development, set `VITE_WORKOS_DEV_MODE=true` so AuthKit persists its session state across redirects on non-`localhost` origins too.
+The browser talks to the frontend origin only. Vite proxies `/api`, `/uploads`, and `/health` to the backend container using `BACKEND_PROXY_TARGET=http://backend:8000`.
 
 ## Tailscale
 
-Set the hostname values in `.env.tailscale` to your machine's Tailnet DNS name, then run:
+Set the hostname values in `.env.tailscale` to the machine's Tailnet DNS name, then run:
 
 ```bash
 docker compose --env-file .env.tailscale up --build
 ```
 
-Make sure `.env.tailscale` includes both:
+Important values:
 
 - `TRUSTED_HOSTS=your-machine.your-tailnet.ts.net,localhost,127.0.0.1`
 - `VITE_ALLOWED_HOSTS=your-machine.your-tailnet.ts.net,localhost,127.0.0.1`
 - `APP_PUBLIC_ORIGIN=https://your-machine.your-tailnet.ts.net`
 - `VITE_WORKOS_REDIRECT_URI=https://your-machine.your-tailnet.ts.net/callback`
 - `BACKEND_PROXY_TARGET=http://backend:8000`
-- `VITE_API_URL=` (empty, so the browser uses the same origin)
+- `VITE_API_URL=`
 - `VITE_WORKOS_DEV_MODE=true`
 
 Expected URLs:
 
 - frontend for browser auth: `https://<tailnet-hostname>`
 - backend container: `http://backend:8000` inside Docker
-- health check: `http://<tailnet-hostname>:8000/health`
+- liveness: `http://<tailnet-hostname>:8000/health/live`
+- readiness: `http://<tailnet-hostname>:8000/health/ready`
 
-The frontend container still runs on local HTTP port `3000`. Tailnet HTTPS is provided by Tailscale Serve on the host machine, not by a container in this repo. Browser API requests go to `https://<tailnet-hostname>/api/...` and are proxied server-side to the backend container.
+The frontend container still runs on local HTTP port `3000`. Tailnet HTTPS is provided by Tailscale Serve on the host machine, not by a container in this repo.
 
 ## WorkOS Redirect URIs
 
@@ -76,62 +81,53 @@ Configure WorkOS so the redirect URI matches the selected frontend origin:
 
 - localhost: `http://localhost:3000/callback`
 - tailscale: `https://<tailnet-hostname>/callback`
+- production: `https://re7.example.com/callback`
 
-## Tailscale Serve HTTPS
+## Production
 
-For Tailnet access, WorkOS requires a secure browser origin. Plain `http://<tailnet-hostname>:3000` is not enough because PKCE depends on Web Crypto in a secure context.
+Production assumes one shared Caddy instance already exists on the VPS and handles multiple sites such as `blog.example.com`, `re7.example.com`, and others.
 
-Recommended topology:
+Re7 production does not bind `80/443` and does not run its own public reverse proxy. Instead:
 
-- browser -> `https://<tailnet-hostname>` via Tailscale Serve
-- Tailscale Serve -> local frontend container on `http://127.0.0.1:3000`
-- frontend Vite proxy -> backend container on `http://backend:8000`
+- the frontend is published on loopback only, by default `127.0.0.1:3400`
+- the backend is not published on the host
+- the frontend proxies `/api`, `/uploads`, and `/health` internally to the backend container
+- the shared host Caddy proxies the public hostname to the Re7 frontend loopback port
 
-Important constraints:
-
-- Tailscale Serve is not part of this repository.
-- It runs on the host machine where Tailscale is installed.
-- Docker Compose still runs the frontend and backend as plain HTTP services internally.
-- The browser should not call the backend origin directly from the HTTPS Tailnet frontend.
-
-Run the Serve command on the host, with your own hostname and local port values:
+Start the app stack:
 
 ```bash
-tailscale serve 3000
+cp .env.vps.example .env.vps
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
 
-Then confirm that:
+Default production networking:
 
-- `https://<tailnet-hostname>` opens the frontend
-- `APP_PUBLIC_ORIGIN` matches that HTTPS origin
-- `VITE_WORKOS_REDIRECT_URI` matches `https://<tailnet-hostname>/callback`
-- the same HTTPS callback URI is configured in WorkOS
-- `https://<tailnet-hostname>/api/categories` returns backend data through the frontend proxy
-- the WorkOS session survives the callback redirect and `/` no longer bounces back to `/login`
+- public hostname: `https://$APP_DOMAIN`
+- loopback frontend upstream for host Caddy: `127.0.0.1:${FRONTEND_PUBLIC_PORT:-3400}`
 
-## Troubleshooting
+Minimal host-level Caddy site block example:
 
-Symptom:
+```caddyfile
+re7.example.com {
+  encode gzip zstd
+  reverse_proxy 127.0.0.1:3400
+}
+```
 
-- login or signup fails with `crypto.subtle is undefined`
-- API requests fail as mixed content from an HTTPS frontend
+See:
 
-Cause:
+- [deploy/caddy/README.md](/home/debian/Re7/deploy/caddy/README.md)
+- [docs/production-runbook.md](/home/debian/Re7/docs/production-runbook.md)
 
-- Re7 was opened on an insecure origin such as `http://<tailnet-hostname>:3000`
-- the frontend was configured to call `http://<tailnet-hostname>:8000` directly from an HTTPS page
-
-Fix:
-
-- open Re7 at `https://<tailnet-hostname>` through Tailscale Serve
-- or use `http://localhost:3000` directly on the same machine
-- leave `VITE_API_URL` empty and use the frontend proxy for `/api` and `/uploads`
-
-## Switching environments
+## Switching Environments
 
 Use `--env-file` to choose the deployment target explicitly:
 
 ```bash
 docker compose --env-file .env.localhost up --build
 docker compose --env-file .env.tailscale up --build
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up --build
 ```

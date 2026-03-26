@@ -15,7 +15,7 @@ export const Route = createFileRoute("/profile")({
 });
 
 function ProfilePage() {
-  const { user, token, isAuthenticated, isLoading, refreshUser } = useAuth();
+  const { user, isAuthenticated, isLoading, refreshUser } = useAuth();
 
   const [profileUpdateSuccess, setProfileUpdateSuccess] = useState(false);
   const [passwordChangeSuccess, setPasswordChangeSuccess] = useState(false);
@@ -26,26 +26,25 @@ function ProfilePage() {
   // Query user's recipes - always call hooks, use enabled flag to control execution
   const { data: recipesData, isLoading: recipesLoading } = useQuery({
     queryKey: ["recipes", "mine", userId],
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures userId is defined
-    queryFn: () => recipeApi.list({ author_id: userId! }),
-    enabled: !!userId && !!token && isAuthenticated,
+    queryFn: () => {
+      if (!userId) {
+        throw new Error("Not authenticated");
+      }
+      return recipeApi.list({ author_id: userId });
+    },
+    enabled: !!userId && isAuthenticated,
   });
 
-  // Query invited users - use stable query key without token to prevent refetch on token refresh
   const { data: invitedUsers = [], isLoading: invitedUsersLoading } = useQuery({
-    // eslint-disable-next-line @tanstack/query/exhaustive-deps -- Token is stable per session, we don't want refetch on token changes
     queryKey: ["users", "invited"],
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- enabled ensures token is defined
-    queryFn: () => userApi.getInvitedUsers(token!),
-    enabled: !!token && isAuthenticated,
+    queryFn: () => userApi.getInvitedUsers(),
+    enabled: isAuthenticated,
   });
 
   // Profile update mutation
   const profileUpdateMutation = useMutation({
-    mutationFn: (fullName: string | null) => {
-      if (!token) throw new Error("Not authenticated");
-      return userApi.updateProfile({ full_name: fullName }, token);
-    },
+    mutationFn: (fullName: string | null) =>
+      userApi.updateProfile({ full_name: fullName }),
     onSuccess: async () => {
       await refreshUser();
       setProfileUpdateSuccess(true);
@@ -55,19 +54,11 @@ function ProfilePage() {
 
   // Password change mutation
   const passwordChangeMutation = useMutation({
-    mutationFn: ({
-      current,
-      newPass,
-    }: {
-      current: string;
-      newPass: string;
-    }) => {
-      if (!token) throw new Error("Not authenticated");
-      return userApi.changePassword(
-        { current_password: current, new_password: newPass },
-        token
-      );
-    },
+    mutationFn: ({ current, newPass }: { current: string; newPass: string }) =>
+      userApi.changePassword({
+        current_password: current,
+        new_password: newPass,
+      }),
     onSuccess: () => {
       setPasswordChangeSuccess(true);
       setTimeout(() => setPasswordChangeSuccess(false), 3000);
@@ -76,10 +67,7 @@ function ProfilePage() {
 
   // Avatar upload mutation
   const avatarUploadMutation = useMutation({
-    mutationFn: (file: File) => {
-      if (!token) throw new Error("Not authenticated");
-      return userApi.uploadAvatar(file, token);
-    },
+    mutationFn: (file: File) => userApi.uploadAvatar(file),
     onSuccess: async () => {
       await refreshUser();
     },
@@ -87,10 +75,7 @@ function ProfilePage() {
 
   // Avatar delete mutation
   const avatarDeleteMutation = useMutation({
-    mutationFn: () => {
-      if (!token) throw new Error("Not authenticated");
-      return userApi.deleteAvatar(token);
-    },
+    mutationFn: () => userApi.deleteAvatar(),
     onSuccess: async () => {
       await refreshUser();
     },
@@ -108,7 +93,7 @@ function ProfilePage() {
   }
 
   // Redirect to login if not authenticated (after loading is complete)
-  if (!isAuthenticated || !user || !token) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" />;
   }
 

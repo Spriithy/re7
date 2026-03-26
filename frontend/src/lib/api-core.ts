@@ -34,26 +34,68 @@ async function parseErrorResponse(response: Response): Promise<ErrorResponse> {
 }
 
 interface RequestOptions extends RequestInit {
-  token?: string | null;
+  authToken?: string | null;
+}
+
+const AUTH_RETRY_EXCLUDED_ENDPOINTS = new Set([
+  "/api/auth/login",
+  "/api/auth/register",
+  "/api/auth/refresh",
+  "/api/auth/logout",
+  "/api/auth/workos/exchange",
+]);
+
+async function fetchWithSessionRetry(
+  endpoint: string,
+  init: RequestInit,
+  authToken?: string | null,
+  hasRetried = false
+): Promise<Response> {
+  const response = await fetch(getApiUrl(endpoint), {
+    ...init,
+    credentials: "include",
+  });
+
+  if (
+    response.status === 401 &&
+    !authToken &&
+    !hasRetried &&
+    !AUTH_RETRY_EXCLUDED_ENDPOINTS.has(endpoint)
+  ) {
+    const refreshResponse = await fetch(getApiUrl("/api/auth/refresh"), {
+      method: "POST",
+      credentials: "include",
+    });
+
+    if (refreshResponse.ok) {
+      return fetchWithSessionRetry(endpoint, init, authToken, true);
+    }
+  }
+
+  return response;
 }
 
 export async function request<T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> {
-  const { token, ...fetchOptions } = options;
+  const { authToken, ...fetchOptions } = options;
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
-  const response = await fetch(getApiUrl(endpoint), {
-    ...fetchOptions,
-    headers,
-  });
+  const response = await fetchWithSessionRetry(
+    endpoint,
+    {
+      ...fetchOptions,
+      headers,
+    },
+    authToken
+  );
 
   if (!response.ok) {
     const data = await parseErrorResponse(response);
@@ -70,21 +112,25 @@ export async function requestNoContent(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<void> {
-  const { token, ...fetchOptions } = options;
+  const { authToken, ...fetchOptions } = options;
   const headers: Record<string, string> = {};
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   if (!(fetchOptions.body instanceof FormData)) {
     headers["Content-Type"] = "application/json";
   }
 
-  const response = await fetch(getApiUrl(endpoint), {
-    ...fetchOptions,
-    headers,
-  });
+  const response = await fetchWithSessionRetry(
+    endpoint,
+    {
+      ...fetchOptions,
+      headers,
+    },
+    authToken
+  );
 
   if (!response.ok) {
     const data = await parseErrorResponse(response);
@@ -98,19 +144,23 @@ export async function requestNoContent(
 export async function requestWithFormData<T>(
   endpoint: string,
   formData: FormData,
-  token?: string | null
+  authToken?: string | null
 ): Promise<T> {
   const headers: Record<string, string> = {};
 
-  if (token) {
-    headers.Authorization = `Bearer ${token}`;
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
-  const response = await fetch(getApiUrl(endpoint), {
-    method: "POST",
-    headers,
-    body: formData,
-  });
+  const response = await fetchWithSessionRetry(
+    endpoint,
+    {
+      method: "POST",
+      headers,
+      body: formData,
+    },
+    authToken
+  );
 
   if (!response.ok) {
     const data = await parseErrorResponse(response);

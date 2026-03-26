@@ -1,0 +1,10 @@
+re7.example.com {
+  encode gzip zstd
+
+  log {
+    output stdout
+    format json
+  }
+
+  reverse_proxy 127.0.0.1:3400
+}

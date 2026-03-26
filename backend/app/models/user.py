@@ -46,9 +46,15 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    sessions: Mapped[list["Session"]] = relationship(
+        "Session",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
 
 # Import here to avoid circular imports
 from app.models.invite import InviteLink  # noqa: E402, F401
 from app.models.recipe import Recipe  # noqa: E402, F401
+from app.models.session import Session  # noqa: E402, F401
 from app.models.user_identity import UserIdentity  # noqa: E402, F401

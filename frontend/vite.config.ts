@@ -19,6 +19,10 @@ const proxyConfig = {
     target: backendProxyTarget,
     changeOrigin: false,
   },
+  "/health": {
+    target: backendProxyTarget,
+    changeOrigin: false,
+  },
   "/uploads": {
     target: backendProxyTarget,
     changeOrigin: false,

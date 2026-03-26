@@ -12,11 +12,7 @@ import { CategoryList } from "./CategoryList";
 import { CategoryFormModal } from "./CategoryFormModal";
 import { DeleteCategoryModal } from "./DeleteCategoryModal";
 
-interface CategoryManagementProps {
-  token: string;
-}
-
-export function CategoryManagement({ token }: CategoryManagementProps) {
+export function CategoryManagement() {
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
@@ -32,7 +28,7 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
 
   // Create mutation
   const createMutation = useMutation({
-    mutationFn: (data: CategoryCreate) => categoryApi.create(data, token),
+    mutationFn: (data: CategoryCreate) => categoryApi.create(data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories"] });
       setIsCreateModalOpen(false);
@@ -42,7 +38,7 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: CategoryUpdate }) =>
-      categoryApi.update(id, data, token),
+      categoryApi.update(id, data),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories"] });
       setEditingCategory(null);
@@ -51,7 +47,7 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
 
   // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => categoryApi.delete(id, token),
+    mutationFn: (id: string) => categoryApi.delete(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories"] });
       void queryClient.invalidateQueries({ queryKey: ["recipes"] });
@@ -62,7 +58,7 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
   // Image upload mutation
   const uploadImageMutation = useMutation({
     mutationFn: ({ id, file }: { id: string; file: File }) =>
-      categoryApi.uploadImage(id, file, token),
+      categoryApi.uploadImage(id, file),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories"] });
     },
@@ -70,7 +66,7 @@ export function CategoryManagement({ token }: CategoryManagementProps) {
 
   // Image delete mutation
   const deleteImageMutation = useMutation({
-    mutationFn: (id: string) => categoryApi.deleteImage(id, token),
+    mutationFn: (id: string) => categoryApi.deleteImage(id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["categories"] });
     },

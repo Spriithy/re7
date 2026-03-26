@@ -1,0 +1,37 @@
+services:
+  backend:
+    environment:
+      ENVIRONMENT: production
+      COOKIE_SECURE: "true"
+      APP_PUBLIC_ORIGIN: https://${APP_DOMAIN}
+      API_PUBLIC_ORIGIN: https://${APP_DOMAIN}
+      CORS_ORIGINS: https://${APP_DOMAIN}
+      TRUSTED_HOSTS: ${APP_DOMAIN}
+      DATABASE_URL: ${DATABASE_URL:-sqlite+aiosqlite:////app/data/re7.db}
+      BACKUP_DIR: ${BACKUP_DIR:-/app/backups}
+    ports: []
+    expose:
+      - "8000"
+    volumes:
+      - backend_data:/app/data
+      - backend_uploads:/app/uploads
+      - backend_backups:/app/backups
+    restart: unless-stopped
+
+  frontend:
+    environment:
+      ENVIRONMENT: production
+      FRONTEND_PORT: 3000
+      BACKEND_PROXY_TARGET: http://backend:8000
+      VITE_API_URL:
+      VITE_HOST: 0.0.0.0
+      VITE_ALLOWED_HOSTS: ${APP_DOMAIN}
+      VITE_WORKOS_REDIRECT_URI: https://${APP_DOMAIN}/callback
+    ports:
+      - "${FRONTEND_BIND_HOST:-127.0.0.1}:${FRONTEND_PUBLIC_PORT:-3400}:3000"
+    restart: unless-stopped
+
+volumes:
+  backend_data:
+  backend_uploads:
+  backend_backups:

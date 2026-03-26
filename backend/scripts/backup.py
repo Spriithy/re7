@@ -1,211 +1,143 @@
 #!/usr/bin/env python3
-"""
-SQLite database backup script for Re7.
-
-Features:
-- Creates compressed backups with VACUUM optimization
-- Retains last 7 days of daily backups
-- Retains last backup of each month
-- Can be run manually or via cron/systemd timer
-
-Usage:
-    python scripts/backup.py
-    
-Cron setup (daily at 2 AM):
-    0 2 * * * cd /path/to/backend && /path/to/python scripts/backup.py
-"""
+"""Backup the SQLite database and uploads directory."""
 
 import gzip
 import logging
+import shutil
 import sqlite3
 import sys
+import tarfile
 from datetime import datetime, timedelta
 from pathlib import Path
-from shutil import copy2
 
-# Configuration
-DB_FILE = Path("re7.db")
-BACKUP_DIR = Path("backups")
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from app.core.config import settings
+
 DAILY_RETENTION_DAYS = 7
+BACKUP_PREFIXES = ("re7_", "re7_uploads_")
 
-# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    format="%(asctime)s %(levelname)s %(message)s",
 )
 logger = logging.getLogger(__name__)
 
 
 def ensure_backup_dir() -> Path:
-    """Ensure backup directory exists."""
-    BACKUP_DIR.mkdir(parents=True, exist_ok=True)
-    return BACKUP_DIR
-
-
-def create_vacuumed_backup(source_db: Path, backup_path: Path) -> None:
-    """
-    Create a backup with VACUUM optimization.
-    VACUUM rebuilds the database, removing fragmentation and reducing size.
-    """
-    logger.info(f"Creating vacuumed backup: {backup_path}")
-    
-    # Connect to source database and create vacuumed copy
-    conn = sqlite3.connect(str(source_db))
-    try:
-        # VACUUM INTO creates a fresh, optimized copy
-        conn.execute(f"VACUUM INTO '{backup_path}'")
-        conn.close()
-        logger.info(f"Backup created successfully (size: {backup_path.stat().st_size / 1024:.1f} KB)")
-    except Exception as e:
-        conn.close()
-        if backup_path.exists():
-            backup_path.unlink()
-        raise RuntimeError(f"Failed to create backup: {e}")
-
-
-def compress_backup(backup_path: Path) -> Path:
-    """Compress backup file using gzip."""
-    compressed_path = backup_path.with_suffix(".db.gz")
-    logger.info(f"Compressing backup to: {compressed_path}")
-    
-    with open(backup_path, "rb") as f_in:
-        with gzip.open(compressed_path, "wb", compresslevel=6) as f_out:
-            f_out.writelines(f_in)
-    
-    # Remove uncompressed backup
-    backup_path.unlink()
-    
-    original_size = backup_path.stat().st_size if backup_path.exists() else 0
-    compressed_size = compressed_path.stat().st_size
-    ratio = (1 - compressed_size / original_size) * 100 if original_size > 0 else 0
-    
-    logger.info(
-        f"Compressed: {original_size / 1024:.1f} KB → {compressed_size / 1024:.1f} KB "
-        f"({ratio:.1f}% reduction)"
-    )
-    
-    return compressed_path
+    settings.backup_dir.mkdir(parents=True, exist_ok=True)
+    return settings.backup_dir
 
 
 def is_monthly_backup(backup_date: datetime) -> bool:
-    """Check if this is the last day of the month."""
-    # Get the last day of this month
     if backup_date.month == 12:
-        last_day = backup_date.replace(year=backup_date.year + 1, month=1, day=1) - timedelta(days=1)
+        next_month = backup_date.replace(year=backup_date.year + 1, month=1, day=1)
     else:
-        last_day = backup_date.replace(month=backup_date.month + 1, day=1) - timedelta(days=1)
-    
-    return backup_date.day == last_day.day
+        next_month = backup_date.replace(month=backup_date.month + 1, day=1)
+    return backup_date.day == (next_month - timedelta(days=1)).day
 
 
-def cleanup_old_backups(backup_dir: Path, current_date: datetime) -> None:
-    """
-    Clean up old backups based on retention policy:
-    - Keep last 7 days
-    - Keep last backup of each month
-    """
-    logger.info("Cleaning up old backups...")
-    
-    backup_pattern = "re7_*.db.gz"
-    all_backups = sorted(backup_dir.glob(backup_pattern))
-    
-    if not all_backups:
-        logger.info("No existing backups to clean up")
+def parse_backup_date(artifact: Path, prefix: str, suffix: str) -> datetime | None:
+    name = artifact.name
+    if not name.startswith(prefix) or not name.endswith(suffix):
+        return None
+    date_str = name.removeprefix(prefix).removesuffix(suffix)
+    try:
+        return datetime.strptime(date_str, "%Y-%m-%d")
+    except ValueError:
+        return None
+
+
+def cleanup_old_backups(backup_dir: Path, prefix: str, suffix: str, current_date: datetime) -> None:
+    artifacts = sorted(backup_dir.glob(f"{prefix}*{suffix}"))
+    if not artifacts:
         return
-    
-    # Parse backup dates and categorize
+
     daily_cutoff = current_date - timedelta(days=DAILY_RETENTION_DAYS)
-    
-    backups_to_delete = []
-    monthly_backups = {}  # year_month -> backup_path
-    
-    for backup_path in all_backups:
-        # Parse date from filename: re7_YYYY-MM-DD.db.gz
-        try:
-            date_str = backup_path.stem.replace(".db", "").replace("re7_", "")
-            backup_date = datetime.strptime(date_str, "%Y-%m-%d")
-        except ValueError:
-            logger.warning(f"Skipping malformed backup filename: {backup_path.name}")
+    monthly_kept: dict[str, Path] = {}
+    to_delete: list[Path] = []
+
+    for artifact in artifacts:
+        backup_date = parse_backup_date(artifact, prefix, suffix)
+        if backup_date is None:
+            logger.warning("backup_cleanup_skip_malformed name=%s", artifact.name)
             continue
-        
-        # Check if it's a monthly backup (last day of month)
+
+        if backup_date >= daily_cutoff:
+            continue
+
         if is_monthly_backup(backup_date):
             month_key = backup_date.strftime("%Y-%m")
-            # Keep only the most recent backup for each month
-            if month_key not in monthly_backups:
-                monthly_backups[month_key] = backup_path
+            existing = monthly_kept.get(month_key)
+            if existing is None:
+                monthly_kept[month_key] = artifact
             else:
-                # Compare and keep the newer one
-                existing_date = datetime.strptime(
-                    monthly_backups[month_key].stem.replace(".db", "").replace("re7_", ""),
-                    "%Y-%m-%d"
-                )
-                if backup_date > existing_date:
-                    backups_to_delete.append(monthly_backups[month_key])
-                    monthly_backups[month_key] = backup_path
+                existing_date = parse_backup_date(existing, prefix, suffix)
+                if existing_date is not None and backup_date > existing_date:
+                    to_delete.append(existing)
+                    monthly_kept[month_key] = artifact
                 else:
-                    backups_to_delete.append(backup_path)
-        elif backup_date < daily_cutoff:
-            # Older than 7 days and not a monthly backup
-            backups_to_delete.append(backup_path)
-    
-    # Delete old backups
-    deleted_count = 0
-    for backup_path in backups_to_delete:
-        try:
-            backup_path.unlink()
-            logger.info(f"Deleted old backup: {backup_path.name}")
-            deleted_count += 1
-        except Exception as e:
-            logger.error(f"Failed to delete {backup_path.name}: {e}")
-    
-    logger.info(f"Cleanup complete. Deleted {deleted_count} old backups, kept {len(all_backups) - deleted_count}")
+                    to_delete.append(artifact)
+            continue
+
+        to_delete.append(artifact)
+
+    for artifact in to_delete:
+        artifact.unlink(missing_ok=True)
+        logger.info("backup_cleanup_deleted name=%s", artifact.name)
+
+
+def create_database_backup(output_path: Path) -> None:
+    source_db = settings.sqlite_database_path
+    if not source_db.exists():
+        raise RuntimeError(f"Database file not found: {source_db}")
+
+    temp_db_path = output_path.with_suffix(".db")
+    conn = sqlite3.connect(str(source_db))
+    try:
+        conn.execute(f"VACUUM INTO '{temp_db_path}'")
+    finally:
+        conn.close()
+
+    with temp_db_path.open("rb") as source, gzip.open(output_path, "wb", compresslevel=6) as target:
+        shutil.copyfileobj(source, target)
+    temp_db_path.unlink(missing_ok=True)
+
+
+def create_uploads_backup(output_path: Path) -> None:
+    if not settings.uploads_dir.exists():
+        raise RuntimeError(f"Uploads directory not found: {settings.uploads_dir}")
+
+    with tarfile.open(output_path, "w:gz") as archive:
+        archive.add(settings.uploads_dir, arcname="uploads")
 
 
 def run_backup() -> None:
-    """Main backup routine."""
-    current_date = datetime.now()
-    date_str = current_date.strftime("%Y-%m-%d")
-    
-    logger.info(f"Starting backup process for {date_str}")
-    
-    # Check source database exists
-    if not DB_FILE.exists():
-        logger.error(f"Database file not found: {DB_FILE}")
-        sys.exit(1)
-    
-    # Ensure backup directory
+    now = datetime.now()
+    date_str = now.strftime("%Y-%m-%d")
     backup_dir = ensure_backup_dir()
-    
-    # Create backup filename
-    backup_filename = f"re7_{date_str}.db"
-    backup_path = backup_dir / backup_filename
-    
-    # Skip if backup already exists for today
-    compressed_path = backup_path.with_suffix(".db.gz")
-    if compressed_path.exists():
-        logger.info(f"Backup already exists for today: {compressed_path.name}")
-        cleanup_old_backups(backup_dir, current_date)
-        logger.info("Backup process completed (skipped creation)")
-        return
-    
-    try:
-        # Create vacuumed backup
-        create_vacuumed_backup(DB_FILE, backup_path)
-        
-        # Compress the backup
-        compress_backup(backup_path)
-        
-        # Clean up old backups
-        cleanup_old_backups(backup_dir, current_date)
-        
-        logger.info("Backup process completed successfully")
-        
-    except Exception as e:
-        logger.error(f"Backup failed: {e}")
-        sys.exit(1)
+    db_output = backup_dir / f"re7_{date_str}.db.gz"
+    uploads_output = backup_dir / f"re7_uploads_{date_str}.tar.gz"
+
+    if db_output.exists() and uploads_output.exists():
+        logger.info("backup_skip_existing date=%s", date_str)
+    else:
+        create_database_backup(db_output)
+        create_uploads_backup(uploads_output)
+        logger.info(
+            "backup_completed date=%s db=%s uploads=%s",
+            date_str,
+            db_output,
+            uploads_output,
+        )
+
+    cleanup_old_backups(backup_dir, "re7_", ".db.gz", now)
+    cleanup_old_backups(backup_dir, "re7_uploads_", ".tar.gz", now)
 
 
 if __name__ == "__main__":
-    run_backup()
+    try:
+        run_backup()
+    except Exception as exc:
+        logger.exception("backup_failed error=%s", exc)
+        sys.exit(1)

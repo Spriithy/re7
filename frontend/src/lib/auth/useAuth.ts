@@ -5,11 +5,11 @@ import { ApiError, authApi, type User } from "../api";
 const UNLINKED_ACCOUNT_DETAIL =
   "Authenticated WorkOS user is not linked to a local account";
 const INVALID_TOKEN_DETAIL = "Invalid or expired token";
+const NOT_AUTHENTICATED_DETAIL = "Not authenticated";
 const MISSING_REFRESH_TOKEN_MESSAGE = "Missing refresh token.";
 
 interface AuthSession {
-  token: string;
-  user: User;
+  user: User | null;
 }
 
 class InvalidWorkOSSessionError extends Error {
@@ -34,16 +34,17 @@ export function useAuth() {
 
   const sessionQuery = useQuery<AuthSession>({
     queryKey: ["auth-session", workosUser?.id ?? null],
-    enabled: !workosLoading && !!workosUser,
     retry: false,
     queryFn: async () => {
       try {
-        const accessToken = await getAccessToken();
-        const currentUser = await authApi.me(accessToken);
-        return {
-          token: accessToken,
-          user: currentUser,
-        };
+        if (workosUser) {
+          const accessToken = await getAccessToken();
+          const session = await authApi.exchangeWorkOSSession(accessToken);
+          return { user: session.user };
+        }
+
+        const user = await authApi.me();
+        return { user };
       } catch (error) {
         if (
           error instanceof Error &&
@@ -52,12 +53,14 @@ export function useAuth() {
           throw new InvalidWorkOSSessionError();
         }
 
-        if (
-          error instanceof ApiError &&
-          error.status === 401 &&
-          error.detail === INVALID_TOKEN_DETAIL
-        ) {
-          throw new InvalidWorkOSSessionError();
+        if (error instanceof ApiError && error.status === 401) {
+          if (error.detail === INVALID_TOKEN_DETAIL) {
+            throw new InvalidWorkOSSessionError();
+          }
+
+          if (error.detail === NOT_AUTHENTICATED_DETAIL) {
+            return { user: null };
+          }
         }
 
         throw error;
@@ -72,39 +75,42 @@ export function useAuth() {
     sessionError.detail === UNLINKED_ACCOUNT_DETAIL;
   const invalidWorkosSession =
     sessionError instanceof InvalidWorkOSSessionError;
-
-  const isLoading = workosLoading || sessionQuery.isLoading;
   const user = sessionQuery.data?.user ?? null;
-  const token = sessionQuery.data?.token ?? null;
-  const isAuthenticated = !!workosUser && !!user && !!token;
+  const isLoading = workosLoading || sessionQuery.isLoading;
+  const isAuthenticated = !!user;
 
-  const login = async (_credentials?: {
-    username: string;
-    password: string;
-  }) => {
-    await signIn();
+  const login = async (credentials: { username: string; password: string }) => {
+    await authApi.login(credentials);
+    await sessionQuery.refetch();
   };
 
-  const register = async (_data?: {
+  const register = async (data: {
     username: string;
     password: string;
     invite_token?: string;
   }) => {
-    await signUp();
-  };
-
-  const refreshUser = async () => {
-    if (!workosUser) {
-      queryClient.removeQueries({ queryKey: ["auth-session"] });
-      return;
-    }
-
+    await authApi.register({
+      username: data.username,
+      password: data.password,
+      invite_token: data.invite_token ?? "",
+    });
     await sessionQuery.refetch();
   };
 
-  const logout = () => {
+  const refreshUser = async () => {
+    await sessionQuery.refetch();
+  };
+
+  const logout = async () => {
     queryClient.removeQueries({ queryKey: ["auth-session"] });
-    signOut({ returnTo: window.location.origin });
+    try {
+      await authApi.logout();
+    } finally {
+      if (workosUser) {
+        await signOut({ returnTo: window.location.origin, navigate: false });
+      }
+      window.location.assign(window.location.origin);
+    }
   };
 
   const resetWorkosSession = async (returnTo = window.location.origin) => {
@@ -123,7 +129,6 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated,
-    token,
     login,
     register,
     logout,

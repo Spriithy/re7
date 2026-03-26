@@ -21,11 +21,8 @@ export interface WorkOSLinkExistingRequest {
   password: string;
 }
 
-export interface Token {
-  access_token: string;
-  token_type: string;
-  expires_at: string;
-  user?: User;
+export interface SessionResponse {
+  user: User;
 }
 
 export interface User {

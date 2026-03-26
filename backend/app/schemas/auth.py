@@ -36,13 +36,7 @@ class UserResponse(BaseModel):
     model_config = {"from_attributes": True}
 
 
-class Token(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
-    expires_at: datetime
-
-
-class TokenWithUser(Token):
+class SessionResponse(BaseModel):
     user: UserResponse
 
 

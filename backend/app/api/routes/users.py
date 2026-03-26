@@ -12,6 +12,7 @@ from app.schemas.auth import (
     InvitedUserResponse,
 )
 from app.services.image import save_user_avatar, delete_user_avatar
+from app.services.auth_sessions import revoke_all_user_sessions
 
 router = APIRouter()
 
@@ -48,6 +49,7 @@ async def change_password(
 
     # Update password
     current_user.password_hash = get_password_hash(password_data.new_password)
+    await revoke_all_user_sessions(db, current_user.id)
 
     await db.commit()
 

@@ -1,8 +1,8 @@
 from collections.abc import AsyncGenerator
 
+from sqlalchemy import event
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
-from sqlalchemy import event
 from unidecode import unidecode
 
 from app.core.config import settings
@@ -38,20 +38,17 @@ engine = create_async_engine(
 @event.listens_for(engine.sync_engine, "connect")
 def set_sqlite_pragma(dbapi_connection, connection_record):
     cursor = dbapi_connection.cursor()
-    
-    # Core settings (already present)
+
     cursor.execute("PRAGMA journal_mode=WAL")
     cursor.execute("PRAGMA synchronous=NORMAL")
     cursor.execute("PRAGMA foreign_keys=ON")
-    
-    # Performance optimizations
-    cursor.execute("PRAGMA busy_timeout=5000")  # Wait up to 5s if DB is locked
-    cursor.execute("PRAGMA cache_size=-64000")  # 64MB cache (negative = pages, 25MB total)
-    cursor.execute("PRAGMA temp_store=memory")  # Store temp tables in RAM
-    cursor.execute("PRAGMA mmap_size=268435456")  # 256MB memory-mapped I/O
-    
+
+    cursor.execute("PRAGMA busy_timeout=5000")
+    cursor.execute("PRAGMA cache_size=-64000")
+    cursor.execute("PRAGMA temp_store=memory")
+    cursor.execute("PRAGMA mmap_size=268435456")
+
     cursor.close()
-    # Register normalize_text function for accent-insensitive search
     dbapi_connection.create_function("normalize_text", 1, normalize_text)
 
 
