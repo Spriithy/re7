@@ -1,5 +1,7 @@
-import time
 import logging
+import json
+import time
+from pathlib import Path
 
 import httpx
 from jose import JWTError, jwt
@@ -8,6 +10,7 @@ from pydantic import BaseModel
 from app.core.config import settings
 
 WORKOS_JWKS_TTL_SECONDS = 300
+WORKOS_JWKS_CACHE_PATH = settings.base_dir / "data" / "workos_jwks_cache.json"
 logger = logging.getLogger(__name__)
 
 
@@ -23,8 +26,46 @@ class WorkOSAccessTokenClaims(BaseModel):
 
 _jwks_cache: dict[str, object] = {
     "expires_at": 0.0,
-    "keys": {},
+    "keys": [],
 }
+
+
+def load_persisted_workos_jwks() -> list[dict] | None:
+    try:
+        payload = json.loads(WORKOS_JWKS_CACHE_PATH.read_text())
+    except FileNotFoundError:
+        return None
+    except (OSError, json.JSONDecodeError):
+        logger.exception("WorkOS JWKS cache load failed")
+        return None
+
+    keys = payload.get("keys")
+    if not isinstance(keys, list) or not keys:
+        return None
+
+    expires_at = payload.get("expires_at")
+    if isinstance(expires_at, (int, float)):
+        _jwks_cache["expires_at"] = float(expires_at)
+    else:
+        _jwks_cache["expires_at"] = 0.0
+
+    _jwks_cache["keys"] = keys
+    return keys
+
+
+def persist_workos_jwks(keys: list[dict], expires_at: float) -> None:
+    try:
+        WORKOS_JWKS_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        WORKOS_JWKS_CACHE_PATH.write_text(
+            json.dumps(
+                {
+                    "expires_at": expires_at,
+                    "keys": keys,
+                }
+            )
+        )
+    except OSError:
+        logger.exception("WorkOS JWKS cache persist failed")
 
 
 def get_workos_jwks_url() -> str | None:
@@ -36,8 +77,14 @@ def get_workos_jwks_url() -> str | None:
 
 async def fetch_workos_jwks() -> list[dict] | None:
     now = time.time()
-    if _jwks_cache["expires_at"] > now:
-        return _jwks_cache["keys"]  # type: ignore[return-value]
+    cached_keys = _jwks_cache["keys"]
+    stale_keys = cached_keys if isinstance(cached_keys, list) and cached_keys else None
+
+    if stale_keys is None:
+        stale_keys = load_persisted_workos_jwks()
+
+    if _jwks_cache["expires_at"] > now and stale_keys is not None:
+        return stale_keys
 
     jwks_url = get_workos_jwks_url()
     if jwks_url is None:
@@ -47,15 +94,30 @@ async def fetch_workos_jwks() -> list[dict] | None:
         async with httpx.AsyncClient(timeout=5.0) as client:
             response = await client.get(jwks_url)
             response.raise_for_status()
-    except httpx.HTTPError:
+    except httpx.HTTPError as exc:
+        if stale_keys is not None:
+            logger.warning(
+                "WorkOS JWKS refresh failed, using stale cached keys: %s",
+                exc,
+            )
+            return stale_keys
+
+        logger.warning("WorkOS JWKS refresh failed: %s", exc)
         return None
 
     keys = response.json().get("keys")
     if not isinstance(keys, list):
+        if stale_keys is not None:
+            logger.warning("WorkOS JWKS response was invalid, using stale cached keys")
+            return stale_keys
+
+        logger.warning("WorkOS JWKS response was invalid")
         return None
 
     _jwks_cache["keys"] = keys
-    _jwks_cache["expires_at"] = now + WORKOS_JWKS_TTL_SECONDS
+    expires_at = now + WORKOS_JWKS_TTL_SECONDS
+    _jwks_cache["expires_at"] = expires_at
+    persist_workos_jwks(keys, expires_at)
     return keys
 
 

@@ -107,6 +107,18 @@ export function useAuth() {
     signOut({ returnTo: window.location.origin });
   };
 
+  const resetWorkosSession = async (returnTo = window.location.origin) => {
+    queryClient.removeQueries({ queryKey: ["auth-session"] });
+
+    try {
+      await signOut({ returnTo, navigate: false });
+    } catch (error) {
+      console.error("WorkOS session reset failed", error);
+    }
+
+    window.location.assign(returnTo);
+  };
+
   return {
     user,
     isLoading,
@@ -125,5 +137,7 @@ export function useAuth() {
     workosUser,
     hasWorkosSession: !!workosUser && !invalidWorkosSession,
     linkingRequired,
+    invalidWorkosSession,
+    resetWorkosSession,
   };
 }
