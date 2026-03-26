@@ -11,6 +11,7 @@ from app.core.config import settings
 from app.core.database import async_session_maker, create_tables
 from app.core.security import get_password_hash
 from app.models.user import User
+from app.seeds.default_categories import seed_default_categories
 
 
 async def seed_demo_user():
@@ -33,10 +34,19 @@ async def seed_demo_user():
             print("Demo account created (theo/theo123)")
 
 
+async def seed_default_data():
+    async with async_session_maker() as session:
+        created_categories = await seed_default_categories(session)
+        if created_categories > 0:
+            await session.commit()
+            print(f"Seeded {created_categories} default categories")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Startup: create tables and seed demo user
     await create_tables()
+    await seed_default_data()
     await seed_demo_user()
     yield
     # Shutdown: cleanup if needed
