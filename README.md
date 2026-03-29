@@ -113,9 +113,25 @@ Start the app stack:
 ```bash
 cp .env.vps.example .env.vps
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build
-docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d
 ```
+
+For one-off bootstrap tasks, the backend image accepts entrypoint flags:
+
+```bash
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate --seed
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm -e ADMIN_USERNAME=admin -e ADMIN_PASSWORD=change-me backend --migrate --create-admin
+```
+
+If you want to start the backend container itself with flags, override the service command for that start:
+
+```bash
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm --service-ports backend --migrate --seed
+```
+
+For a persistent stack start with the same behavior, set the backend service command temporarily to `["--migrate", "--seed"]` and then run `docker compose ... up -d`.
 
 Default production networking:
 

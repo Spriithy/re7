@@ -89,11 +89,12 @@ Reference files:
 4. Confirm `re7.internal` resolves locally on the VPS to the shared host Caddy listener.
 5. Add the Re7 site block to the shared host Caddy config.
 6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
-7. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
-8. Optional first-time seed:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/seed_default_categories.py`
-9. Optional first admin:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/create_admin.py`
+7. Run one-off migrations:
+   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate`
+8. Optional first-time seed as a one-off bootstrap step:
+   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate --seed`
+9. Optional first admin as a one-off bootstrap step:
+   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --create-admin`
 10. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
 11. Reload host Caddy if the site block changed.
 12. Verify the local route:
@@ -109,7 +110,8 @@ Reference files:
 2. `git pull`
 3. Confirm the shared host `cloudflared` route and Re7 Caddy vhost are still present.
 4. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
-5. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend alembic upgrade head`
+5. Run one-off migrations:
+   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate`
 6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
 7. Check `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/ready`
 8. Check `https://$APP_DOMAIN/health/ready`
@@ -170,7 +172,7 @@ Use a matching database artifact whenever possible so DB rows and files stay con
 If the only admin account is lost:
 
 1. Stop user-facing changes if needed.
-2. Run `python scripts/create_admin.py` inside the backend container against the current database.
+2. Run `docker compose ... run --rm backend --create-admin` against the current database.
 3. Confirm the new admin can log in and create invites.
 
 ## Host Access Verification
@@ -207,7 +209,7 @@ Expected result:
 - host Caddy logs for the Re7 vhost
 - `docker compose ... logs frontend`
 - `docker compose ... logs backend`
-- confirm `alembic upgrade head` ran before restart
+- confirm `docker compose ... run --rm backend --migrate` ran before restart
 - confirm the uploads volume is mounted and writable
 - confirm the SQLite file exists at the configured `DATABASE_URL`
 
