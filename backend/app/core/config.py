@@ -157,6 +157,13 @@ class Settings(BaseSettings):
         return db_path
 
     @property
+    def sync_database_url(self) -> str:
+        if self.database_url.startswith("sqlite+aiosqlite://"):
+            return self.database_url.replace("sqlite+aiosqlite://", "sqlite://", 1)
+
+        return self.database_url
+
+    @property
     def should_bootstrap_schema(self) -> bool:
         return not self.is_production and os.getenv("AUTO_CREATE_SCHEMA", "true").lower() == "true"
 
