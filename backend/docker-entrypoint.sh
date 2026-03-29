@@ -26,7 +26,7 @@ fix_permissions /app/backups
 
 run_as_app() {
     if [ "$(id -u)" -eq 0 ]; then
-        su app -s /bin/sh -c "$*"
+        su -s /bin/sh app -c "$*"
         return
     fi
 
@@ -103,7 +103,7 @@ if [ "$#" -eq 0 ]; then
 fi
 
 if [ "$(id -u)" -eq 0 ]; then
-    exec su app -s /bin/sh -c 'exec "$@"' sh "$@"
+    exec su -s /bin/sh app -c 'exec "$@"' -- sh "$@"
 fi
 
 exec "$@"
