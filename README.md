@@ -137,16 +137,20 @@ For one-off bootstrap tasks, the backend image accepts entrypoint flags:
 ```bash
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate --seed
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate --seed-recipes
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm -e ADMIN_USERNAME=admin -e ADMIN_PASSWORD=change-me backend --migrate --create-admin
 ```
+
+`--seed-recipes` requires an existing admin user because the imported recipes are attributed to that account.
 
 If you want to start the backend container itself with flags, override the service command for that start:
 
 ```bash
 docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm --service-ports backend --migrate --seed
+docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm --service-ports backend --migrate --seed-recipes
 ```
 
-For a persistent stack start with the same behavior, set the backend service command temporarily to `["--migrate", "--seed"]` and then run `docker compose ... up -d`.
+For a persistent stack start with the same behavior, set the backend service command temporarily to `["--migrate", "--seed"]` or `["--migrate", "--seed-recipes"]` and then run `docker compose ... up -d`.
 
 Default production networking:
 

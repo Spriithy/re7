@@ -37,6 +37,7 @@ run_as_app() {
 
 run_migrations=false
 run_seed=false
+run_seed_recipes=false
 run_create_admin=false
 ran_one_off_task=false
 
@@ -50,17 +51,22 @@ while [ "$#" -gt 0 ]; do
             run_seed=true
             shift
             ;;
+        --seed-recipes)
+            run_seed_recipes=true
+            shift
+            ;;
         --create-admin)
             run_create_admin=true
             shift
             ;;
         --help)
             cat <<'EOF'
-Usage: docker-entrypoint.sh [--migrate] [--seed] [--create-admin] [command...]
+Usage: docker-entrypoint.sh [--migrate] [--seed] [--seed-recipes] [--create-admin] [command...]
 
 Flags:
   --migrate       Run `alembic upgrade head` before starting the backend.
   --seed          Seed default categories before starting the backend.
+  --seed-recipes  Seed default categories and bundled French recipes before starting the backend.
   --create-admin  Create the admin account before starting the backend.
 
 Admin creation:
@@ -90,6 +96,11 @@ fi
 
 if [ "$run_seed" = true ]; then
     run_as_app "cd $app_root && python scripts/seed_default_categories.py"
+    ran_one_off_task=true
+fi
+
+if [ "$run_seed_recipes" = true ]; then
+    run_as_app "cd $app_root && python scripts/seed_recipes.py"
     ran_one_off_task=true
 fi
 

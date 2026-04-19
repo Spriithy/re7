@@ -19,7 +19,7 @@ TAILSCALE_COMPOSE = $(DOCKER_COMPOSE) --env-file $(TAILSCALE_ENV_FILE) -f docker
 PROD_COMPOSE = $(DOCKER_COMPOSE) --env-file $(PROD_ENV_FILE) -f docker-compose.yml -f docker-compose.prod.yml
 
 .PHONY: help frontend-fmt frontend-lint frontend-typecheck frontend-test backend-test test check \
-	local-up tailscale-up prod-backup prod-build prod-migrate prod-seed prod-create-admin prod-up \
+	local-up tailscale-up prod-backup prod-build prod-migrate prod-seed prod-seed-recipes prod-create-admin prod-up \
 	prod-deploy prod-ps prod-logs prod-health prod-health-local prod-version
 
 help:
@@ -29,6 +29,7 @@ help:
 		'  make test             Run backend and frontend tests' \
 		'  make local-up         Start the localhost stack with Docker Compose' \
 		'  make tailscale-up     Start the tailscale stack with Docker Compose' \
+		'  make prod-seed-recipes Seed bundled French recipes into production' \
 		'  make prod-deploy      Backup, rebuild, migrate, recreate, and verify production' \
 		'  make prod-version     Show the running backend/frontend Git SHA'
 
@@ -76,6 +77,10 @@ prod-migrate:
 prod-seed:
 	@test -f $(PROD_ENV_FILE) || (echo "Missing $(PROD_ENV_FILE)" >&2; exit 1)
 	GIT_SHA=$(GIT_SHA) $(PROD_COMPOSE) run --rm backend --migrate --seed
+
+prod-seed-recipes:
+	@test -f $(PROD_ENV_FILE) || (echo "Missing $(PROD_ENV_FILE)" >&2; exit 1)
+	GIT_SHA=$(GIT_SHA) $(PROD_COMPOSE) run --rm backend --migrate --seed-recipes
 
 prod-create-admin:
 	@test -f $(PROD_ENV_FILE) || (echo "Missing $(PROD_ENV_FILE)" >&2; exit 1)
