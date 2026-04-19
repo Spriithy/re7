@@ -10,13 +10,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import text, select
+from sqlalchemy import text
 
 from app.api.routes import api_router
 from app.core.config import settings
 from app.core.database import async_session_maker, create_tables
-from app.core.security import get_password_hash
-from app.models.user import User
 from app.seeds.default_categories import seed_default_categories
 from app.services.bundled_uploads import sync_bundled_uploads
 
@@ -25,25 +23,6 @@ logging.basicConfig(
     format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-
-async def seed_demo_user() -> None:
-    if settings.is_production:
-        return
-
-    async with async_session_maker() as session:
-        result = await session.execute(select(User).where(User.username == "demo"))
-        existing = result.scalar_one_or_none()
-
-        if existing is None:
-            theo_user = User(
-                username="demo",
-                password_hash=get_password_hash("demo123"),
-                is_admin=True,
-            )
-            session.add(theo_user)
-            await session.commit()
-            logger.info("seed_demo_user_created")
 
 
 async def seed_default_data() -> None:
@@ -103,7 +82,6 @@ async def lifespan(app: FastAPI):
     if settings.should_seed_default_categories:
         await seed_default_data()
 
-    await seed_demo_user()
     logger.info("app_started")
     yield
     logger.info("app_stopped")
