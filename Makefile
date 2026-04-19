@@ -59,7 +59,11 @@ tailscale-up:
 
 prod-backup:
 	@test -f $(PROD_ENV_FILE) || (echo "Missing $(PROD_ENV_FILE)" >&2; exit 1)
-	$(PROD_COMPOSE) run --rm backend python scripts/backup.py
+	@if $(PROD_COMPOSE) run --rm backend sh -lc 'python -c "from app.core.config import settings; import sys; sys.exit(0 if settings.sqlite_database_path.exists() else 1)"'; then \
+		$(PROD_COMPOSE) run --rm backend python scripts/backup.py; \
+	else \
+		echo "Skipping production backup: database file does not exist yet."; \
+	fi
 
 prod-build:
 	@test -f $(PROD_ENV_FILE) || (echo "Missing $(PROD_ENV_FILE)" >&2; exit 1)
