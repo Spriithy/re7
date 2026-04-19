@@ -88,33 +88,33 @@ Reference files:
 3. Confirm the shared host `cloudflared` route sends `re7.example.com` to `http://re7.internal`.
 4. Confirm `re7.internal` resolves locally on the VPS to the shared host Caddy listener.
 5. Add the Re7 site block to the shared host Caddy config.
-6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
+6. `make prod-build`
 7. Run one-off migrations:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate`
+   `make prod-migrate`
 8. Optional first-time seed as a one-off bootstrap step:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate --seed`
+   `make prod-seed`
 9. Optional first admin as a one-off bootstrap step:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --create-admin`
-10. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
+   `make prod-create-admin`
+10. `make prod-up`
 11. Reload host Caddy if the site block changed.
 12. Verify the local route:
-   `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/live`
+   `make prod-health-local`
 13. Check:
    `curl -fsS https://$APP_DOMAIN/health/live`
-   `curl -fsS https://$APP_DOMAIN/health/ready`
+   `make prod-health`
 
 ## Normal Deploy
 
 1. Run a backup:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend python scripts/backup.py`
+   `make prod-backup`
 2. `git pull`
 3. Confirm the shared host `cloudflared` route and Re7 Caddy vhost are still present.
-4. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build`
+4. `make prod-build`
 5. Run one-off migrations:
-   `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate`
-6. `docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d`
-7. Check `curl -fsS -H 'Host: re7.example.com' http://re7.internal/health/ready`
-8. Check `https://$APP_DOMAIN/health/ready`
+   `make prod-migrate`
+6. `make prod-up`
+7. Check `make prod-health-local`
+8. Check `make prod-health`
 9. Run the smoke test checklist below.
 
 ## Rollback

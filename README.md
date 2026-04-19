@@ -33,6 +33,21 @@ Fill in at least:
 - `WORKOS_API_KEY`
 - `SECRET_KEY`
 
+## Make Targets
+
+The repo ships with a root [Makefile](/home/debian/Re7/Makefile) for the common local checks and production deploy flow.
+
+```bash
+make check
+make test
+make local-up
+make tailscale-up
+make prod-deploy
+make prod-version
+```
+
+Production builds stamp both images with the current git SHA and expose it as `APP_GIT_SHA` inside the running containers. `make prod-deploy` rebuilds with the current SHA, runs migrations, and recreates the containers so the new images are actually running.
+
 ## Localhost
 
 ```bash
@@ -112,9 +127,9 @@ Start the app stack:
 
 ```bash
 cp .env.vps.example .env.vps
-docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml build
-docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml run --rm backend --migrate
-docker compose --env-file .env.vps -f docker-compose.yml -f docker-compose.prod.yml up -d
+make prod-build
+make prod-migrate
+make prod-up
 ```
 
 For one-off bootstrap tasks, the backend image accepts entrypoint flags:

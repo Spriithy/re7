@@ -1,11 +1,16 @@
 FROM python:3.12-slim
 
+ARG GIT_SHA=dev
+
+LABEL org.opencontainers.image.revision=$GIT_SHA
+
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     HOME=/home/app \
-    BUNDLED_UPLOADS_DIR=/app/bundled_uploads
+    BUNDLED_UPLOADS_DIR=/app/bundled_uploads \
+    APP_GIT_SHA=$GIT_SHA
 
 WORKDIR /app
 
@@ -17,7 +22,7 @@ RUN pip install --no-cache-dir .
 COPY . .
 
 RUN groupadd --gid 10001 app \
-    && mkdir -p /app/bundled_uploads \
+    && mkdir -p /app/uploads /app/bundled_uploads \
     && cp -R /app/uploads/. /app/bundled_uploads/ \
     && useradd --uid 10001 --gid app --create-home --home-dir /home/app app \
     && mkdir -p /app/data /app/uploads /app/backups \

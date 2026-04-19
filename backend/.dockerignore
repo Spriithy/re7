@@ -9,4 +9,7 @@ __pycache__
 .git
 re7.db
 backups
-uploads
+uploads/*
+!uploads/categories/
+uploads/categories/*
+!uploads/categories/*.jpg

@@ -2,6 +2,8 @@ services:
   backend:
     build:
       context: ./backend
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
     security_opt:
       - no-new-privileges:true
     cap_drop:
@@ -33,6 +35,8 @@ services:
   frontend:
     build:
       context: ./frontend
+      args:
+        GIT_SHA: ${GIT_SHA:-dev}
     security_opt:
       - no-new-privileges:true
     cap_drop:

@@ -1,6 +1,11 @@
 FROM oven/bun:1
 
-ENV HOME=/home/bun
+ARG GIT_SHA=dev
+
+LABEL org.opencontainers.image.revision=$GIT_SHA
+
+ENV HOME=/home/bun \
+    APP_GIT_SHA=$GIT_SHA
 
 WORKDIR /app
 
