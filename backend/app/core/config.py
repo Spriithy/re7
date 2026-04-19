@@ -76,6 +76,7 @@ class Settings(BaseSettings):
     app_public_origin: str = "http://localhost:3000"
     api_public_origin: str = "http://localhost:8000"
     uploads_dir: Path = base_dir / "uploads"
+    bundled_uploads_dir: Path = base_dir / "uploads"
     backup_dir: Path = base_dir / "backups"
     seed_default_categories_on_startup: bool = False
 

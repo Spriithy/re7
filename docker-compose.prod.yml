@@ -10,7 +10,7 @@ services:
       TRUSTED_HOSTS: ${APP_DOMAIN}
       DATABASE_URL: ${DATABASE_URL:-sqlite+aiosqlite:////app/data/re7.db}
       BACKUP_DIR: ${BACKUP_DIR:-/app/backups}
-    ports: []
+    ports: !reset []
     expose:
       - "8000"
     volumes:
@@ -28,7 +28,7 @@ services:
       VITE_HOST: 0.0.0.0
       VITE_ALLOWED_HOSTS: ${APP_DOMAIN}
       VITE_WORKOS_REDIRECT_URI: https://${APP_DOMAIN}/callback
-    ports:
+    ports: !override
       - "${FRONTEND_BIND_HOST:-127.0.0.1}:${FRONTEND_PUBLIC_PORT:-3400}:3000"
     restart: unless-stopped
 

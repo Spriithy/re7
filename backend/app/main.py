@@ -18,6 +18,7 @@ from app.core.database import async_session_maker, create_tables
 from app.core.security import get_password_hash
 from app.models.user import User
 from app.seeds.default_categories import seed_default_categories
+from app.services.bundled_uploads import sync_bundled_uploads
 
 logging.basicConfig(
     level=os.getenv("LOG_LEVEL", "INFO").upper(),
@@ -31,13 +32,13 @@ async def seed_demo_user() -> None:
         return
 
     async with async_session_maker() as session:
-        result = await session.execute(select(User).where(User.username == "theo"))
+        result = await session.execute(select(User).where(User.username == "demo"))
         existing = result.scalar_one_or_none()
 
         if existing is None:
             theo_user = User(
-                username="theo",
-                password_hash=get_password_hash("theo123"),
+                username="demo",
+                password_hash=get_password_hash("demo123"),
                 is_admin=True,
             )
             session.add(theo_user)
@@ -96,6 +97,7 @@ async def lifespan(app: FastAPI):
         },
     )
     ensure_uploads_directory()
+    sync_bundled_uploads()
     await verify_schema_state()
 
     if settings.should_seed_default_categories:
